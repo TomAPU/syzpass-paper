@@ -1,0 +1,117 @@
+\section{Background and Related Work}
+
+
+
+% \subsection{Memory Spraying Techniques}
+
+
+
+%\subsection{Kernel Exploit}
+
+% \subsection{Syzkaller and Syzbot}
+
+% \subsection{Primitive Discovery}
+% \subsection{Side Effects}
+
+% Primitive discovery. This will set up the limitations of SyzScope/Grebe -- too many primitives but not clear which ones will become side effects.
+
+% Side effects. Cite some previous exploits.
+
+\iffalse
+\subsection{Distinction Between Side Effects and Primitives}
+Side effects refer to unintended memory operations that do not contribute to the functionality of an exploit, and primitives are those which do contribute. 
+We can analyze the behaviors and directly decide some unintended memory operations to be side effects. For example, if there is an unintended memory operation trying to access a NULL pointer, then it is definitely harmful for the exploit and can be safely determined as a side effect. 
+
+However, many side effects have no behavior difference from primitives. And sometimes the same unintended memory operation can be a primitive under one exploit strategy, but a side effect under another exploit strategy. 
+% whether an unintended memory operation contributes to the exploit 
+% The property of a memory operation
+% highly depends on the exploit strategy chosen by the attacker.
+For example, if a vulnerability provides both control flow hijack and arbitrary address write as potential primitives, and the attacker chooses the control flow hijack as the primitive to develop an exploit, then the arbitrary address write becomes a side effect. Thus, it is infeasible to define side effects solely based on the behavior of a memory operation. So in this paper, we treat all unintended memory operations that can not be directly determined by their behaviors as potential primitives. 
+
+Meanwhile, in practice, attackers rarely use more than one primitive in a single vulnerability trigger, because different primitives typically require different kernel memory layouts, which is hard to achieve at once. Should an attacker need two primitives, they would rather trigger the vulnerability twice and leverage one primitive each time.
+
+% Thus, in this paper, we do not choose primitives directly based on the behavior of the unintended memory operation and leave the freedom of choosing the exploit strategy to the exploit developer. Instead, we treat all potential primitives equally. For each of them, we assume them as the primitive chosen by the attacker and treat all other unintended memory operations as side effects and try to minimize them. 
+% Thus, in this paper, we do not assume the property of an unintended memory operation.
+% Instead, we regard any unintended memory operation as potential.
+
+Thus, in this paper, we \textbf{do not} select primitives based on the behaviors of unintended memory operations. Instead, we leave the freedom of choosing the exploit strategy to the exploit developer and treat all potential primitives equally. For each potential primitive provided by the vulnerability, we assume the attacker chooses it as the primitive for the exploit, then treat all other unintended memory operations as side effects to be minimized
+\fi
+
+
+\subsection{Syzkaller and Syzbot}
+%\zhiyun{move this subsection to the end of background.}
+Syzkaller\cite{syzkaller} is a state-of-the-art fuzzing framework designed specifically for fuzzing the Linux kernel. It uses syscall description templates to generate test cases, executing them on a target Linux kernel to identify potential vulnerabilities. Moreover, it performs test case mutation based on coverage feedback to further explore deeper code blocks. Once a bug is detected, Syzkaller will attempt to reproduce the bug and automatically generate both Syzlang-based and C-based proof-of-concept (PoC) exploits.
+
+Syzbot\cite{syzbot} is a fuzzing cluster operated by Google that comprises 24 instances\cite{bursey2024syzretrospector} running Syzkaller to continuously fuzz the Linux kernel. It has discovered more than 17,000 bugs in the Linux kernel, and over 3,400 commits directly mention it~\cite{LinuxPlu99:online}. Given that Syzbot has not only uncovered a vast number of bugs but also provides detailed information for each bug with the associated kernel commit, kernel configuration, and PoC, we select bugs discovered by Syzbot as our evaluation dataset.
+
+\subsection{Automated Exploit Generation for Linux Kernel Bugs}
+% Automated exploitation generation (AEG) for Linux kernel is inherently difficult. 
+% The ultimate goal of automated exploitation generation (AEG) is to fully automate the generation of end-to-end kernel exploits.
+Automated exploitation generation (AEG) \cite{avgerinos2014automatic} aims to both automatically identify exploitable primitives and generate working exploits, facilitating security experts to triage vulnerabilities.
+It is still an open challenge due to its inherent complexity, and most of the existing work on Linux kernel AEG focuses on individual stages of the exploitation process or certain types of vulnerabilities, providing building blocks for AEG.
+
+\noindent\textbf{Primitive Discovery.} GREBE \cite{lin2022grebe} and SyzScope \cite{zou2022syzscope} target primitive discovery in kernel vulnerabilities. For each discovered primitive, SyzScope further extracts its capability.
+
+\noindent\textbf{Kernel Heap Manipulation.} Heap manipulation is critical in exploiting heap-based vulnerabilities.
+It could be performed at object-level  \cite{chen2019slake} or page-level \cite{pagespray} seen at cross-cache attacks.
+Various techniques are proposed to improve its stability and chance of success \cite{zeng2022playing, lee2023pspray, maar2024slubstick}, including using timing side channels against the SLUB allocator.
+% Additionally, kernel memory manipulation technique (\cite{zeng2022playing, pagespray}) is an important exploit building block to study.
+
+\noindent\textbf{Primitive Pivoting.} Pivoting a primitive is crucial especially when the initial primitive is weak.
+Primitive transition and upgrade are usually done by corrupting sensitive kernel objects.
+There are a lot of research on identifying sensitive kernel objects \cite{chen2019slake, chen2020systematic, wang2023alphaexp, xie2025bridgerouter, wang2023alphaexp} and using them to pivot a primitive to get more severe ones (e.g., infoleak, arbitrary read and arbitrary write).
+
+% \noindent\textbf{Return-Oriented Programming.} KEPLER \cite{kepler} and RetSpill \cite{zeng2023retspill} construct ROP chains within the kernel.
+
+\noindent\textbf{Exploit Synthesis.} FUZE \cite{wu2018fuze} computes heap spray payload for UAF vulnerabilities by performing symbolic execution.
+KOOBE \cite{chen2020koobe} utilizes symbolic execution-based capability extraction for OOB vulnerabilities and synthesizes exploits using prebuilt memory spraying templates.
+However, these approaches lack support for flexible multi-step primitive transitions and do not generate end-to-end exploits capable of bypassing all modern security mitigations.
+
+
+
+
+
+
+\subsection{Automated Exploit Primitive Discovery for Linux Kernel}
+Served as the starting point for exploit construction, primitive discovery is one of the most essential aspects of AEG, and it must be performed on a per-vulnerability basis. GREBE \cite{lin2022grebe} identifies key objects related to a given vulnerability and uses them as fuzzing feedback to discover alternative paths or kernel contexts to trigger the same vulnerability, revealing the high-risk primitives of a seemingly low-risk vulnerability.
+Similarly, SyzScope \cite{zou2022syzscope} also performs fuzzing by enabling related system calls to explore more bug contexts.
+% potentially escalating a seemingly low-risk vulnerability into a high-risk one.
+While GREBE cannot uncover primitives behind the initial memory corruption, SyzScope, the state-of-the-art primitive discovery solution, goes beyond the initial primitive to reveal subsequent primitives by leveraging symbolic execution. For each revealed primitive, SyzScope also provides the control-flow and kernel context that leads to the primitive.
+
+The goal of both frameworks is to discover more primitives for a given vulnerability in order to judge whether its risks may be underestimated. However, they lack reasoning on whether the discovered primitives are truly feasible for exploitation, leaving a gap between potential risks and true exploitability. We illustrate this in \S~\ref{other_tool_problem}.
+
+% As a result, they face practicality issues, leaving a gap between potential risks and true exploitability.
+
+% Its goal, however, is to enumerate all possible primitives in order to identify bugs whose risks may be underestimated. As a result, it focuses on enumeration without reasoning about the feasibility of using those primitives for actual exploit development, leaving a gap between potential risk and true exploitability.
+
+% it chosen the primitive and treat all other unintended memory operations as side effects to be minimized and generate concrete strategy for triggering the potential primitive.
+
+
+
+
+
+
+% We make two key observations about side effects in kernel exploit development:
+
+% \begin{enumerate}
+%     \item \textbf{Lack of Technical Distinction:} Both exploit primitives and side effects stem from unintended memory operations. Their classification depends solely on the attacker’s strategy. For example, if a vulnerability enables both a control flow hijack and an arbitrary address write, and the attacker chooses the control flow hijack as the primary primitive, then the arbitrary address write is regarded as a side effect.
+    
+%     \item \textbf{Practical Exploitation Strategy:} In practice, attackers rarely use more than one primitive in a single trigger. Using multiple primitives typically requires different kernel memory layouts, which is hard to achieve simultaneously. Therefore, attackers focus on isolating one robust primitive and work to manage or eliminate the unwanted side effects.
+% \end{enumerate}
+
+
+% Despite the importance of mitigating side effects, their definition remains ambiguous, as it depends on the attacker's chosen exploitation strategy. For instance, if there is a control flow hijack memory operation in the vulnerability, it is generally viewed as a primitive, but if the attacker chooses to use the arbitrary memory write primitive in the same syscall as the exploit strategy, the control flow hijack becomes a side effect. On the other hand, practically, the attacker would not leverage two primitives at one triggering of the vulnerability. Thus, in this paper, we aim to  
+
+
+
+
+% \subsection{Motivating Example}
+
+
+
+% High-level solution. Side effect avoidance and neutralization. 
+
+% Why we choose fuzzing to avoid side effects, for example.
+
+
+

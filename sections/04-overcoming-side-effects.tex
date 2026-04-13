@@ -1,0 +1,181 @@
+\section{Overcoming Side Effects}
+In this section, we illustrate avoidance and neutralization as two generic strategies for solving side effects under the motivating example. We further analyze the limitations of existing primitive discovery frameworks under side effects.
+
+\subsection{Side Effect Avoidance} % via Syscall Adjusting 
+% Make subsubsec about syscall/spray
+
+% In the motivating example bug, The attacker can adjust the syscalls or their arguments to change the context of the vulnerability \cite{zou2022syzscope}. Thus, syscall adjusting can naturally influence the vulnerability behaviors and avoid side effects.
+
+The most intuitive way to mitigate side effects is to identify \textit{alternative execution paths} that avoid triggering them while still triggering the desired primitive. However, since an attacker does not know ahead of time which primitive to pick for exploitation and which effects would become side effects, it is generally a good idea to explore as many alternative execution paths as possible. In particular, there are two kinds of attacker-controllable input in an exploit that can determine the execution path: (1) syscall sequence and arguments, and (2) memory contents introduced through heap spraying. Both can influence the execution path. We thus further categorize the side effect avoidance into the following two types:
+
+\vspace{0.015in}
+\noindent\textbf{Avoidance by Syscall Adjustments.}
+Syscall adjustments can change the context in which a bug is triggered ~\cite{zou2022syzscope}. This context shift may invoke a different vulnerability-triggering function, resulting in substantial changes in vulnerability behavior. In other cases, the effect is subtler: syscall changes perturb only local variables yet still influence control-flow decisions far from the initial memory corruption site. Overall, these context-induced variations can aid side-effect avoidance by steering execution onto alternative paths.
+
+% Thus, an attacker can carefully craft the vulnerability triggering syscall sequence to prevent the kernel from entering side effect triggering code, thus avoiding side effects.
+
+Going back to the motivating example and Figure~\ref{fig:motivating}, if the attacker intends to leverage the CFH primitive to exploit the vulnerability, regardless of whether it is in \texttt{syscall\_A()} or \texttt{syscall\_B()}, there is a corresponding AAW effect can be a side effect and needs to be avoided.
+
+To do so, the first observation is that \texttt{syscall\_A()} is better than \texttt{syscall\_B()}, since the AAW effect at \circled{3} is unavoidable when using \texttt{syscall\_B()}. In contrast, the AAW effect at \circled{5} can be avoided if the arguments of \texttt{syscall\_A()} are adjusted properly, i.e., by setting \textcolor{DarkGreen}{\texttt{arg1}} to zero, which can influence the \texttt{if} statement at \circled{4}, and thereby bypassing the AAW side effect at \circled{5}.
+
+\vspace{0.015in}
+\noindent\textbf{Avoidance by Memory Spraying.}
+When a vulnerability is triggered, the kernel enters a ``weird machine'' state \cite{weirdmachine}. In this state, the code no longer follows its intended behavior. Instead, it accesses unintended memory regions, including areas belonging to attacker-sprayed kernel memory, which can also alter the control flow and potentially avoid side effects.
+%So the attacker can leverage heap spraying and heap feng shui techniques to guide unintended memory accesses to the sprayed memory, redirecting the control flow to avoid side effects.
+
+Suppose, in the motivating example, the attacker wants to develop an exploit by leveraging an AAW primitive, which means that the CFH becomes a side effect and should be avoided. Looking at \texttt{syscall\_A()} and \texttt{syscall\_B()}, we can see both have an AAW primitive. However, \texttt{syscall\_A()} is less preferred in this case because the CFH primitive cannot be avoided, unlike in \texttt{syscall\_B()}.
+
+
+To avoid the CFH side effect in \texttt{syscall\_B()}, the attacker first creates a dangling \textcolor{red}{\texttt{obj}} pointer, then sprays memory so the bytes overlapping \textcolor{red}{\texttt{obj}}\texttt{->field} are \texttt{0x0}. When \texttt{syscall\_B()} is invoked, execution at \circled{7} follows \circled{9} instead of \circled{8}, thus avoiding CFH.
+
+
+% the attacker invokes \texttt{syscall\_B()} and seeks to avoid CFH at \circled{8}. To prevent the kernel code from stepping into \circled{8}, the attacker expect \textcolor{red}{\texttt{obj}}\texttt{->field} be zero. Since \textcolor{red}{\texttt{obj}} is a dangling pointer, its value can be controlled by the attacker via heap spraying. Thus, with this knowledge, the attacker can carefully craft sprayed memory content and nullify \textcolor{red}{\texttt{obj}} to avoid the CFH side effect at \circled{8}
+
+
+% the attacker can manipulate its content by memory spraying and nullify \textcolor{red}{\texttt{obj}}\texttt{->field} to make the kernel jump over \circled{8} and avoid side effects. 
+
+\subsection{Side Effect Neutralization}
+In addition to avoidance, side effects can also be addressed through neutralization, a strategy that allows side effects to occur while minimizing their consequences. In our setting, the primary objective is to prevent invalid memory accesses caused by invalid pointer dereferences that could lead to a kernel crash.
+
+
+In the motivating example, suppose the attacker wants to exploit the CFH primitive. Instead of calling \texttt{syscall\_A()} to avoid the AAW side effect, the attacker can invoke \texttt{syscall\_B()} and neutralize the AAW at \circled{3}. 
+
+To make AAW safe, the attacker must provide a valid writable kernel pointer at the dereference site. A standard approach is to spray objects with a pointer field at the exact dereferenced offset \cite{SETTLERS66:online,Onedaysh20:online}. By selecting the spray object layout, the attacker places a valid kernel address there, which becomes the write target and avoids an invalid dereference.
+
+% In practice, attackers identify and verify suitable spray targets through manual analysis~\cite{SETTLERS66:online}.
+
+
+
+
+
+
+% In our motivating example, if the attacker plans to exploit the CFH primitive, instead of using \texttt{syscall\_A()} to avoid the AAW effect, an alternative effective approach is invoking \texttt{syscall\_B()} but neutralize the AAW effect at \circled{3}. For such an AAW effect, the attacker needs to feed a valid kernel pointer to the code to ensure the AAW effect happen without crashing the kernel. The typical way of doing this is 
+% when choosing the memory object to spray, the attacker chooses the one with suitable memory layout, where a valid writable pointer reside and will be used in the AAW under proper heap feng shui.In practice, attackers typically identify and verify such objects manually through extensive analysis \cite{SETTLERS66:online}.
+
+
+
+
+% with \texttt{syscall\_B()} without crashing the kernel, they is to find a memory object with a pointer placed at the suitable memory offset,  
+
+
+
+% \subsection{Sprayed Memory Manipulation}
+% When a vulnerability is triggered, the kernel can enter a “weird machine” state \cite{weirdmachine}. Under such circumstances, code no longer behaves according to the kernel's original design, instead, it fetches memory that it shouldn't access and influenced by these memory. Thus, the attacker can spray memory objects and alter the vulnerability's behaviors to bypass side effects. In particular, by memory spraying, the attacker can apply two approaches two avoid or mitigate side effects:
+
+
+% \noindent\textbf{1. Influencing Execution Path with Crafted Sprayed Memory.}
+
+
+% \noindent\textbf{2. Neutralizing Side Effects with Suitable Memory Objects.}
+
+
+
+
+
+
+
+
+
+
+% Despite  \texttt{recvfrom()} to trigger the vulnerability, the \texttt{\_\_skb\_unlink(skb)} still appears unless the attacker set \texttt{MSG\_PEEK} in the syscall argument to make \textcolor{DarkGreen}{\texttt{flags}} 
+
+% To avoid \texttt{\_\_skb\_unlink(skb)}, the attacker needs only to use \texttt{recvfrom()}  to trigger the vulnerability, they also need to set the \textcolor{DarkGreen}{\texttt{flags}} parameter as \texttt{MSG\_PEEK} in the syscall argument. 
+
+% Despite triggering the bug with \texttt{close()} may grant the attacker with control flow hijack capability by forging the \texttt{skb->destructor} function pointer. If the attacker plans to exploit the vulnerability with control flow integrity (CFI) enabled or simply can not find suitable return oriented programming (ROP) gadget, the attacker  
+
+
+% Goal oriented
+% \subsection{Exposing more effects}
+% So many syscalls, we can't do symbolic execution on that, so still, we need do fuzzing to expose more effects. The more effects we discover, the higher chance that one of them being useful.
+
+% \subsection{Path Exploration}
+% Symbolic execution on fuzzed results. But we are doing it in a way that aims to avoid side effects.
+% \subsection{Side Effects Avoidance}
+% % Fuzz+SymExec
+% %Fuzz: lowerbound effects? A+B+C effects vs A & B Only
+% The most straightforward way to conquer side effects is to find an alternative feasible path that simply does not trigger side effects. To achieve this, an attacker can either adjust syscalls and their arguments to change the way the bug being triggered or manipulate sprayed memory to steer the weird machine after triggering the bug.
+
+% \subsubsection{Branch Set Differentiated Fuzzing}
+
+% To find different ways to trigger the bug, we need to explore the vast search space of syscalls and arguments. Fuzzing can mutate syscalls and arguments based on the original PoC, being demonstrated capable of discovering hidden primitives of the same bug.\cite{zou2022syzscope} \cite{lin2022grebe} \cite{tan2023syzdirect}. 
+
+% However, existing fuzzing technique is not fine grained enough to serve the purpose of side effects avoidance. It wouldn't differentiate two variants of PoC if their first error behavior is the same, even if they'll behave drastically differently after that. As a result, different variants would be classified as the same PoC, stopping us from differentiating them and avoiding potential side effects.
+
+% Take the example of the 380a bug \cite{380abug} in the motivating example, modifying the length of the syscall recv that triggers the use of the invalid SKB data seemingly wouldn't make a a difference, since the first error would be "\_\_skb\_try\_recv\_from\_queue+0x7c0/0x940". 
+
+% \begin{lstlisting}[language=C]
+% papstatic int packet_recvmsg(struct socket *sock, struct msghdr *msg, size_t len,
+% 			  int flags)
+% {
+%     //Trigger the first error behavior
+%     skb = skb_recv_datagram(sk, flags, flags & MSG_DONTWAIT, &err);
+%     ...
+%     packet_rcv_vnet(msg, skb, &len);
+% }
+% static int packet_rcv_vnet(struct msghdr *msg, const struct sk_buff *skb,
+% 			   size_t *len)
+% {
+%     struct virtio_net_hdr vnet_hdr;
+%     if (*len < sizeof(vnet_hdr))
+%         return -EINVAL;
+%     ...
+%     //Pointer dereferences
+%     virtio_net_hdr_from_skb(skb, &vnet_hdr, vio_le(), true, 0)
+% }
+% \end{lstlisting}
+
+% However, different length argument passed into recv syscall would cause different execution flows, thus be able to avoid side effects in packet\_recvmsg since smaller offsets would be considered invalid, and not being used to copy data to the userspace,
+
+% Thus, as a result, we proposed a novel technique named "Effect Aware Fuzzing". Instead of logging the first major effect of a same bug, our novel technique log the trace of KASAN report as a heuristic way to differentiate different bugs. 
+
+% % To enlarge the search space, we should not stick to the original PoC, instead, we use kernel fuzzing technique to expose as more ways to trigger the bug as we can. However, different from traditional fuzzing technique 
+
+
+% % Side effects avoiding is about manipulating data to not trigger side effects. This can be achieved by carefully selection of syscalls, arguments, and sprayed data. For a same vulnerability, there are multiple syscalls to trigger it, thus causing different effects. Thus, we may want to find the syscall and corresponding arguments with least side effects. However, static analysis based approaches introduce significant false positive which hinders precise analysis. Thus we chose fuzzing as our approach to discover potential ways to trigger the bug.
+
+% % Exisisting works on fuzzing has serious problem of differentiate seeming similar seeds that trigger the same bug. 
+
+% \subsection{Memory Layout Centered Side Effects Neutralizing}
+% Matching with object.
+
+\subsection{The Blind Spots of Existing Primitive Discovery Frameworks} 
+\label{other_tool_problem}
+
+A key blind spot of existing primitive discovery frameworks like GREBE and SyzScope is that they do not reason about side effects at all. These tools primarily focus on identifying as many observable effects as possible, treating them uniformly as usable primitives, i.e., all effects are considered potential primitives. However, not all such effects are equally exploitable, as we demonstrated in the motivating example. 
+%some may interfere with others or introduce unintended consequences that render an exploit unworkable. 
+Without analyzing the interactions between effects or accounting for side effects that can invalidate otherwise promising primitives, these frameworks risk presenting a misleading view of exploitability. In essence, they prioritize coverage and reporting over actionable guidance, leaving attackers to manually untangle the dependencies and constraints needed to handle side effects.
+
+
+Let us consider an attacker who uses GREBE or SyzScope to find primitives and focuses on leveraging AAW primitives for exploitation. As a fuzzer-based framework, GREBE identifies that both \texttt{syscall\_A()} and \texttt{syscall\_B()} can trigger the bug, but leaves follow-up analysis to the attacker. SyzScope can successfully discover subsequent effects after the initial corruption, on either path \circled{1}→\circled{2}→\circled{4}→\circled{5} or \circled{1}→\circled{3}, depending on which is exercised first in its symbolic execution. However, three design-level limitations prevent them from analyzing side effects or offering practical guidance for exploit development.
+
+
+
+\noindent\textbf{1. Low Sensitivity in Exploring Vulnerability Contexts:} Both frameworks mutate the original PoC to explore new contexts, detecting significant changes like a different triggering function in vulnerability contexts. This allows them to find that both \texttt{syscall\_A()} and \texttt{syscall\_B()} can trigger the bug. However, they lack sensitivity to subtle changes in \textcolor{DarkGreen}{\texttt{args}}, which affect the context at \circled{4} after the initial corruption at \circled{1}. This limits their ability to discover alternative paths by adjusting syscall arguments.
+
+\noindent\textbf{2. Incomplete Execution Path Exploration:} Although SyzScope sees multiple effects on one path, its incompleteness lacks support for sprayed memory manipulation-based avoidance. First, SyzScope only tracks the first path it exercises for a given primitive, rendering it potentially overlooking alternative paths leading to the same primitive. In this example, if path \circled{1}→\circled{2}→\circled{4}→\circled{5} is exercised first, the better path \circled{1}→\circled{3} is ignored and discarded (note that \circled{3} and \circled{5} are both AAW effects). Second, SyzScope does not enforce execution through syscall completion and therefore can miss behaviors, e.g., \circled{3}→\circled{7}→\circled{9}, failing to help address post-primitive side effects.
+
+\noindent\textbf{3. Overestimation of Pointer Forging:} SyzScope, based on symbolic execution, assumes the attacker can forge arbitrary levels of kernel pointers in sprayed memory. This means that if all pointer dereferences, e.g., \texttt{*(obj->ptr)} or \texttt{*(obj->f->ptr)}, are all reported as primitives. However, when multiple such primitives or effects are present in the same execution path, some of them are bound to become side effects. Consequently, primitives and their associated paths found by SyzScope may be impractical for real-world exploits, because they do not attempt to neutralize such side effects by spraying appropriate heap objects.
+
+
+
+
+
+
+% of \circled{1}→\circled{2}→\circled{4}→\circled{5} and \circled{1}→\circled{2}→\circled{4}→\circled{6} caused by the.
+
+
+
+
+% Existing primitive discovery frameworks exhibit limitations in generating practical guidance. Since GREBE only catches the first memory corruption effect in each syscall sequence, it can hardly discover more effects behind it (e.g., CFH in the motivating example), let alone analyzing them. 
+
+% SyzScope models memory operations behind the first memory corruption to uncover more primitives. For each primitive, SyzScope identifies its presence and provides a single associated path. Take the AAW primitive as an example, SyzScope reports its existence and a single potential path (i.e., \circled{1}→\circled{2}→\circled{4}→\circled{5} or \circled{1}→\circled{3}). However, several design level issues hampers its practicality:
+
+% \noindent\textbf{1. Lack}
+
+
+% SyzScope models memory operations behind the first memory corruption to uncover more primitives, but still face limitations. For each primitive, SyzScope merely identifies its presence and provides a single associated path with no attempt at deeper analysis. Take the AAW primitive as an example, SyzScope reports only its existence and a single potential path (i.e., \circled{1}→\circled{2}→\circled{4}→\circled{5} or \circled{1}→\circled{3}). This design limits the practicality of SyzScope.
+
+
+% However, it provides no guarantee that the reported path's side effects can be resolved in practice. This is because SyzScope implicitly assumes the attacker can forge arbitrary levels of pointer indirection in the sprayed memory, neutralizing side effects silently. But this assumption does not hold in the real world. Moreover, SyzScope fails to link each primitive to its subsequent execution trajectory (e.g., \circled{5}→\circled{6}, \circled{3}→\circled{7}→\circled{9}, etc.), thereby missing the downstream effects behind the primitive entirely. As a result, SyzScope’s primitive reports offer very limited value for exploit development.
+
+

@@ -1,0 +1,121 @@
+\section{Introduction}
+
+Linux kernel stands as a cornerstone of modern computing, underpinning countless servers, mobile devices, and IoT devices.
+Thus, the Linux kernel has been a popular attack target, and its exploitation is even encouraged by organizations such as Google~\cite{kctf} and ZDI~\cite{zdi}, which helps understand the limitations of the latest mitigations.
+
+%Numerous studies have specifically targeted the exploitability of the kernel, introducing innovative techniques for kernel exploits~\cite{dirty_cred}, expanding the attack surface~\cite{slake}, and enhancing the stability of exploits~\cite{KHeap}.
+%However, not every bug is exploitable. It is well-known that bugs that have high-risk primitives are likely to be exploited~\cite{syzscope}, \eg use-after-free write, double-free.
+
+
+%The Linux kernel stands as a cornerstone of modern computing, underpinning countless servers, mobile devices, and IoT devices. Successful exploitation of vulnerabilities within the Linux kernel allows attackers to achieve privilege escalation in these systems, posing a significant threat to their security. Consequently, it has become increasingly important to conduct research into developing exploits for the Linux kernel.
+%  known as \textit{effects}
+
+In particular, this has led to the development of automated kernel exploit generation techniques~\cite{zou2022syzscope, syzbridge, wang2023alphaexp, lin2022grebe, chen2020koobe, fuze_exp, AEM}, which attempt to automate the various stages of exploit development. 
+One of the first steps in the exploit development is to automatically discover exploit primitives from a given bug. Based on the severity of the primitives~\cite{zou2022syzscope, lin2022grebe}, e.g., control flow hijack or arbitrary address write, one can estimate the exploitability of a bug. %These bugs are based on some notion of ``exploitability'', \eg uncovering high-risk exploit primitives.
+The subsequent steps of exploit development follow a primitive-centric paradigm: the attacker pairs them with suitable heap objects to either derive more powerful primitives or achieve privilege escalation~\cite{wang2023alphaexp, chen2019slake, chen2020systematic, avllazagaj2024scavy, pagespray}.
+
+%Most exploitable kernel vulnerabilities stem from memory corruption. When memory corruption occurs, the kernel executes unintended memory operations. Such unintended memory operations, we denote as \textit{effects}, are the main factor contributing to the vulnerability’s exploitability.
+%\xiaochen{source of exploitability sounds weird}\juefei{Changed} 
+%From the attacker's perspective, the first step of exploit development is analyzing these effects and selecting suitable ones from them ~\cite{zou2022syzscope, lin2022grebe}. These selected effects are known as \textit{primitives}, which are the most important building block for the exploit. 
+%The subsequent steps of exploit development follow a primitive-centric paradigm: based on these primitives, the attacker pairs them with memory objects ~\cite{wang2023alphaexp, chen2019slake, chen2020systematic, avllazagaj2024scavy, pagespray}, and selects kernel memory manipulation techniques ~\cite{zeng2022playing} to ensure that the primitives operate on target memory objects and ultimately achieve privilege escalation.
+
+
+%For instance, to develop an exploit for CVE-2024-0582~\cite{CVE20240582}, the attacker first identifies use-after-free (UAF) read and write primitives from the bug. Next, given such exploit primitives, they choose the \texttt{file} structure as the target memory object. This structure contains the \texttt{f\_mode} field, which manages file permissions. Finally, the attacker triggers this primitive to corrupt the field, breaking file permissions to achieve privilege escalation through tampering with read-only files. 
+%\xiaochen{Feel like too much details in introduction?} \juefei{Changed}
+
+% Most vulnerabilities in the Linux kernel stem from memory corruption, which is the primary source of its exploitability. A suitable memory corruption behavior in a vulnerability that facilitate exploit grants an attacker a \textit{primitive} to operate kernel memory in an unintended way. And exploit development process follows a primitive centric paradigm. To develop a working exploit for a vulnerability, an exploit developer first identifies available primitives of the vulnerability~\cite{zou2022syzscope, lin2022grebe}, then pairs these primitives with memory objects~\cite{wang2023alphaexp, chen2019slake, chen2020systematic, avllazagaj2024scavy, guo2024take}, and finally selects kernel memory manipulation techniques ~\cite{zeng2022playing}  based on characteristics of the vulnerability, ensuring primitives can operate on target memory objects. 
+
+% This ensures that the primitives operate on the chosen target object and tamper with file permissions, ultimately allowing the attacker to tamper read-only files which lead to privilege escalation.
+
+
+
+%Side effects bad bad bad
+%\zhiyun{Highlight the fact that a single vulnerability has multiple effects. Some of them can become side effects and crash the system.}
+
+%—on average, more than 24 potential primitives per vulnerability \cite{zou2022syzscope}.
+
+% Typically, a vulnerability has multiple effects.  ``multiple-behavior'' characteristic offers attackers a greater opportunity to select suitable primitives, it can also pose challenges to exploit development due to \textit{side effects}. By \textit{Side effects}, we refer to unintended memory operations that do not facilitate exploit development, distinguished from unintended memory operations that do facilitate (\textit{i.e,} primitives)
+
+
+However, primitives are often not “clean” in real vulnerabilities. A single bug-triggering path can expose multiple primitives~\cite{zou2022syzscope,lin2022grebe}, only some of which are useful for a chosen exploit strategy. We call the remaining ones \textit{side effects}: primitives not selected for exploit construction that still modify memory and may crash the kernel.
+
+Side effects do not advance exploitation and can actively hinder it. For example, while a target primitive may corrupt the intended field of a target object, side effects may corrupt other fields and render that object unusable. In other cases, side effects may trigger invalid memory accesses, terminating the kernel thread or even panicking the kernel (as observed in real-world kernel exploit development~\cite{CVE-2024-41010,flippingpage}). As a result, successful exploitation requires not only leveraging a desired primitive but also neutralizing accompanying side effects.
+
+%This challenge appears in real exploits. In CVE-2024-41010~\cite{CVE-2024-41010}, the attacker abandons a strategy that uses UAF write to zero a reference counter, because a subsequent side effect dereferences the stale counter value as a pointer and crashes the system. In CVE-2024-1086~\cite{flippingpage}, the exploit similarly avoids using certain fields of the freed \texttt{skb} object to prevent kernel crashes.
+
+
+
+% Consequently, exploit developers must carefully handle these side effects during the exploit development process \cite{Escaping99:online, CVE2022284:online}.
+
+
+% Typically, a vulnerability has multiple effects. This multiple-behavior characteristic offers attackers a greater opportunity to find desired primitives from effects \cite{zou2022syzscope,lin2022grebe}. On average, there are 22 potential primitives in a vulnerability. However, besides primitives, effects also bring \textit{side effects}. By \textit{side effects}, we refer to these effects that are not useful for exploit development, distinguished from useful ones (\textit{i.e,} primitives). 
+
+
+
+
+
+
+
+% While this enables an attacker to pick suitable primitives from them, it can also hinder the process because not all unintended memory operations are useful. To distinguish them from useful unintended memory operations (\textit{i.e,} primitives), we refer to these useless unintended memory operations as \textit{side effects}. 
+
+% Side effects do not advance exploit development and may even impede it. For example, when a primitive corrupts the target field of the target memory object, side effects may corrupt other fields in that object, rendering it unusable. In other cases, these side effects may cause access to unmapped memory, leading to the termination of the kernel thread or even kernel panic. Consequently, exploit developers must carefully handle these side effects during the exploit development process \cite{Escaping99:online, CVE2022284:online}.
+
+% \zhiyun{Consider citing other exploits that encountered side effects. Concise description (1-2 sentences) that struggled with side effects or even did not overcome side effects.}
+In this paper, we undertake a systematic investigation aimed at automatically overcoming side effects, thereby enabling more effective exploit construction. At a high level, we identify two strategies for mitigating side effects. First, the attacker can vary either the bug-triggering syscalls or the sprayed memory, to alter the execution of the bug-triggering path and thus \emph{avoid} side effects. This is because the same bug may exhibit multiple behaviors, depending on the syscall argument values~\cite{lin2022grebe} and attacker-sprayed data~\cite{zou2022syzscope}. 
+Second, when side effects are unavoidable, the attacker may \textit{neutralize} them by carefully choosing memory objects with a desirable layout, e.g., placing a valid pointer at the location targeted by the side effect (dereferencing a pointer), thereby preventing unintended memory access or crashes.
+
+In this paper, we take a systematic step toward automatically taming side effects to make exploit construction substantially more practical. Our key observation is that side effects can be handled in two complementary ways.
+First, attackers can \textit{avoid} side effects by steering execution onto safer bug-triggering paths: changing syscall sequences/arguments or spray contents can induce different bug-triggering behaviors~\cite{lin2022grebe,zou2022syzscope}.
+Second, when avoidance is impossible, attackers can \textit{neutralize} side effects by shaping reclaimed memory with favorable layouts—for example, placing a valid pointer at a side-effect dereference site—so the execution continues without unintended faults. Together, these two strategies turn side effects from a brittle failure point into a manageable part of the exploitation workflow.
+
+
+
+% Despite handling side effects is crucial, previous works on per-vulnerability exploitability and 
+% Nevertheless, previous works on per-vulnerability exploitability analysis and exploit generation have not adequately considered this issue. GREBE \cite{lin2022grebe} conducts error behaviors exploration for single bug, but the architecture of fuzzing rendering it unable to 
+
+
+% Similar to primitives, side effects reside in specific unintended memory operations in each specific vulnerability. Thus, it should be modeled and handled on a per-vulnerability basis. However, previous works on Linux kernel vulnerability exploitability analysis have not adequately considered this issue. KOOBE \cite{chen2020koobe} models out-of-bounds write primitives only and does not support other types of primitives, and it does not address side effects neither. FUZE \cite{wu2018fuze} assumes that KASLR is disabled, allowing an attacker to forge kernel pointers directly and thus mitigate the impact of side effects. However, this assumption no longer holds because most Linux distributions now enable KASLR by default. SyzScope \cite{zou2022syzscope} analyzes exploit primitives yet implicitly assumes that an attacker can arbitrarily shape memory and forge kernel pointers.
+
+
+To this end, we develop a solution, dubbed SyzPass, to mitigate side effects by automating the aforementioned strategies. It can conduct fine-grained per-vulnerability analysis, discovering and modeling unintended memory operation behaviors. We evaluate SyzPass on 115 stable memory corruption bugs collected from Syzbot~\cite{syzbot}. Among the 1,350 discovered primitives, 594 are already usable without requiring our strategies, and SyzPass enables 312 additional primitives (from 39 unique bugs) by resolving their side effects. Notably, among 291 high-risk primitives (e.g., control-flow hijack and arbitrary-address write), SyzPass resolved 181 (62.2\%). To verify these results, we developed three kernel exploits for three different bugs (none of which had publicly available exploits), following the guidance of SyzPass analysis.
+
+%\xiaochen{This evaluation looks strange as SyzPass is not a AEG tool, why not mention how many side effect we bypass in order to develop exploit? And 3 out of 33 isn't a good ratio. We can say for example, out of 33 bugs, we detect 50 side effect, N of them must be bypass to achieve exploitability and to verify the results, we developed 3 end to end exploit}\juefei{Done}
+
+Our contributions are summarized as follows:
+
+\squishlist
+    \item \noindent We are the first to systematically study the side effect problem in kernel exploitation and propose corresponding strategies to overcome them.
+    %We recognize that side effects pose a barrier to exploit development. To address this, we propose two generic and complementary strategies: \textit{avoidance} and \textit{neutralization}.
+
+    \item \noindent We automate these strategies in a unified framework, SyzPass, which integrates fuzzing, symbolic execution, and object matching to implement the strategies.
+
+    \item \noindent We evaluate SyzPass on real-world vulnerabilities and demonstrate its effectiveness in enabling more usable primitives and exploit construction.
+
+    \item \noindent We will fully release the source code of SyzPass and documentation to facilitate future research and reproduction of the results.
+
+    %We apply SyzPass to 33 kernel bugs reported by Syzbot with no prior exploits and develop three working exploits under the guidance of SyzPass. The results show that SyzPass reliably discovers primitives and resolves side effects within them, enabling practical exploit development. We will release our code and documentation to facilitate future research.
+\squishend
+
+
+
+
+
+% Despite the importance of handling side effects, it's not well studied by previous works.SyzScope \cite{}
+
+% We define the side effects as unwanted memory access caused by the vulnerability. Unlike useful memory accesses which are generally referred to as primitives, side effects are useless for the purpose of exploitation. Not only useless, they are also hurdles for developing exploits. Some side effects stop the kernel's execution over the syscall, preventing it from reaching the code that triggers useful primitive. And some even cause a kernel panic. Thus, during the development of exploits, developers need to carefully deal with side effects. \cite{wu2018fuze} \cite{Escaping99:online} \cite{CVE2022284:online}.
+%Why it's a challenge
+
+% In the execution of the syscall that triggers the bug, side effects happen before or after the triggering of the primitive, and the general goal is to minimize the number and consequences of side effects while keeping primitives triggered. However, there are dependency relationships between these memory operations due to path and data dependencies. Such dependency relationships might be complicated given the vast possibilities of different sequences and arguments of syscalls and sprayed memories. But understanding them is crucial to achieve the goal.
+
+% Moreover, there are no clear technical distinctions between usable primitives and useless side effects. The same memory operation may be a primitive or a side effect in different situations. For example, dereferencing an attacker controllable function pointer is generally viewed as a useful primitive because this can lead to a control flow hijack. But without leakage of the code base, such dereferencing would be doomed to cause kernel panic so that it should be regarded as a side effect. 
+
+% However, existing research are on exposing as more primitives of a bug as possible without taking dependencies and needs into account.  
+
+% Moreover, pairing memory accessing with memory layout of sprayed objects is also a feasible technique to neutralize side effects, thus lowering consequences of side effects. However, despite there are previous works on collecting usable objects for developing kernel exploit, there are no study on finding objects specifically neutralize unwanted memory access.
+
+% To tackle these challenges, we developed SyzPass to explore primitives via symbolic execution. However, instead of collecting different primitives similar to traditional bug triaging tools\cite{zou2022syzscope}, our purpose is to search for feasible paths and data that purifies execution of primitive.
+
+% We also constructed our memory-layout centered object database based on fuzzing, which facilitates memory side effects neutralization.
+
+
+

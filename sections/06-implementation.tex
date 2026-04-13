@@ -1,0 +1,30 @@
+\section{Implementation}
+\noindent\textbf{1. Vulnerability Context Exploration.}  
+We extend Syzkaller and develop a concolic execution server based on Angr~\cite{shoshitaishvili2016sok} to support vulnerability context exploration. Syzkaller communicates with the concolic server via HTTP requests during fuzzing.
+
+Upon VM boot, the customized syzkaller issues a request to the concolic server, providing the VM’s GDB port. The server sets a breakpoint at the kernel's KASAN report function to capture memory corruptions. When a corruption is detected and the breakpoint is triggered, the server symbolizes the KASAN-reported memory region and constrains the symbolic state using the original concrete data to initiate concolic execution and generate branch sets. Simultaneously, after observing the KASAN output, syzkaller queries the server to retrieve the generated branch set.
+
+To ensure that fuzzing remains within the vulnerability context, we customize syzkaller’s mutation strategy by restricting mutations to the original PoC and its reproduced variants. The allowed syscall set is also confined based on the original PoC. This mutation strategy is consistent with prior efforts~\cite{zou2022syzscope}.
+%and integrates naturally into our overall pipeline.
+
+To conduct immediate post-dominator computation, we implement our own intra-procedural control-flow-graph (CFG) construction algorithm to avoid using Angr's heavyweight whole-program CFG generation mechanism. Specifically, we transform the graph and leverage \texttt{networkx}\cite{hagberg2008exploring} to compute immediate post dominators.
+
+We further improve fuzzing efficiency through additional optimizations. To reduce VM startup time, we create a memory snapshot of a fully booted system in a \texttt{ramfs} path, and modify Syzkaller to use this snapshot via QEMU arguments. This allows us to bypass the booting process during fuzzing iterations.
+
+% \noindent\textbf{2. Primitives Discovery and Side Effects Avoidance:}  
+% The technical implementation of this component is similar to the concolic execution server, also built upon Angr. To avoid path explosion, we limit the number of state forking which is a common practice for symbolic execution. We also serialize path information, primitive information, data constraints information of each path into pickle format, ensuring the interoperability with other components in our pipeline. To detect whether a state has reached the end of the syscall, we match the current instruction pointer's address to functions such as \texttt{do\_syscall\_64}. We also maintain a list of noisy but useless kernel functions to be hooked and ignored during symbolic execution. 
+
+\noindent\textbf{2. Primitive Discovery and Side Effect Avoidance.}  
+This component is implemented similar to the concolic execution server and is also built on Angr. To mitigate path explosion, we cap the number of state forks, following standard symbolic execution practices. Additionally, we maintain a list of noisy but semantically irrelevant kernel functions that are hooked and ignored during symbolic execution to reduce unnecessary branching.
+
+For interoperability across pipeline stages, we serialize each path's execution state --- including primitive metadata, path constraints, and data constraints --- into a pickled format. To identify when a state reaches the end of a syscall, we monitor the instruction pointer and match it against known function symbols such as \texttt{do\_syscall\_64()}. And to speed up the symbolic execution process, we disable KCOV in the target kernel, reducing the number of instructions to be executed.
+
+
+\noindent\textbf{3. Side Effects Neutralization Analysis.}  
+The object database plays a central role in side effect neutralization. We construct the list of sprayable kernel objects by referencing prior work~\cite{chen2019slake,chen2020systematic,wang2023alphaexp}. We use the \texttt{pahole} tool to analyze the \texttt{vmlinux} of the target kernel and parse its output using rule-based extraction to obtain the memory layout of different structures.
+
+% Tech oriented
+% Make a nice pic on two ways to conquer side effects (two box => two general ideas)
+
+%Fuzzer: how do we collect all effects of the seed(low level details) and see if the seed can trigger less effects.
+

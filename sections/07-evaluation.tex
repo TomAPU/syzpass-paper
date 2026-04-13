@@ -1,0 +1,365 @@
+\section{Evaluation}
+To evaluate our side effect avoidance and neutralization strategies, we formulate the two questions:
+
+\noindent\textbf{RQ1. How well does SyzPass resolve side effects by avoidance or neutralization strategy?}
+% How well does SyzPass facilitate exploit in general
+
+\noindent\textbf{RQ2. Can SyzPass assist in developing working exploits?}
+
+To answer these research questions, we evaluate SyzPass on real-world vulnerabilities discovered by Syzbot. Details about the evaluation are illustrated in \S~\ref{expset}
+
+
+
+\subsection{Experiment Setup}\label{expset}
+% We evaluate SyzPass on 33 kernel bugs collected from Syzbot, dated between 2018 and 2024. These bugs span various kernel subsystems, including \texttt{net}, \texttt{bpf}, and \texttt{netfilter}, to ensure comprehensive coverage.
+
+We collect our evaluation dataset from Syzbot by crawling kernel bugs reported between 2018 and 2025. We first exclude bugs without available PoCs, as our pipeline requires concrete inputs. Next, we retain memory corruption bugs only from by selecting only KASAN, ODEBUG, general protection fault ones. We further prune unstable cases by automatically compiling and rerunning each PoC, excluding bugs that cannot be stably reproduced and are left with 342 cases. Finally, we conduct symbolic execution for 4 hours on them to filter out cases which our symbolic executor can not reach the end of the bug triggering syscall/interrupt on any path. Finally, we have 115 memory corruption bugs which we test subsequently.
+
+For each bug, we run context exploration for 10 hours; afterwards, we allocate 4 hours for primitive discovery and side effect avoidance. Side effects neutralization is performed without a time limit, as it completes deterministically. We used the relaxed mode for the object matching for the side effects neutralization since it can fully leverage the object database.
+
+All experiments are conducted on Ubuntu 20.04.5 LTS with 2 TB memory and AMD EPYC 7542 32-Core Processor × 2 (total 64 cores). 
+
+
+% \subsection{Metrics}
+
+% Metrics: number of paths with primitives, number of primitives per path, etc.
+% \zhiyun{We should define unusable, likely usable, and usable primitives here.}
+
+
+\subsection{Overall Results}
+
+
+% Following the definition of prior work~\cite{zou2022syzscope}, we define following primtives: Constrained Value Write (CVW): writing a symbolic value with constraints to a fixed address (e.g., local variable); Arbitrary Value Write (AVW): writing a symbolic value without constraints to a fixed address; Constrained Address Write (CAW): writing some value to a symbolic address with constraints.
+% Invalid Free (IF): freeing memory that should not be freed or an already freed object; the remaining two primitive types AAW and CFH are explained in the motivating example. OOB/UAF Write (OUW): Write operation upon the OOB/UAF region.
+
+
+
+
+
+Table~\ref{tab:primitive-usability-breakdown} provides an aggregate breakdown of primitive instances by usability category.
+We classify each discovered primitive instance as \emph{not usable} if all explored paths exhibit lethal side effects (e.g., pointer dereference) and our mitigation strategies fail to remove them.
+Otherwise, a primitive instance is \emph{usable}, and we further attribute usability to one of three outcomes:
+(1) \emph{clean} if it is usable without SyzPass;
+(2) \emph{avoidance} if SyzPass makes it usable by exploring and selecting side-effect-free execution paths;
+or (3) \emph{neutralization} if SyzPass makes it usable by neutralizing otherwise unavoidable side effects via object matching.
+
+\begin{table}[t]
+  \centering
+  \small
+  \renewcommand{\arraystretch}{1.05}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{lrrrr}
+    \toprule
+    \textbf{Primitive} &
+    \textbf{Not Usable} &
+    \textbf{Avoidance} &
+    \textbf{Neutralization} &
+    \textbf{Clean} \\
+    \midrule
+    CVW/AVW & 263 & 37 & 92 & 470 \\
+    CAW     & 15  & 2  & 0  & 14  \\
+    OUW     & 92  & 29 & 33 & 83  \\
+    AAW     & 48  & 20 & 32 & 8   \\
+    CFH     & 16  & 3  & 32 & 7   \\
+    IF      & 10  & 7  & 25 & 12  \\
+    \midrule
+    Total   & 444 & 98 & 214 & 594 \\
+    \bottomrule
+  \end{tabular}}
+  \caption{Breakdown of primitives by usability category. CVW and AVW are grouped as one low-risk category.} 
+  \label{tab:primitive-usability-breakdown}
+\end{table}
+
+
+
+Overall, we observe 1,350 primitive instances across all analyzed bugs.
+Among them, 906 of them are usable, and 444 are not usable.
+Notably, SyzPass accounts for 312 of the 906 usable instances (98 by side-effect avoidance and 214 by side-effect neutralization), indicating that a substantial fraction of usability arises only after explicitly reasoning about and mitigating side effects. 
+
+If we focus on higher-risk primitives (OUW, AAW, CFH, and IF), SyzPass has a substantially more prominent impact. For OUW, SyzPass accounts for 62 of 145 usable primitives. For AAW, CFH, and IF combined, it accounts for the majority, 119 of 146 usable primitives.
+%488 instances in total, of which 307 are usable; 183 of these usable high-risk instances are attributable to SyzPass (61 by avoidance and 122 by neutralization), accounting for 59.6\% of usable high-risk instances.
+% In particular, AAW and FPD show heavy reliance on neutralization (32 each), while OUW benefits from both avoidance (29) and neutralization (33), reflecting that side-effect behaviors in these primitives can be both path-sensitive and structurally unavoidable.
+
+At the bug level, 107 out of 115 bugs contain at least one usable primitive instance.
+Moreover, 39 bugs benefit from SyzPass via avoidance and/or neutralization, including 19 benefiting from avoidance and 31 benefiting from neutralization (11 benefit from both). For the remaining 76 bugs, 64 contain only clean primitive instances and thus do not require avoidance or neutralization. Another 4 bugs contain either clean or non-usable instances.
+The remaining 8 bugs contain only non-usable primitives, for which SyzPass fails to purify.
+
+These results collectively indicate that side effects are common among Linux kernel vulnerabilities, and SyzPass can resolve a meaningful portion of them.
+
+% lethal side effects are common enough to materially restrict primitive usability, and SyzPass can recover a meaningful portion of the usable primitive space.
+
+% Finally, following prior work~\cite{zou2022syzscope}, we consider the primitive types CVW/AVW (fixed-address value writes), CAW (constrained-address write), OUW (OOB/UAF write), AAW (arbitrary-address write), FPD (function-pointer dereference), and IF (invalid free).
+
+
+% \subsection{Overall Results}
+% Table~\ref{table:overall} summarizes the evaluation results across all analyzed bugs. For each case, we list all discovered effects. Furthermore, we enumerate each as a primitive and characterize whether they are free of lethal side effects involving pointer dereference, in which case we call the primitive \emph{usable}. 
+% More importantly, we will report whether the primitive is usable because of our solution or if it is naturally free of lethal side effects.
+
+
+% Specifically, if the primitive is usable on all observed paths, then we consider it usable already without necessarily requiring our solution --- denoted using $\bullet$ in Table~\ref{table:overall}. In other words, if an attacker randomly stumbled upon a path, they would most likely get a usable primitive. However, if there is a subset of paths where a primitive has lethal side effects, we consider our solution to have helped --- denoted using $\blacksquare$ in Table~\ref{table:overall}. This is because our solution helped explore multiple execution paths, including the ones that do not have lethal side effects. Finally, for those primitives where all the associated paths have lethal side effects and yet our object matching has helped neutralize those side effects, we will denote them using $\blacktriangledown$ in Table~\ref{table:overall}.
+
+% As we can see in Table~\ref{table:overall}, overall, we find 32 out of 33 bugs have at least one usable primitive. 9 of them contain usable primitives thanks to our side effect avoidance or neutralization strategy.
+% Among them, 4 bugs benefited from the avoidance strategy, and 7 bugs benefited from the neutralization strategy (two bugs benefited from both strategies). 
+% This demonstrates the degree of the side effect problem as well as the effectiveness of SyzPass. 
+
+
+% From the perspective of primitives, we follow the definition of prior work~\cite{zou2022syzscope} and include the following types of primitives:
+% Constrained Value Write (CVW): writing a symbolic value with constraints to a fixed address (e.g., local variable); Arbitrary Value Write (AVW): writing a symbolic value without constraints to a fixed address; Constrained Address Write (CAW): writing some value to a symbolic address with constraints
+% Invalid Free (IF): freeing memory that should not be freed or an already freed object; the remaining two primitive types AAW and CFH are explained in the motivating example. OOB/UAF Write (OUW): Write operation upon the OOB/UAF region.
+
+% Overall, 302 out of 388 primitives are usable, leaving 86 that are not. If we exclude the low-risk primitives (i.e., CVW/AVW), there are 93 out of 125 that are usable. 30 of the 93 are due to SyzPass. 
+
+
+
+
+%\zhiyun{Juefei: please split CAW into a separate column}
+
+
+%According to our result, 9/33 cases contain primitives that can be applied avoidance or neutralization strategy. Among them, 4 cases can apply avoidance strategy, 5 cases can apply neutralization strategy. This demonstrates the prevalence of the side effect problem as well as the effectiveness of both side effects resolving strategies applied by SyzPass. 
+
+% \begin{table*}[htbp]
+% \centering
+% \scriptsize
+% {\renewcommand{\arraystretch}{1.1}  % 0.9
+% \resizebox{\textwidth}{!}{%
+% \begin{tabular}{lcccccc}
+% \toprule
+% Case ID & CVW|AVW & CAW & OUW & AAW & FPD & IF \\
+% \midrule
+% bbeb1c8 & $\blacktriangledown~\bullet\times3$ & $\varnothing$ & $\blacktriangledown$ & $\varnothing$ & $\varnothing$ & $\blacktriangledown\times2$ \\
+% 98228e7 & $\square\times15~\blacktriangledown\times9$ & $\varnothing$ & $\square\times2$ & $\square\times6$ & $\square~\blacktriangledown\times2$ & $\varnothing$ \\
+% f951f66 & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\bullet$ \\
+% a42d845 & $\varnothing$ & $\varnothing$ & $\bullet$ & $\varnothing$ & $\varnothing$ & $\varnothing$ \\
+% 7e9494b & $\bullet\times3$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ \\
+% c400f7b & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\bullet$ \\
+% df0d0f5 & $\bullet$ & $\varnothing$ & $\bullet$ & $\varnothing$ & $\varnothing$ & $\varnothing$ \\
+% 1966db2 & $\bullet\times11$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ \\
+% 34a0f26 & $\bullet\times8$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ \\
+% c244f4a & $\square\times2$ & $\varnothing$ & $\square\times5$ & $\varnothing$ & $\square$ & $\varnothing$ \\
+% 60c837b & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\bullet$ \\
+% 65c6b72 & $\bullet$ & $\varnothing$ & $\bullet$ & $\varnothing$ & $\varnothing$ & $\varnothing$ \\
+% 380acd1 & $\blacktriangledown\times3~\square\times31~\blacksquare\times3$ & $\square\times3$ & $\square\times3~\blacktriangledown\times4~\blacksquare~\bullet\times2$ & $\square\times3~\blacktriangledown\times5~\blacksquare\times3$ & $\blacktriangledown$ & $\square~\blacktriangledown$ \\
+% 3538a6a & $\bullet~\blacktriangledown\times2$ & $\varnothing$ & $\bullet\times39~\blacktriangledown\times2$ & $\blacksquare~\blacktriangledown$ & $\varnothing$ & $\varnothing$ \\
+% f328fbf & $\bullet\times11$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ \\
+% eae585b & $\varnothing$ & $\varnothing$ & $\blacktriangledown$ & $\varnothing$ & $\bullet$ & $\varnothing$ \\
+% f3ce716 & $\varnothing$ & $\varnothing$ & $\bullet$ & $\varnothing$ & $\varnothing$ & $\varnothing$ \\
+% 4207b2e & $\bullet\times5$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ \\
+% 1fafa9c & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\bullet$ \\
+% 3587cbb & $\bullet\times32$ & $\varnothing$ & $\bullet$ & $\varnothing$ & $\varnothing$ & $\varnothing$ \\
+% aa6df9d & $\bullet\times40$ & $\bullet$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ \\
+% 52bbc0a & $\bullet\times5$ & $\bullet\times2$ & $\square\times3~\bullet$ & $\square$ & $\blacksquare$ & $\varnothing$ \\
+% 04419e3 & $\bullet\times6$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ \\
+% 36cf9e5 & $\bullet$ & $\varnothing$ & $\bullet$ & $\varnothing$ & $\varnothing$ & $\varnothing$ \\
+% 877961f & $\bullet\times7$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ \\
+% 7b6206f & $\varnothing$ & $\varnothing$ & $\bullet$ & $\varnothing$ & $\varnothing$ & $\bullet$ \\
+% 3694e28 & $\bullet\times27$ & $\bullet$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\bullet$ \\
+% d8489a7 & $\blacktriangledown\times9~\square$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\blacktriangledown\times2$ & $\varnothing$ \\
+% 9f6c56c & $\bullet$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\bullet$ \\
+% 481a3ff & $\bullet\times4$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ \\
+% e3cd8df & $\square\times5$ & $\varnothing$ & $\square\times2$ & $\square$ & $\blacksquare$ & $\varnothing$ \\
+% 55cc592 & $\blacktriangledown\times2$ & $\varnothing$ & $\blacktriangledown$ & $\bullet\times2$ & $\varnothing$ & $\varnothing$ \\
+% 53ce40c & $\bullet\times13$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ & $\varnothing$ \\
+% \bottomrule
+% \end{tabular}
+% }
+% }
+% \vspace{0.5em}
+% \parbox{\textwidth}{
+% \scriptsize
+% \textbf{Legend:} $\square$~Not usable $\blacksquare$~Usable due to avoidance $\blacktriangledown$~Usable due to neutralization $\bullet$~Naturally usable $\varnothing$~No such primitive in the bug\\
+% \textbf{Example:}    $\blacktriangledown~\bullet\times3$ represents one primitive made usable due to avoidance strategy, and three primitives naturally usable
+% }
+% \caption{\label{table:overall}Primitive classification for each evaluated case}
+% \label{tab:primitive-summary}
+% \end{table*}
+
+% \begin{table*}[htbp]
+% \centering
+% \scriptsize
+% \resizebox{\textwidth}{!}{%
+% \begin{tabular}{c||cccc|cccc|cccc|cccc|cccc|cccc}
+% \hline
+% \multirow{2}{*}{\textbf{Case ID}} &
+% \multicolumn{4}{c|}{\textbf{CVW|AVW}} &
+% \multicolumn{4}{c|}{\textbf{CAW}} &
+% \multicolumn{4}{c|}{\textbf{OUW}} &
+% \multicolumn{4}{c|}{\textbf{AAW}} &
+% \multicolumn{4}{c|}{\textbf{FPD}} &
+% \multicolumn{4}{c}{\textbf{IF}} \\
+% % \noalign{\vskip 0.3ex}
+% \cline{2-25}
+% & $\square$ & $\blacksquare$ & $\blacktriangledown$ & $\bullet$
+% & $\square$ & $\blacksquare$ & $\blacktriangledown$ & $\bullet$
+% & $\square$ & $\blacksquare$ & $\blacktriangledown$ & $\bullet$
+% & $\square$ & $\blacksquare$ & $\blacktriangledown$ & $\bullet$
+% & $\square$ & $\blacksquare$ & $\blacktriangledown$ & $\bullet$
+% & $\square$ & $\blacksquare$ & $\blacktriangledown$ & $\bullet$ \\
+% \hline
+% {\renewcommand{\arraystretch}{0.9}
+% bbeb1c8 & - & - & 1 & 3 & - & - & - & - & - & - & 1 & - & - & - & - & - & - & - & - & - & - & - & 2 & - \\
+% 98228e7 & 15 & - & 9 & - & - & - & - & - & 2 & - & - & - & 6 & - & - & - & 1 & - & 2 & - & - & - & - & - \\
+% f951f66 & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & 1 \\
+% a42d845 & - & - & - & - & - & - & - & - & - & - & - & 1 & - & - & - & - & - & - & - & - & - & - & - & - \\
+% 7e9494b & - & - & - & 3 & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - \\
+% c400f7b & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & 1 \\
+% df0d0f5 & - & - & - & 1 & - & - & - & - & - & - & - & 1 & - & - & - & - & - & - & - & - & - & - & - & - \\
+% 1966db2 & - & - & - & 11 & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - \\
+% 34a0f26 & - & - & - & 8 & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - \\
+% c244f4a & 2 & - & - & - & - & - & - & - & 5 & - & - & - & - & - & - & - & 1 & - & - & - & - & - & - & - \\
+% 60c837b & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & 1 \\
+% 65c6b72 & - & - & - & 1 & - & - & - & - & - & - & - & 1 & - & - & - & - & - & - & - & - & - & - & - & - \\
+% 380acd1 & 31 & 3 & 3 & - & 3 & - & - & - & 3 & 1 & 4 & 2 & 3 & 3 & 5 & - & - & - & 1 & - & 1 & - & 1 & - \\
+% 3538a6a & - & - & 2 & 1 & - & - & - & - & - & - & 2 & 39 & - & 1 & 1 & - & - & - & - & - & - & - & - & - \\
+% f328fbf & - & - & - & 11 & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - \\
+% eae585b & - & - & - & - & - & - & - & - & - & - & 1 & - & - & - & - & - & - & - & - & 1 & - & - & - & - \\
+% f3ce716 & - & - & - & - & - & - & - & - & - & - & - & 1 & - & - & - & - & - & - & - & - & - & - & - & - \\
+% 4207b2e & - & - & - & 5 & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - \\
+% 1fafa9c & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & 1 \\
+% 3587cbb & - & - & - & 32 & - & - & - & - & - & - & - & 1 & - & - & - & - & - & - & - & - & - & - & - & - \\
+% aa6df9d & - & - & - & 40 & - & - & - & 1 & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - \\
+% 52bbc0a & - & - & - & 5 & - & - & - & 2 & 3 & - & - & 1 & 1 & - & - & - & - & 1 & - & - & - & - & - & - \\
+% 04419e3 & - & - & - & 6 & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - \\
+% 36cf9e5 & - & - & - & 1 & - & - & - & - & - & - & - & 1 & - & - & - & - & - & - & - & - & - & - & - & - \\
+% 877961f & - & - & - & 7 & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - \\
+% 7b6206f & - & - & - & - & - & - & - & - & - & - & - & 1 & - & - & - & - & - & - & - & - & - & - & - & 1 \\
+% 3694e28 & - & - & - & 27 & - & - & - & 1 & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & 1 \\
+% d8489a7 & 1 & - & 9 & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & 2 & - & - & - & - & - \\
+% 9f6c56c & - & - & - & 1 & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & 1 \\
+% 481a3ff & - & - & - & 4 & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - \\
+% e3cd8df & 5 & - & - & - & - & - & - & - & 2 & - & - & - & 1 & - & - & - & - & 1 & - & - & - & - & - & - \\
+% 55cc592 & - & - & 2 & - & - & - & - & - & - & - & 1 & - & - & - & - & 2 & - & - & - & - & - & - & - & - \\
+% 53ce40c & - & - & - & 13 & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - & - \\
+% }
+% \bottomrule
+% \end{tabular}}
+% \vspace{0.5em}
+% \parbox{\textwidth}{
+% \scriptsize
+% \textbf{Legend:} $\square$~Not usable $\blacksquare$~Usable due to avoidance $\blacktriangledown$~Usable due to neutralization $\bullet$~Naturally usable 
+% }
+% \caption{\label{table:overall}Primitive classification for each evaluated case}
+% \label{tab:primitive-summary-tmp}
+% \end{table*}
+
+
+% \subsection{Results}
+% % Matching with known cve + 5 bugs without CVE 
+
+% Bugs picked from Syzbot + kCTF bugs in Syzbot
+
+
+
+% Table of syzbot/syzbridge bugs:
+
+% Abalation study.
+
+% Case study: End-to-end exploits.
+\subsection{Case Studies}
+To understand how SyzPass helps with exploit construction in practice, we conduct three case studies. Specifically, from the 39 bugs that benefited from SyzPass, we selected three that can be triggered by non-root users across different kernel versions and followed SyzPass's guidance to develop exploits. In this section, we detail these bugs, exploit strategies, and how SyzPass identifies high-risk primitives and resolves side effects among them to facilitate exploit development. 
+%We use \texttt{vulmem} to denote memory regions involved in UAF or OOB reads. 
+We use \texttt{vulmem} to denote memory regions accessed out of bounds or after free (OOB or UAF).
+Such memory is symbolized, since an attacker can control its content through heap spraying.
+
+
+% \subsubsection{Exploit against 380acd}
+% \subsubsection{Exploit against e3cd8d}
+
+\vspace{0.015in}
+\noindent\textbf{Exploit against e3cd8d.}
+The \texttt{e3cd8d} bug~\cite{e3cd8d:online} , originally discovered by syzbot, resides in the \textit{net} subsystem and was initially reported as \textit{WARNING: ODEBUG bug in qdisc\_create}, affecting Linux kernel version 5.15. The SyzPass pipeline automatically identifies it inherently a UAF vulnerability with a high-risk CFH primitive. %It further improves the primitive by selecting a path that avoids side effects. 
+With the help of SyzPass, we developed an exploit for this vulnerability and achieved privilege escalation. The details are as follows:
+
+The vulnerable object is of type \texttt{Qdisc}, allocated from the \texttt{kmalloc-512} cache. It contains an embedded \texttt{timer} object in its \texttt{privdata} field. When the kernel frees the \texttt{Qdisc} object, it does not clear the pointer to the freed object. Thus, during the timer interrupt, the kernel may access the embedded \texttt{timer} object and cause a UAF. The key kernel code relevant to the exploit of the vulnerability is shown in Figure~\ref{fig:case_study_e3cd8d}.
+% old: The vulnerable object is of type \texttt{Qdisc}, allocated from the \texttt{kmalloc-512} cache. In this object's \texttt{privdata} field, a \texttt{timer} object is embedded. When the kernel frees the \texttt{Qdisc} object, it does not clear the pointer to the object. Thus, inside the timer interrupt of the kernel, the kernel accesses the embedded \texttt{timer} object, causing a UAF. The key kernel code relevant to the exploit of the vulnerability is shown at Figure~\ref{fig:case_study_e3cd8d}.
+%  ==NEW== 
+% The vulnerable object is of type \texttt{Qdisc}, allocated from the \texttt{kmalloc-512} cache. It contains an embedded \texttt{timer} object in its \texttt{privdata} field. When the kernel frees the \texttt{Qdisc} object, it does not clear the pointer to the freed object. Thus, during the timer interrupt, the kernel may access the embedded \texttt{timer} object and cause a UAF. The key kernel code relevant to the exploit of the vulnerability is shown in Figure~\ref{fig:case_study_e3cd8d}.
+
+
+\begin{figure}[htbp]
+    \centering
+    \begin{minipage}[t]{\linewidth}
+        \begin{lstlisting}[language=C]
+static void __hrtimer_run_queues(...)
+{
+    ...
+    // timer is the UAF object
+    timer = container_of(node, struct hrtimer, node);
+    // timer->_softexpires  <@ \blackcircled{1} @> 
+    if (basenow < hrtimer_get_softexpires_tv64(timer))
+        break;
+
+    __run_hrtimer(cpu_base, base, timer, &basenow, flags);
+}
+static void __run_hrtimer(..., struct hrtimer *timer, ...)
+{
+...
+__remove_hrtimer(timer, base, HRTIMER_STATE_INACTIVE, 0);
+fn = timer->function;
+...
+// Control flow hijack
+restart = fn(timer); <@ \blackcircled{3} @> 
+}
+
+static void __remove_hrtimer(struct hrtimer *timer,...)
+{
+	u8 state = timer->state;
+
+	WRITE_ONCE(timer->state, newstate);
+	if (!(state & HRTIMER_STATE_ENQUEUED)) <@ \blackcircled{2} @> 
+		return;
+        ...
+	if (!timerqueue_del(...  &timer->node))
+		...
+}
+\end{lstlisting}
+    \end{minipage}
+    
+    \caption{Code Snippet for the e3cd8d Bug}
+    \label{fig:case_study_e3cd8d}
+    \vspace{-10pt}
+\end{figure}
+
+% Within \texttt{\_\_hrtimer\_run\_queues}, the \texttt{timer} object is freed but subsequently accessed, creating a use-after-free condition. This allows an attacker to use heap spraying to control its contents and influence kernel behavior. According to SyzPass analysis, for the sprayed memory (denoted as \texttt{vulmem}), the CFH primitive can be reliably triggered if the constraints \texttt{vulmem[448:456] == 0} and \texttt{vulmem[424:432] < 0x1823cf3f2c687365} are satisfied. Under these conditions, the kernel will interpret \texttt{vulmem[432:440]} as a function pointer and dereference it, resulting in control-flow hijacking. Meanwhile, Syzpass also discovered that a none null \texttt{vulmem[448:456]} value can also drive the kernel to reach the control-flow hijacking, there will be other side effects involving multiple level pointer dereference, and such path should be avoided.  
+
+Within \texttt{\_\_hrtimer\_run\_queues()}, the \texttt{timer} object is freed and subsequently accessed, resulting in a use-after-free condition. This enables the attacker to use heap spraying to control its contents and manipulate kernel. 
+
+According to SyzPass analysis, a clean path towards the CFH primitive can be triggered. For the sprayed memory controlled by the attacker, if the constraints  \texttt{vulmem[424:432] < 0x1823cf3f2c687365} and \texttt{vulmem[448:449] == 0} are satisfied, the kernel interprets \texttt{vulmem[432:440]} as a function pointer and dereferences it, achieving control-flow hijacking.  
+
+Mapping the results back to the kernel code, we identify three key locations marked as \blackcircled{1}, \blackcircled{2}, and \blackcircled{3}. At \blackcircled{1}, the constraint requires \texttt{\_softexpires} to be less than a specific timestamp; otherwise, the primitive will not be triggered. At \blackcircled{2}, the constraint enforces \texttt{state \& HRTIMER\_STATE\_ENQUEUED == 0}, ensuring an early return from \texttt{\_\_remove\_hrtimer()} and avoiding side effects. Finally, at \blackcircled{3}, the function pointer is dereferenced, allowing the attacker to hijack control flow.
+
+% SyzPass also discovers other suboptimal paths for the CFH primitive. If \texttt{vulmem[448:456]} is non-zero, it also leads to CFH. However, this path involves additional side effects with multiple levels of pointer dereference, impractical for exploit, and  therefore excluded by our avoidance strategy. Without SyzPass, the attacker has to take extensive time and effort to manually discover the primitive and exclude such paths to develop the exploit.
+This execution path is selected by SyzPass as it leads to the CFH primitive with minimal side effects. SyzPass also identified alternative paths, such as when \texttt{vulmem[448:449]} is non-zero, which still trigger the CFH but involve deep pointer dereference chains and incur additional side effects, making them impractical for exploitation. These paths are automatically excluded by our avoidance strategy. Without SyzPass, manually identifying such primitives and finding suitable paths would require significant human effort.
+
+Since no other usable or side-effect-free primitives are available, we develop the exploit assuming the attacker has already bypassed KASLR using established techniques~\cite{liu2023entrybleed,maar2025good,kleak} or a different bug~\cite{google_project_zero_exploit}. Leveraging the clean CFH path identified by SyzPass, we construct a reliable privilege escalation exploit. Given that no pointer neutralization is required, we reclaim the sprayed memory using the \texttt{user\_key\_payload} object. After reclaiming and hijacking control flow, we employ a stack pivot gadget to redirect the stack to our controlled memory. Because the hijack occurs in interrupt context, traditional \texttt{prepare\_creds()} based credential forging is unsuitable; instead, we corrupt the \texttt{modprobe\_path} global variable using kernel gadgets to escalate privileges. 
+
+\vspace{0.015in}
+\noindent\textbf{Exploit against 380acd1.} 
+The \texttt{380acd1} bug~\cite{380acd} is another vulnerability in the \textit{net} subsystem, affecting Linux kernel 4.15. The original syzbot report titled it \texttt{KASAN: use-after-free Read in skb\_dequeue}. The bug is triggered during program termination, when \texttt{skb\_dequeue()} is invoked to clean up socket-related resources. SyzPass automatically identified alternative syscall sequences to trigger the vulnerability. It then discovered high-risk primitives within these paths and applied side effect avoidance and neutralization strategies to make them suitable for exploitation. We successfully developed an end-to-end exploit on the kernel with all standard mitigations enabled (i.e., KASLR, SMEP/SMAP, and KPTI). for this vulnerability under the guidance of SyzPass.
+
+ 
+
+The vulnerability stems from a flaw in the error handling path of \texttt{tpacket\_rcv()}, where an \texttt{sk\_buff} object is freed without being properly unlinked from the \texttt{sk\_buff} linked list. Since the \texttt{sk\_buff} object represents a packet, any operation towards the associated socket encounters UAF and being potentially exploitable for the attacker.
+
+Through SyzPass's context exploration, it discovers another syscall \texttt{recvmsg()} that can also be used to trigger the vulnerability. Despite SyzPass does not currently support identification of infoleak primitives, through the understanding of the root cause of the vulnerability and the nature of the \texttt{recvmsg()} syscall, we manually discovered that this syscall can achieve a information leakage by reading the \texttt{data} field of \texttt{sk\_buff}, leading to a infoleak primitive. And as long as no lethal side effects are present, the information leakage would succeed.
+
+However, \texttt{recvfrom()} conducts an unlink operation using the linked list header at the beginning of the \texttt{sk\_buff} object, making the leak primitive less promising. Fortunately, SyzPass discovered two strategies to resolve this.  
+
+The first strategy is avoidance-based. Through context exploration, SyzPass discovered that setting the \texttt{flags} parameter in \texttt{recvfrom()} with \texttt{MSG\_PEEK} can disable the unlink operation, avoiding pointer dereferences caused by it, effectively avoiding side effects. The second strategy is neutralization based. Through object matching, SyzPass pinpoints that \texttt{msg\_msg} being a suitable object since it contains two writable pointers at its header, allowing the unlink to happen without crashing the kernel.
+
+We implemented both strategies to validate their feasibility. Each can independently leak kernel memory and defeat KASLR. For \texttt{MSG\_PEEK} based avoidance strategy, we used \texttt{user\_key\_payload} to achieve the leak. For neutralization based leak, we used the \texttt{msg\_msg} to achieve the leak. Since \texttt{msg\_msg} was isolated on the target kernel due to the \texttt{GFP\_KERNEL\_ACCOUNT} flag during its allocation, we leveraged cross-cache attack \cite{cross_cache_p0} to force the \texttt{msg\_msg} object to reclaim the memory. 
+
+% After achieving KASLR leakage, we leveraged another primitive within the same vulnerability. Similar to the \texttt{e3cd8d} case, this vulnerability contains a control-flow hijack primitive. It is triggered during socket closure when the \texttt{destructor} function pointer in the freed \texttt{sk\_buff} object is dereferenced. Thus, with the guidance of SyzPass, we constructed data that satisfying desired constraints in our sprayed memory to trigger the control-flow hijack. Undet this control-flow hijack, since we don't have control over stack data and lack of suitable stack pivoting primitive, we leveraged the \texttt{\_\_hlist\_del} gadget to corrupt the \texttt{modprobe\_path} global variable to achieve end-to-end privilege escalation. 
+
+After achieving KASLR bypass, we leveraged another primitive in the vulnerability. Like the \texttt{e3cd8d} case, it enables a control-flow hijack when the \texttt{destructor} function pointer in the freed \texttt{sk\_buff} object is dereferenced during socket closure. Guided by SyzPass, we crafted memory satisfying the required constraints to trigger this hijack. As suitable stack pivoting gadget was found, we used a \texttt{\_\_hlist\_del} gadget to corrupt the \texttt{modprobe\_path} global variable and achieved end-to-end privilege escalation.
+
+
+\noindent\textbf{Exploit against 52bbc0.}
+The \texttt{52bbc0} bug~\cite{52bbc} is a vulnerability in the \textit{netfilter} subsystem, affecting Linux kernel 6.8. The original syzbot report titled it \texttt{WARNING: ODEBUG bug in hash\_netiface4\_destroy}. The root cause of this vulnerability is when the kernel frees the \texttt{hash\_netiface4} object, it forgets to free a timer that is going to access it later. Thus the kernel would access the \texttt{timer\_list} field embedded in the \texttt{hash\_netiface4} object and cause UAF. 
+
+Through context exploration, SyzPass discovers two distinct PoCs. One triggers the memory corruption at the \texttt{enqueue\_timer()} function, and another triggers the corruption at \texttt{\_\_run\_timers()}. The remaining part of the exploit development is similar to the \texttt{e3cd8d} bug, given the similarity of their contexts. According to SyzPass, for the sprayed memory (denoted as \texttt{vulmem}), if \texttt{vulmem[40:48] == 0}, an arbitrary write side effect can be avoided, and \texttt{vulmem[64:72]} would be dereferenced as function pointer, similar to the primitive provided by the \texttt{e3cd8d} bug. Based on the guidance, we sprayed \texttt{user\_key\_payload} object to satisfy the constraint, and hijacked the control flow. Since the stack directly contains our sprayed data, we achieved ROP directly and applied the same strategy used for the \texttt{e3cd8d} bug by global variable corruption.
+
+
+
+% \section{Related Work}
+% Kernel Fuzzing + Specific Exploit Strategies + Exploitability Analysis/AEG
+

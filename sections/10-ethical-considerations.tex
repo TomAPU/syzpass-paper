@@ -1,0 +1,17 @@
+\section*{Ethical Considerations}
+% \textbf{Within up to one page, explain the ethical considerations of your work. This appendix must have exactly this title, otherwise you will risk desk rejection. Carefully study the Ethics Guidelines before submitting your paper.}
+% Our work studies exploit-primitives and side effects in the Linux kernel to support academic research on safer and more reliable security analysis. The three bugs for which we constructed exploits were selected from syzbot's historical reports; all three had already been patched in upstream Linux and major downstream kernels prior to our analysis. All exploit development and testing were conducted solely in controlled, isolated environments for academic purposes (e.g., local VMs without exposure to production systems), and we did not deploy exploits against real-world targets or collect data from unsuspecting users. We release the system to facilitate reproducible research and defensive prioritization.
+
+\noindent\textbf{Stakeholders and Impacts.}
+The primary stakeholders of this work are kernel developers, downstream vendors, and security researchers, who can use our analysis to better assess exploitability and prioritize patching and remediation efforts.
+We do acknowledge the dual-use risks of our solution, as it potentially improves an attacker's ability to craft kernel exploits. On the other hand,
+by identifying exploit primitives and their associated side effects, our system helps distinguish vulnerabilities that are practically exploitable from those that are less likely to be weaponized, providing actionable signals for defensive decision-making.
+% While SyzPass analyzes exploit primitives and side effects, it does not automatically generate end-to-end exploits; as such, it does not substantially lower the barrier to real-world exploitation.
+%We therefore expect the benefits to defenders and maintainers to outweigh potential risks of misuse.
+
+
+\paragraph{Responsible Experimentation and Containment.}
+All exploit development and testing were performed in controlled environments for academic research purposes only.
+The three bugs we exploited were from syzbot's historical reports, and all three had already been patched in upstream Linux and major downstream kernels prior to our analysis.
+%We did not target any third-party infrastructure, and we did not attempt exploitation on systems.
+
