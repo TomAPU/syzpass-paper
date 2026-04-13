@@ -1,30 +1,15 @@
-% TEMPLATE for Usenix papers, specifically to meet requirements of
-%  USENIX '05
-% originally a template for producing IEEE-format articles using LaTeX.
-%   written by Matthew Ward, CS Department, Worcester Polytechnic Institute.
-% adapted by David Beazley for his excellent SWIG paper in Proceedings,
-%   Tcl 96
-% turned into a smartass generic template by De Clarke, with thanks to
-%   both the above pioneers
-% use at your own risk.  Complaints to /dev/null.
-% make it two column with no page numbering, default is 10 point
+% Adapted from the official NDSS Symposium 2026 LaTeX template.
+\documentclass[conference]{IEEEtran}
 
-% Munged by Fred Douglis <douglis@research.att.com> 10/97 to separate
-% the .sty file from the LaTeX source template, so that people can
-% more easily include the .sty file into an existing document.  Also
-% changed to more closely follow the style guidelines as represented
-% by the Word sample file. 
+\pagestyle{plain}
 
-% Note that since 2010, USENIX does not require endnotes. If you want
-% foot of page notes, don't include the endnotes package in the 
-% usepackage command, below.
-
-\documentclass[letterpaper,twocolumn,10pt]{article}
-\usepackage{usenix,epsfig,endnotes}
+\usepackage{cite}
+\usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{makecell}
 \usepackage{multirow}
 \hyphenation{op-tical net-works semi-conduc-tor}
+\usepackage{tikz}
 \newcommand*\circled[1]{\tikz[baseline=(char.base)]{
             \node[shape=circle,draw,inner sep=1pt] (char) {#1};}}
 \newcommand*\blackcircled[1]{%
@@ -32,18 +17,14 @@
     \node[shape=circle,draw,fill=black,inner sep=1pt] (char) {\textcolor{white}{#1}};%
   }%
 }
-\usepackage[justification=centering]{caption}
 
-\usepackage{amssymb} 
+\usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{listings}
-\usepackage{multirow}
 \usepackage{url}
-\usepackage{booktabs}
 \usepackage{xcolor}
-\usepackage{algorithm}
 \usepackage{algpseudocode}
 \definecolor{DarkGreen}{RGB}{59,125,35}
-\usepackage[most]{tcolorbox}  % for the fancy box environment
 \definecolor{mygreen}{rgb}{0,0.6,0}
 \definecolor{mygray}{rgb}{0.5,0.5,0.5}
 \definecolor{mymauve}{rgb}{0.58,0,0.82}
@@ -91,12 +72,25 @@
 
 \usepackage{courier}
 \usepackage{svg}
-\usepackage{amsmath} 
 \newcommand{\juefei}[1]{\textcolor{violet}{[\textbf{Juefei: #1} ]}}
 \newcommand{\zhiyun}[1]{\textcolor{cyan}{[\textbf{Zhiyun:} #1]}}
 \newcommand{\zhiyune}[1]{\textcolor{cyan}{#1}}
 \newcommand{\zc}[1]{\textcolor{brown}{[\textbf{Zhengchuan:} #1]}}
 \newcommand{\xiaochen}[1]{\textcolor{teal}{[\textbf{xiaochen:} #1]}}
+
+\newcounter{algorithm}
+\renewcommand{\thealgorithm}{\arabic{algorithm}}
+\newenvironment{algorithm}[1][tbp]{%
+  \begin{figure}[#1]%
+  \refstepcounter{algorithm}%
+  \let\oldcaption\caption%
+  \renewcommand{\caption}[2][]{%
+    \par\smallskip\noindent\footnotesize\textbf{Algorithm~\thealgorithm.} ##2\par\smallskip
+  }%
+}{%
+  \let\caption\oldcaption%
+  \end{figure}%
+}
 
 \begin{document}
 
@@ -117,22 +111,22 @@
 
 
 
-%make title bold and 14 pt font (Latex default is non-bold, 16 pt)
-\title{\Large \bf SyzPass: Toward Side-Effect-Free Exploit Primitive Generation for the Linux Kernel}
+\title{SyzPass: Toward Side-Effect-Free Exploit Primitive Generation for the Linux Kernel}
 
-% \author{
-% {\rm Your N.\ Here}\\
-% Your Institution
-% \and
-% {\rm Second Name}\\
-% Second Institution
-% }
-\author{Anonymous}
+\author{\IEEEauthorblockN{Anonymous}}
+
+\IEEEoverridecommandlockouts
+\makeatletter\def\@IEEEpubidpullup{6.5\baselineskip}\makeatother
+\IEEEpubid{\parbox{\columnwidth}{
+        Network and Distributed System Security (NDSS) Symposium 2026\\
+        23 - 27 February 2026, San Diego, CA, USA\\
+        ISBN 979-8-9919276-8-0\\
+        https://dx.doi.org/10.14722/ndss.2026.[23$|$24]xxxx\\
+        www.ndss-symposium.org
+}
+\hspace{\columnsep}\makebox[\columnwidth]{}}
+
 \maketitle
-
-% Use the following at camera-ready time to suppress page numbers.
-% Comment it out when you first submit the paper for review.
-\thispagestyle{empty}
 
 
 \begin{abstract}
@@ -157,6 +151,7 @@ Furthermore, we present \textbf{SyzPass}, an automated framework that discovers 
 % purify primitives in \mbox{9} cases, and its guidance enabled us to craft \mbox{three} reliable, privilege-escalation exploits against kernels from 4.15 to 6.8.  These results demonstrate that SyzPass bridges the long-standing gap between automatic primitive discovery and practical exploit generation, and that taming side effects is both feasible and essential for the next generation of kernel AEG tools.
 
 \end{abstract}
+\IEEEpeerreviewmaketitle
 
 % no keywords
 \input{sections/01-introduction}
@@ -174,7 +169,7 @@ Furthermore, we present \textbf{SyzPass}, an automated framework that discovers 
 \input{sections/11-open-science}
 % optional clearing of the page
 \cleardoublepage
-\bibliographystyle{plainurl}
+\bibliographystyle{IEEEtran}
 \bibliography{sample-base}
 
 % {\footnotesize \bibliographystyle{acm}
@@ -182,9 +177,6 @@ Furthermore, we present \textbf{SyzPass}, an automated framework that discovers 
 
 
 \end{document}
-
-
-
 
 
 
