@@ -133,14 +133,14 @@
 Modern Linux kernel exploit development hinges on identifying powerful exploit primitives, i.e., unintended memory operations that can corrupt security-critical kernel objects. Unfortunately, these primitives are often entangled with additional undesirable memory operations, or side effects (e.g., dereferencing invalid pointers), which can trigger crashes and derail exploit attempts. Although side effects are a well-known challenge in manual exploit development, they remain an overlooked obstacle in automated exploit generation.
 
 In this paper, we identify and address this gap by proposing two complementary and general strategies: side effect avoidance, which steers control flow along cleaner paths, and side effect neutralization, which leverages carefully placed kernel objects to absorb or tolerate side effects such as invalid pointer dereferences.
-We present SyzPass, an automated framework that identifies and resolves side effects using a combination of high-sensitivity vulnerability context exploration, symbolic-execution-guided path exploration, and layout-aware object matching. Evaluated on 342 real-world Linux kernel bugs, SyzPass successfully identifies primitives and side effects for 115 cases, provides actionable side-effect avoidance or neutralization strategies for 39 of them, and enables the construction of three privilege-escalation exploits. By bridging the gap between primitive discovery and practical exploit generation, SyzPass demonstrates that taming side effects is both essential and feasible for advancing automated exploitation.
+We present SyzPass, an automated framework that identifies and resolves side effects using a combination of high-sensitivity vulnerability context exploration, symbolic-execution-guided path exploration, and layout-aware object matching. Evaluated on 342 real-world Linux kernel bugs, SyzPass successfully identifies primitives and side effects for 115 cases, provides actionable side-effect avoidance or neutralization strategies for 33 of them, and enables the construction of three privilege-escalation exploits. By bridging the gap between primitive discovery and practical exploit generation, SyzPass demonstrates that taming side effects is both essential and feasible for advancing automated exploitation.
 
 
 
 \cut{
 Modern Linux kernel exploit development hinges on finding powerful \emph{primitives}—unintended memory operations that an attacker can steer toward security-critical objects.  Unfortunately, these primitives are often entangled with additional unintended operations, we refer to \emph{side effects}, that corrupt unrelated data or dereference invalid pointers, crashing the kernel and derailing an exploit. We \emph{identify} this overlooked obstacle and propose two complementary, generic solutions: \emph{side effects avoidance}, which steers control flow onto cleaner paths, and \emph{side effects neutralization}, which pairs pointer dereferences with sprayable kernel objects.
 
-Furthermore, we present \textbf{SyzPass}, an automated framework that discovers memory effects within vulnerabilities and performs high sensitivity vulnerability context exploration, symbolic execution guided path exploration and layout-aware object matching to resolve side effects based on the two strategies for them. Evaluated on \mbox{115} real-world bugs, SyzPass can purify primitives in \mbox{39} cases and enables the construction of \mbox{three} privilege-escalation exploits. By bridging the gap between primitive discovery and practical exploit generation, SyzPass demonstrates that taming side effects is both essential and feasible.
+Furthermore, we present \textbf{SyzPass}, an automated framework that discovers memory effects within vulnerabilities and performs high sensitivity vulnerability context exploration, symbolic execution guided path exploration and layout-aware object matching to resolve side effects based on the two strategies for them. Evaluated on \mbox{115} real-world bugs, SyzPass can purify primitives in \mbox{33} cases and enables the construction of \mbox{three} privilege-escalation exploits. By bridging the gap between primitive discovery and practical exploit generation, SyzPass demonstrates that taming side effects is both essential and feasible.
 }
 
 
@@ -177,7 +177,5 @@ Furthermore, we present \textbf{SyzPass}, an automated framework that discovers 
 
 
 \end{document}
-
-
 
 
