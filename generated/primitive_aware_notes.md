@@ -5,7 +5,7 @@
 AAW, CFH, and IF with a symbolic free argument are counted as clean/auto-usable.
 This follows the exploit-aware model that assumes address disclosure and controllable kernel memory for pointer-related primitives.
 Non-symbolic IF is treated as double-free-like and remains subject to normal object matching.
-CVW, AVW, CAW, and OUW remain subject to field/layout matching.
+CVW and AVW use deterministic destination-offset field matching; CAW and OUW use field-satisfiability matching.
 
 Auto-usable primitive sites: 276
 Breakdown by primitive: {"AAW": 166, "FPD": 83, "IF": 27}
@@ -17,23 +17,65 @@ For primitives that still require object matching, constrained path offsets are 
 A matched object offset is accepted only when it lands in an attacker-controllable data region.
 In the current object database, this mostly means elastic spray buffers such as msg_msg/user_key_payload-style payload areas.
 
-## AVW/CVW Destination Recovery
+## AVW/CVW Destination Availability
 
-Old AVW/CVW endstate pickles store the written value expression, not the write destination expression.
-For offset-aware matching, the aggregation keeps an AVW/CVW primitive site only if at least one duplicate path provides a recoverable destination source:
+For offset-aware matching, the aggregation keeps an AVW/CVW primitive site only when the analyzed records determine its destination field.
+The destination is then converted to a concrete vulnerable-object offset and checked directly against useful victim-object fields:
 
 - paired same-instruction AAW/CAW/OUW primitive
 - memwrite fullconstraint from the same instruction
-- primitive text log for the same primitive
 
 Sites without any of those sources are excluded from the paper numbers instead of being treated as failures.
 
-Excluded primitive sites: 13
-Excluded duplicate paths: 268
-Breakdown by primitive: {"AVW": 6, "CVW": 7}
+Excluded primitive sites: 522
+Excluded duplicate paths: 19538
+Breakdown by primitive: {"AVW": 283, "CVW": 239}
 
 Cases with exclusions:
-- 3694e28 (big_test4): 3 primitive sites, 27 paths
-- 541ce19 (new_bugs-1-2): 1 primitive sites, 3 paths
-- 6db30c7 (big_test2): 4 primitive sites, 24 paths
-- f31660c (big_test3): 5 primitive sites, 214 paths
+- 04419e3 (zhengchuancases0403): 5 primitive sites, 10 paths
+- 0b1e853 (new_bugs-1-2): 17 primitive sites, 319 paths
+- 10005f4 (big_test2): 7 primitive sites, 931 paths
+- 10a9db4 (big_test1): 1 primitive sites, 3 paths
+- 1966db2 (big_test2): 11 primitive sites, 218 paths
+- 32799a3 (new_bugs-3-2): 22 primitive sites, 551 paths
+- 34a0f26 (big_test3): 12 primitive sites, 160 paths
+- 3538a6a (zhengchuancases0403): 3 primitive sites, 10 paths
+- 3587cbb (big_test2): 37 primitive sites, 1594 paths
+- 3694e28 (big_test4): 28 primitive sites, 246 paths
+- 380acd1 (my3): 22 primitive sites, 729 paths
+- 3a430af (zhengchuancases0403): 12 primitive sites, 2280 paths
+- 3c53ee4 (big_test3): 2 primitive sites, 1071 paths
+- 481a3ff (big_test1): 10 primitive sites, 104 paths
+- 520f870 (big_test1): 15 primitive sites, 2559 paths
+- 52bbc0a (my3): 7 primitive sites, 58 paths
+- 52da8b3 (big_test4): 11 primitive sites, 119 paths
+- 541ce19 (new_bugs-1-2): 2 primitive sites, 6 paths
+- 61b1603 (big_test1): 1 primitive sites, 14 paths
+- 6cf5652 (big_test2): 4 primitive sites, 121 paths
+- 73c586d (new_bugs-1-2): 7 primitive sites, 118 paths
+- 7dd7f2f (big_test3): 3 primitive sites, 33 paths
+- 7e9494b (zhengchuancases0403): 2 primitive sites, 4 paths
+- 8811381 (new_bugs-6): 16 primitive sites, 1033 paths
+- 8aedc9a (new_bugs-1-2): 17 primitive sites, 185 paths
+- 96414aa (big_test1): 3 primitive sites, 33 paths
+- 98228e7 (zhengchuancases0403): 16 primitive sites, 68 paths
+- 9f6c56c (zhengchuancases0403): 1 primitive sites, 2 paths
+- a0ddc98 (big_test4): 6 primitive sites, 14 paths
+- a7db908 (big_test1): 5 primitive sites, 304 paths
+- aa6df9d (big_test3): 15 primitive sites, 565 paths
+- b471b7c (new_bugs-6): 19 primitive sites, 1460 paths
+- b8fe393 (big_test2): 7 primitive sites, 28 paths
+- bbeb1c8 (zhengchuancases0403): 3 primitive sites, 9 paths
+- bd39145 (big_test2): 1 primitive sites, 1 paths
+- c041b4c (new_bugs-6): 19 primitive sites, 1460 paths
+- c72da7b (big_test1): 9 primitive sites, 17 paths
+- c8ae652 (big_test1): 14 primitive sites, 117 paths
+- c90849c (big_test3): 15 primitive sites, 322 paths
+- c96e4df (big_test3): 19 primitive sites, 944 paths
+- d2c5e69 (big_test4): 30 primitive sites, 108 paths
+- d8489a7 (zhengchuancases0403): 9 primitive sites, 48 paths
+- e3cd8df (my3): 4 primitive sites, 6 paths
+- e5db00b (big_test2): 9 primitive sites, 17 paths
+- e84662c (big_test4): 1 primitive sites, 2 paths
+- efae31b (big_test2): 1 primitive sites, 5 paths
+- f31660c (big_test3): 42 primitive sites, 1532 paths

@@ -255,24 +255,42 @@ SyzPass performs neutralization with primitive-aware site reasoning. For a path 
 
 Recent exploitation techniques motivate two neutralization backends for residual pointer-shaped side effects. Software side channels can disclose kernel addresses from unprivileged contexts~\cite{kernelsnitch}, and recent KernelCTF writeups show that attackers can place fake kernel-resident payloads at known kernel addresses with techniques such as NPerm~\cite{kernelctf-nperm}. Fixed or weakly randomized kernel regions have also appeared in real systems, as illustrated by the \texttt{cpu\_entry\_area} randomization issue and its use in exploit construction~\cite{cve20230597,kernelctf-cpuentry}. These techniques make pointer materialization realistic in many environments. Still, SyzPass retains object matching because such techniques can be unavailable in emulated environments such as QEMU TCG, may depend on deployment-specific side channels, and may be partially mitigated in future kernels. Object matching therefore remains a more portable fallback when a real sprayed object can satisfy the side effect.
 
+Formally, let $E(p)$ be the memory effects on path $p$, $s \in E(p)$ be the selected primitive site, and $C_p$ be the path constraints. SyzPass accepts $(p,s)$ under capability model $\kappa$ iff the selected site is preserved and every residual effect is safe:
+\[
+\begin{aligned}
+\mathsf{Accept}_{\kappa}(p,s) \triangleq
+\mathsf{Preserve}_{\tau(s)}(s,C_p) \land {}\\
+\forall e \in E(p)\setminus\{s\}.\ \mathsf{Safe}_{\kappa}(e,C_p).
+\end{aligned}
+\]
+For residual effects, SyzPass uses the same safety predicate across primitive types:
+\[
+\begin{aligned}
+\mathsf{Safe}_{\kappa}(e,C_p) \triangleq
+\mathsf{Avoid}(e,C_p) \lor \mathsf{OM}(e,C_p) \lor {}\\
+(\kappa=\mathsf{PM} \land \mathsf{Ptr}(e) \land \mathsf{Mat}(e,C_p)).
+\end{aligned}
+\]
+Here, $\mathsf{OM}$ denotes object matching, $\mathsf{PM}$ denotes the pointer-materialization capability model, $\mathsf{Mat}$ denotes satisfying a pointer-shaped effect under that model, and $\mathsf{Ptr}(e)$ holds for pointer-shaped residual effects. The primitive-specific part is $\mathsf{Preserve}$, summarized in Table~\ref{tab:primitive-aware-rules}. Let $\mathcal{F}_{u}$ be the set of meaningful victim-object fields, excluding attacker-controllable payload regions. For value writes, $\mathsf{field}(\mathsf{dst}(s))$ is the determined destination field on the analyzed path.
+
 \begin{table}[t]
   \centering
   \small
-  \renewcommand{\arraystretch}{1.05}
+  \renewcommand{\arraystretch}{1.08}
   \resizebox{\linewidth}{!}{%
-  \begin{tabular}{lll}
+  \begin{tabular}{ll}
     \toprule
-    \textbf{Selected site $s$} & \textbf{Preserve($s$)} & \textbf{Neutralize($p-s$)} \\
+    \textbf{Primitive type $\tau(s)$} & \textbf{$\mathsf{Preserve}_{\tau(s)}(s,C_p)$} \\
     \midrule
-    CFH/FPD & controlled target & avoid; OM; PM for pointer-shaped side effects \\
-    AAW & controlled write address & avoid; OM; PM for pointer-shaped side effects \\
-    IF$_{sym}$ & symbolic free argument & avoid; OM; PM for pointer-shaped side effects \\
-    IF$_{con}$ & double-free-like site & normal object/alias reasoning \\
-    OUW/CAW & useful victim-object offset & field matching; OM/PM for residual pointer side effects \\
-    CVW/AVW & recovered destination and useful offset & field matching; OM/PM for residual pointer side effects \\
+    CFH/FPD & $\mathsf{Ctrl}(\mathsf{target}(s))$ \\
+    AAW & $\mathsf{Ctrl}(\mathsf{dst}(s))$ \\
+    IF$_{sym}$ & $\mathsf{Sym}(\mathsf{arg}(s))$ \\
+    IF$_{con}$ & $\mathsf{DFLike}(s)$ \\
+    OUW/CAW & $\exists f \in \mathcal{F}_{u}.\ \mathsf{SAT}(C_p \land \mathsf{dst}(s) \in f)$ \\
+    CVW/AVW & $\mathsf{Ctrl}(\mathsf{val}(s)) \land \mathsf{field}(\mathsf{dst}(s)) \in \mathcal{F}_{u}$ \\
     \bottomrule
   \end{tabular}}
-  \caption{Primitive-aware site preservation and side-effect neutralization rules. OM denotes object matching; PM denotes pointer materialization through stronger exploit capabilities.}
+  \caption{Primitive-specific preservation predicates. $\mathsf{Ctrl}$ means attacker-controlled, $\mathsf{Sym}$ means symbolic, and $\mathsf{DFLike}$ denotes double-free-like invalid free.}
   \label{tab:primitive-aware-rules}
 \end{table}
 

@@ -1,22 +1,22 @@
 {
   "breakdown": {
     "CVW/AVW": {
-      "not_usable": 347,
-      "avoidance": 37,
-      "neutralization": 7,
-      "clean": 458
+      "not_usable": 206,
+      "avoidance": 0,
+      "neutralization": 4,
+      "clean": 0
     },
     "CAW": {
-      "not_usable": 15,
-      "avoidance": 2,
+      "not_usable": 30,
+      "avoidance": 0,
       "neutralization": 0,
-      "clean": 13
+      "clean": 0
     },
     "OUW": {
-      "not_usable": 116,
-      "avoidance": 29,
-      "neutralization": 9,
-      "clean": 84
+      "not_usable": 238,
+      "avoidance": 0,
+      "neutralization": 0,
+      "clean": 0
     },
     "AAW": {
       "not_usable": 0,
@@ -31,36 +31,36 @@
       "clean": 83
     },
     "IF": {
-      "not_usable": 9,
-      "avoidance": 6,
-      "neutralization": 1,
-      "clean": 38
+      "not_usable": 16,
+      "avoidance": 0,
+      "neutralization": 10,
+      "clean": 28
     }
   },
   "primitive_totals": {
     "CVW": {
-      "not_usable": 58,
-      "avoidance": 17,
-      "neutralization": 1,
-      "clean": 306
+      "not_usable": 45,
+      "avoidance": 0,
+      "neutralization": 0,
+      "clean": 0
     },
     "AVW": {
-      "not_usable": 289,
-      "avoidance": 20,
-      "neutralization": 6,
-      "clean": 152
+      "not_usable": 161,
+      "avoidance": 0,
+      "neutralization": 4,
+      "clean": 0
     },
     "CAW": {
-      "not_usable": 15,
-      "avoidance": 2,
+      "not_usable": 30,
+      "avoidance": 0,
       "neutralization": 0,
-      "clean": 13
+      "clean": 0
     },
     "OUW": {
-      "not_usable": 116,
-      "avoidance": 29,
-      "neutralization": 9,
-      "clean": 84
+      "not_usable": 238,
+      "avoidance": 0,
+      "neutralization": 0,
+      "clean": 0
     },
     "AAW": {
       "not_usable": 0,
@@ -75,101 +75,1071 @@
       "clean": 83
     },
     "IF": {
-      "not_usable": 9,
-      "avoidance": 6,
-      "neutralization": 1,
-      "clean": 38
+      "not_usable": 16,
+      "avoidance": 0,
+      "neutralization": 10,
+      "clean": 28
     }
   },
   "totals": {
-    "not_usable": 487,
-    "avoidance": 74,
-    "neutralization": 17,
-    "clean": 842,
-    "total_instances": 1420,
-    "usable_instances": 933,
-    "syzpass_instances": 91
+    "not_usable": 490,
+    "avoidance": 0,
+    "neutralization": 14,
+    "clean": 277,
+    "total_instances": 781,
+    "usable_instances": 291,
+    "syzpass_instances": 14
   },
   "high_risk_totals": {
-    "not_usable": 125,
-    "avoidance": 35,
+    "not_usable": 254,
+    "avoidance": 0,
     "neutralization": 10,
-    "clean": 371,
-    "usable_instances": 416,
-    "syzpass_instances": 45
+    "clean": 277,
+    "usable_instances": 287,
+    "syzpass_instances": 10
   },
   "case_stats": {
-    "total_cases": 115,
-    "usable_cases": 114,
-    "syzpass_cases": 17,
-    "avoidance_cases": 15,
-    "neutralization_cases": 4,
-    "both_avoidance_and_neutralization_cases": 2,
-    "clean_only_cases": 64,
-    "mixed_clean_fail_cases": 33,
-    "fail_only_cases": 1
+    "total_cases": 97,
+    "usable_cases": 63,
+    "syzpass_cases": 10,
+    "avoidance_cases": 0,
+    "neutralization_cases": 10,
+    "both_avoidance_and_neutralization_cases": 0,
+    "clean_only_cases": 2,
+    "mixed_clean_fail_cases": 51,
+    "fail_only_cases": 34
   },
   "exclusions": {
     "value_write_missing_destination": {
-      "policy": "AVW/CVW primitive sites without a recoverable write destination are excluded from the paper numbers.",
-      "primitive_count": 13,
-      "path_count": 268,
+      "policy": "AVW/CVW primitive sites without an available write-destination expression are excluded from the paper numbers.",
+      "primitive_count": 522,
+      "path_count": 19538,
       "by_primitive": {
-        "CVW": 7,
-        "AVW": 6
+        "AVW": 283,
+        "CVW": 239
       },
       "cases": {
-        "3694e28": {
-          "project": "big_test4",
-          "primitive_count": 3,
-          "path_count": 27,
+        "04419e3": {
+          "project": "zhengchuancases0403",
+          "primitive_count": 5,
+          "path_count": 10,
           "by_primitive": {
-            "CVW": 3
+            "AVW": 4,
+            "CVW": 1
           },
           "primitive_keys": [
-            "CVW@0xffffffff81645dc3",
-            "CVW@0xffffffff816486ef",
-            "CVW@0xffffffff85b8ffc2"
+            "AVW@0xffffffff81289681",
+            "AVW@0xffffffff81311080",
+            "AVW@0xffffffff8182a167",
+            "AVW@0xffffffff8233d1f6",
+            "CVW@0xffffffff8148ee9f"
           ]
         },
-        "541ce19": {
+        "0b1e853": {
           "project": "new_bugs-1-2",
+          "primitive_count": 17,
+          "path_count": 319,
+          "by_primitive": {
+            "CVW": 10,
+            "AVW": 7
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff82387b38",
+            "AVW@0xffffffff82387c31",
+            "AVW@0xffffffff82387c33",
+            "AVW@0xffffffff82387c37",
+            "AVW@0xffffffff82387c39",
+            "AVW@0xffffffff82700499",
+            "AVW@0xffffffff82700e22",
+            "CVW@0xffffffff81606adb",
+            "CVW@0xffffffff8168fac0",
+            "CVW@0xffffffff816909a1",
+            "CVW@0xffffffff81695ad1",
+            "CVW@0xffffffff82309c7d",
+            "CVW@0xffffffff8230b5e0",
+            "CVW@0xffffffff82320e50",
+            "CVW@0xffffffff823211b1",
+            "CVW@0xffffffff82387c30",
+            "CVW@0xffffffff82700490"
+          ]
+        },
+        "10005f4": {
+          "project": "big_test2",
+          "primitive_count": 7,
+          "path_count": 931,
+          "by_primitive": {
+            "AVW": 6,
+            "CVW": 1
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff824e92bb",
+            "AVW@0xffffffff8250ee9a",
+            "AVW@0xffffffff8250f00f",
+            "AVW@0xffffffff82527501",
+            "AVW@0xffffffff82804919",
+            "AVW@0xffffffff8280491d",
+            "CVW@0xffffffff824e92af"
+          ]
+        },
+        "10a9db4": {
+          "project": "big_test1",
           "primitive_count": 1,
           "path_count": 3,
           "by_primitive": {
             "AVW": 1
           },
           "primitive_keys": [
-            "AVW@0xffffffff85659449"
+            "AVW@0xffffffff83e8b120"
           ]
         },
-        "6db30c7": {
+        "1966db2": {
           "project": "big_test2",
-          "primitive_count": 4,
-          "path_count": 24,
+          "primitive_count": 11,
+          "path_count": 218,
           "by_primitive": {
-            "CVW": 4
+            "AVW": 5,
+            "CVW": 6
           },
           "primitive_keys": [
-            "CVW@0xffffffff822de516",
-            "CVW@0xffffffff822de541",
-            "CVW@0xffffffff822f53d0",
-            "CVW@0xffffffff822f53e5"
+            "AVW@0xffffffff813e2b84",
+            "AVW@0xffffffff817ee0f0",
+            "AVW@0xffffffff819f5ca8",
+            "AVW@0xffffffff827620d5",
+            "AVW@0xffffffff827b55ab",
+            "CVW@0xffffffff817ef39f",
+            "CVW@0xffffffff8199ad49",
+            "CVW@0xffffffff819f5c7a",
+            "CVW@0xffffffff819f5e22",
+            "CVW@0xffffffff82761b84",
+            "CVW@0xffffffff827620e4"
+          ]
+        },
+        "32799a3": {
+          "project": "new_bugs-3-2",
+          "primitive_count": 22,
+          "path_count": 551,
+          "by_primitive": {
+            "AVW": 7,
+            "CVW": 15
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff816e6941",
+            "AVW@0xffffffff816e6a49",
+            "AVW@0xffffffff816e6ada",
+            "AVW@0xffffffff816e6b07",
+            "AVW@0xffffffff81eb38c5",
+            "AVW@0xffffffff81ebb103",
+            "AVW@0xffffffff82859680",
+            "CVW@0xffffffff816e5522",
+            "CVW@0xffffffff816e693c",
+            "CVW@0xffffffff816e699a",
+            "CVW@0xffffffff816e6a3c",
+            "CVW@0xffffffff816e6a50",
+            "CVW@0xffffffff816e6ada",
+            "CVW@0xffffffff81ebb179",
+            "CVW@0xffffffff81ebb1fe",
+            "CVW@0xffffffff81ebb234",
+            "CVW@0xffffffff81ebb2b0",
+            "CVW@0xffffffff81ebb406",
+            "CVW@0xffffffff82859681",
+            "CVW@0xffffffff82859685",
+            "CVW@0xffffffff828721f2",
+            "CVW@0xffffffff853a5a3b"
+          ]
+        },
+        "34a0f26": {
+          "project": "big_test3",
+          "primitive_count": 12,
+          "path_count": 160,
+          "by_primitive": {
+            "CVW": 10,
+            "AVW": 2
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff813eddf4",
+            "AVW@0xffffffff827cf0db",
+            "CVW@0xffffffff819724bb",
+            "CVW@0xffffffff819724bd",
+            "CVW@0xffffffff819724e9",
+            "CVW@0xffffffff81972543",
+            "CVW@0xffffffff819727ec",
+            "CVW@0xffffffff819727ef",
+            "CVW@0xffffffff819727f3",
+            "CVW@0xffffffff819727f4",
+            "CVW@0xffffffff819dbed5",
+            "CVW@0xffffffff81a11604"
+          ]
+        },
+        "3538a6a": {
+          "project": "zhengchuancases0403",
+          "primitive_count": 3,
+          "path_count": 10,
+          "by_primitive": {
+            "CVW": 1,
+            "AVW": 2
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff848f3a50",
+            "AVW@0xffffffff848f3a68",
+            "CVW@0xffffffff848f358d"
+          ]
+        },
+        "3587cbb": {
+          "project": "big_test2",
+          "primitive_count": 37,
+          "path_count": 1594,
+          "by_primitive": {
+            "AVW": 27,
+            "CVW": 10
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff8132fa40",
+            "AVW@0xffffffff81336f70",
+            "AVW@0xffffffff815f53da",
+            "AVW@0xffffffff816284d6",
+            "AVW@0xffffffff816288c4",
+            "AVW@0xffffffff81682740",
+            "AVW@0xffffffff81687df6",
+            "AVW@0xffffffff81688001",
+            "AVW@0xffffffff81688180",
+            "AVW@0xffffffff8168821d",
+            "AVW@0xffffffff81688da6",
+            "AVW@0xffffffff81688ead",
+            "AVW@0xffffffff81688eb5",
+            "AVW@0xffffffff8168bd66",
+            "AVW@0xffffffff8168bd85",
+            "AVW@0xffffffff824816fc",
+            "AVW@0xffffffff82481711",
+            "AVW@0xffffffff82481760",
+            "AVW@0xffffffff8248e848",
+            "AVW@0xffffffff825a1821",
+            "AVW@0xffffffff825a1824",
+            "AVW@0xffffffff825a1828",
+            "AVW@0xffffffff825a182c",
+            "AVW@0xffffffff825a1840",
+            "AVW@0xffffffff825a1844",
+            "AVW@0xffffffff825a1848",
+            "AVW@0xffffffff825a184c",
+            "CVW@0xffffffff8132fa40",
+            "CVW@0xffffffff8132fa43",
+            "CVW@0xffffffff81336f70",
+            "CVW@0xffffffff81336f7c",
+            "CVW@0xffffffff815f53d0",
+            "CVW@0xffffffff816284f7",
+            "CVW@0xffffffff81687ef9",
+            "CVW@0xffffffff81688223",
+            "CVW@0xffffffff8168d3a5",
+            "CVW@0xffffffff8168d419"
+          ]
+        },
+        "3694e28": {
+          "project": "big_test4",
+          "primitive_count": 28,
+          "path_count": 246,
+          "by_primitive": {
+            "CVW": 23,
+            "AVW": 5
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff8140b804",
+            "AVW@0xffffffff8140b805",
+            "AVW@0xffffffff8140b844",
+            "AVW@0xffffffff8140b845",
+            "AVW@0xffffffff82a8b71b",
+            "CVW@0xffffffff8140b804",
+            "CVW@0xffffffff8140b844",
+            "CVW@0xffffffff81645dc3",
+            "CVW@0xffffffff816486ef",
+            "CVW@0xffffffff816511e4",
+            "CVW@0xffffffff816511e9",
+            "CVW@0xffffffff825fee94",
+            "CVW@0xffffffff825fee99",
+            "CVW@0xffffffff825fefa0",
+            "CVW@0xffffffff825fefa5",
+            "CVW@0xffffffff826136e0",
+            "CVW@0xffffffff826136e5",
+            "CVW@0xffffffff826138bf",
+            "CVW@0xffffffff82a34e08",
+            "CVW@0xffffffff82a36744",
+            "CVW@0xffffffff82a36749",
+            "CVW@0xffffffff82a37634",
+            "CVW@0xffffffff82a37639",
+            "CVW@0xffffffff85b8fe7b",
+            "CVW@0xffffffff85b8ffc2",
+            "CVW@0xffffffff85b906fe",
+            "CVW@0xffffffff85b90d37",
+            "CVW@0xffffffff85b9378e"
+          ]
+        },
+        "380acd1": {
+          "project": "my3",
+          "primitive_count": 22,
+          "path_count": 729,
+          "by_primitive": {
+            "CVW": 4,
+            "AVW": 18
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff833407e4",
+            "AVW@0xffffffff83340809",
+            "AVW@0xffffffff8334082a",
+            "AVW@0xffffffff83340904",
+            "AVW@0xffffffff83340920",
+            "AVW@0xffffffff83340953",
+            "AVW@0xffffffff8334099a",
+            "AVW@0xffffffff83340ab9",
+            "AVW@0xffffffff83340ae1",
+            "AVW@0xffffffff83340b02",
+            "AVW@0xffffffff83340bc2",
+            "AVW@0xffffffff83340c31",
+            "AVW@0xffffffff83340c5f",
+            "AVW@0xffffffff83340c8f",
+            "AVW@0xffffffff83340cef",
+            "AVW@0xffffffff83340d31",
+            "AVW@0xffffffff8335368a",
+            "AVW@0xffffffff8335369a",
+            "CVW@0xffffffff83340bdf",
+            "CVW@0xffffffff83340cba",
+            "CVW@0xffffffff833484e1",
+            "CVW@0xffffffff8335378f"
+          ]
+        },
+        "3a430af": {
+          "project": "zhengchuancases0403",
+          "primitive_count": 12,
+          "path_count": 2280,
+          "by_primitive": {
+            "AVW": 10,
+            "CVW": 2
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff83452b7b",
+            "AVW@0xffffffff83452b7d",
+            "AVW@0xffffffff83452b81",
+            "AVW@0xffffffff83455330",
+            "AVW@0xffffffff83455335",
+            "AVW@0xffffffff83455410",
+            "AVW@0xffffffff8345625a",
+            "AVW@0xffffffff83456419",
+            "AVW@0xffffffff83456427",
+            "AVW@0xffffffff8345642e",
+            "CVW@0xffffffff83456562",
+            "CVW@0xffffffff83456580"
+          ]
+        },
+        "3c53ee4": {
+          "project": "big_test3",
+          "primitive_count": 2,
+          "path_count": 1071,
+          "by_primitive": {
+            "AVW": 2
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff834c16c9",
+            "AVW@0xffffffff834c16e0"
+          ]
+        },
+        "481a3ff": {
+          "project": "big_test1",
+          "primitive_count": 10,
+          "path_count": 104,
+          "by_primitive": {
+            "AVW": 4,
+            "CVW": 6
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff81322470",
+            "AVW@0xffffffff823258e6",
+            "AVW@0xffffffff8243a102",
+            "AVW@0xffffffff8243aadc",
+            "CVW@0xffffffff814e254a",
+            "CVW@0xffffffff820c8d3c",
+            "CVW@0xffffffff8243ad36",
+            "CVW@0xffffffff8243adfb",
+            "CVW@0xffffffff8243ae0f",
+            "CVW@0xffffffff8243b2eb"
+          ]
+        },
+        "520f870": {
+          "project": "big_test1",
+          "primitive_count": 15,
+          "path_count": 2559,
+          "by_primitive": {
+            "CVW": 15
+          },
+          "primitive_keys": [
+            "CVW@0xffffffff815370af",
+            "CVW@0xffffffff822ddc07",
+            "CVW@0xffffffff822ddc4c",
+            "CVW@0xffffffff822ddc61",
+            "CVW@0xffffffff822ddc93",
+            "CVW@0xffffffff822ddcf0",
+            "CVW@0xffffffff822ddd28",
+            "CVW@0xffffffff822de003",
+            "CVW@0xffffffff822de366",
+            "CVW@0xffffffff822de391",
+            "CVW@0xffffffff822de69d",
+            "CVW@0xffffffff822de74b",
+            "CVW@0xffffffff822de75b",
+            "CVW@0xffffffff822f5220",
+            "CVW@0xffffffff822f5235"
+          ]
+        },
+        "52bbc0a": {
+          "project": "my3",
+          "primitive_count": 7,
+          "path_count": 58,
+          "by_primitive": {
+            "CVW": 5,
+            "AVW": 2
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff85c5822e",
+            "AVW@0xffffffff85c59a9a",
+            "CVW@0xffffffff819d8fd9",
+            "CVW@0xffffffff85c56d8a",
+            "CVW@0xffffffff85c59b31",
+            "CVW@0xffffffff85c59b94",
+            "CVW@0xffffffff85c59e9b"
+          ]
+        },
+        "52da8b3": {
+          "project": "big_test4",
+          "primitive_count": 11,
+          "path_count": 119,
+          "by_primitive": {
+            "AVW": 9,
+            "CVW": 2
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff82198f3b",
+            "AVW@0xffffffff82198f80",
+            "AVW@0xffffffff825f3deb",
+            "AVW@0xffffffff82619eaa",
+            "AVW@0xffffffff8261a01f",
+            "AVW@0xffffffff82679177",
+            "AVW@0xffffffff826791a4",
+            "AVW@0xffffffff8290f409",
+            "AVW@0xffffffff8290f40d",
+            "CVW@0xffffffff825f3ddf",
+            "CVW@0xffffffff826791c0"
+          ]
+        },
+        "541ce19": {
+          "project": "new_bugs-1-2",
+          "primitive_count": 2,
+          "path_count": 6,
+          "by_primitive": {
+            "AVW": 2
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff85659449",
+            "AVW@0xffffffff856809e1"
+          ]
+        },
+        "61b1603": {
+          "project": "big_test1",
+          "primitive_count": 1,
+          "path_count": 14,
+          "by_primitive": {
+            "CVW": 1
+          },
+          "primitive_keys": [
+            "CVW@0xffffffff82d94ee6"
+          ]
+        },
+        "6cf5652": {
+          "project": "big_test2",
+          "primitive_count": 4,
+          "path_count": 121,
+          "by_primitive": {
+            "CVW": 1,
+            "AVW": 3
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff84ca7648",
+            "AVW@0xffffffff85b8e2df",
+            "AVW@0xffffffff85bbd219",
+            "CVW@0xffffffff84ca5b1b"
+          ]
+        },
+        "73c586d": {
+          "project": "new_bugs-1-2",
+          "primitive_count": 7,
+          "path_count": 118,
+          "by_primitive": {
+            "CVW": 4,
+            "AVW": 3
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff813977b0",
+            "AVW@0xffffffff8269d719",
+            "AVW@0xffffffff8269d737",
+            "CVW@0xffffffff8173c862",
+            "CVW@0xffffffff8173c89a",
+            "CVW@0xffffffff81958024",
+            "CVW@0xffffffff8269d717"
+          ]
+        },
+        "7dd7f2f": {
+          "project": "big_test3",
+          "primitive_count": 3,
+          "path_count": 33,
+          "by_primitive": {
+            "AVW": 2,
+            "CVW": 1
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff8128b8b6",
+            "AVW@0xffffffff8128be0c",
+            "CVW@0xffffffff822fdfdc"
+          ]
+        },
+        "7e9494b": {
+          "project": "zhengchuancases0403",
+          "primitive_count": 2,
+          "path_count": 4,
+          "by_primitive": {
+            "AVW": 2
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff813dcc74",
+            "AVW@0xffffffff82791bdb"
+          ]
+        },
+        "8811381": {
+          "project": "new_bugs-6",
+          "primitive_count": 16,
+          "path_count": 1033,
+          "by_primitive": {
+            "CVW": 10,
+            "AVW": 6
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff82b46b74",
+            "AVW@0xffffffff82b4c1d5",
+            "AVW@0xffffffff84e3381b",
+            "AVW@0xffffffff84e338b7",
+            "AVW@0xffffffff84e3390f",
+            "AVW@0xffffffff84e33973",
+            "CVW@0xffffffff82b46b74",
+            "CVW@0xffffffff82b4c1d7",
+            "CVW@0xffffffff82b4c1dd",
+            "CVW@0xffffffff82ccd264",
+            "CVW@0xffffffff84e337e0",
+            "CVW@0xffffffff84e3382c",
+            "CVW@0xffffffff84e3398d",
+            "CVW@0xffffffff84e33cb4",
+            "CVW@0xffffffff84e33d86",
+            "CVW@0xffffffff84e33d88"
+          ]
+        },
+        "8aedc9a": {
+          "project": "new_bugs-1-2",
+          "primitive_count": 17,
+          "path_count": 185,
+          "by_primitive": {
+            "AVW": 9,
+            "CVW": 8
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff82474947",
+            "AVW@0xffffffff82474a41",
+            "AVW@0xffffffff82474a45",
+            "AVW@0xffffffff82474a47",
+            "AVW@0xffffffff82474a49",
+            "AVW@0xffffffff82815873",
+            "AVW@0xffffffff82816260",
+            "AVW@0xffffffff82816262",
+            "AVW@0xffffffff82816264",
+            "CVW@0xffffffff82474a41",
+            "CVW@0xffffffff82474a43",
+            "CVW@0xffffffff82474a47",
+            "CVW@0xffffffff82474a49",
+            "CVW@0xffffffff82815870",
+            "CVW@0xffffffff82815873",
+            "CVW@0xffffffff82816262",
+            "CVW@0xffffffff82816264"
+          ]
+        },
+        "96414aa": {
+          "project": "big_test1",
+          "primitive_count": 3,
+          "path_count": 33,
+          "by_primitive": {
+            "AVW": 2,
+            "CVW": 1
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff8128a396",
+            "AVW@0xffffffff8128a8ec",
+            "CVW@0xffffffff822fe80c"
+          ]
+        },
+        "98228e7": {
+          "project": "zhengchuancases0403",
+          "primitive_count": 16,
+          "path_count": 68,
+          "by_primitive": {
+            "AVW": 14,
+            "CVW": 2
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff822f4f7b",
+            "AVW@0xffffffff822f4f7d",
+            "AVW@0xffffffff83450a02",
+            "AVW@0xffffffff83450a08",
+            "AVW@0xffffffff83455330",
+            "AVW@0xffffffff83455335",
+            "AVW@0xffffffff834553f9",
+            "AVW@0xffffffff83455400",
+            "AVW@0xffffffff83455410",
+            "AVW@0xffffffff834558b0",
+            "AVW@0xffffffff8345625a",
+            "AVW@0xffffffff83456419",
+            "AVW@0xffffffff83456427",
+            "AVW@0xffffffff8345642e",
+            "CVW@0xffffffff83456562",
+            "CVW@0xffffffff83456580"
+          ]
+        },
+        "9f6c56c": {
+          "project": "zhengchuancases0403",
+          "primitive_count": 1,
+          "path_count": 2,
+          "by_primitive": {
+            "AVW": 1
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff85a6cb89"
+          ]
+        },
+        "a0ddc98": {
+          "project": "big_test4",
+          "primitive_count": 6,
+          "path_count": 14,
+          "by_primitive": {
+            "AVW": 6
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff8140b945",
+            "AVW@0xffffffff8140b947",
+            "AVW@0xffffffff8140b987",
+            "AVW@0xffffffff81853ecb",
+            "AVW@0xffffffff81853ece",
+            "AVW@0xffffffff81855964"
+          ]
+        },
+        "a7db908": {
+          "project": "big_test1",
+          "primitive_count": 5,
+          "path_count": 304,
+          "by_primitive": {
+            "AVW": 5
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff82cc455c",
+            "AVW@0xffffffff82cc45a9",
+            "AVW@0xffffffff82cc45c5",
+            "AVW@0xffffffff82cc45dd",
+            "AVW@0xffffffff82cc4697"
+          ]
+        },
+        "aa6df9d": {
+          "project": "big_test3",
+          "primitive_count": 15,
+          "path_count": 565,
+          "by_primitive": {
+            "AVW": 4,
+            "CVW": 11
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff8170ae27",
+            "AVW@0xffffffff81ff4d79",
+            "AVW@0xffffffff81ffc0fc",
+            "AVW@0xffffffff85b821f4",
+            "CVW@0xffffffff818164ab",
+            "CVW@0xffffffff818164f3",
+            "CVW@0xffffffff818178fa",
+            "CVW@0xffffffff81827b07",
+            "CVW@0xffffffff81ffc172",
+            "CVW@0xffffffff81ffc201",
+            "CVW@0xffffffff81ffc237",
+            "CVW@0xffffffff81ffc2b7",
+            "CVW@0xffffffff81ffc431",
+            "CVW@0xffffffff85b821f5",
+            "CVW@0xffffffff85b9b7a1"
+          ]
+        },
+        "b471b7c": {
+          "project": "new_bugs-6",
+          "primitive_count": 19,
+          "path_count": 1460,
+          "by_primitive": {
+            "AVW": 18,
+            "CVW": 1
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff81788464",
+            "AVW@0xffffffff81788469",
+            "AVW@0xffffffff81789a54",
+            "AVW@0xffffffff81789a57",
+            "AVW@0xffffffff84cddb76",
+            "AVW@0xffffffff84cddd74",
+            "AVW@0xffffffff84cddd7a",
+            "AVW@0xffffffff84ce75d4",
+            "AVW@0xffffffff84ce75d5",
+            "AVW@0xffffffff84ce75d7",
+            "AVW@0xffffffff84ce75d9",
+            "AVW@0xffffffff84ce75db",
+            "AVW@0xffffffff85654c14",
+            "AVW@0xffffffff85659154",
+            "AVW@0xffffffff85659155",
+            "AVW@0xffffffff85659157",
+            "AVW@0xffffffff85659159",
+            "AVW@0xffffffff8565915b",
+            "CVW@0xffffffff81789a55"
+          ]
+        },
+        "b8fe393": {
+          "project": "big_test2",
+          "primitive_count": 7,
+          "path_count": 28,
+          "by_primitive": {
+            "CVW": 7
+          },
+          "primitive_keys": [
+            "CVW@0xffffffff834345f0",
+            "CVW@0xffffffff83436f30",
+            "CVW@0xffffffff83f21dac",
+            "CVW@0xffffffff83f21dc7",
+            "CVW@0xffffffff83f21de2",
+            "CVW@0xffffffff83f21df6",
+            "CVW@0xffffffff83f21e0a"
+          ]
+        },
+        "bbeb1c8": {
+          "project": "zhengchuancases0403",
+          "primitive_count": 3,
+          "path_count": 9,
+          "by_primitive": {
+            "AVW": 3
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff817f0820",
+            "AVW@0xffffffff817f0842",
+            "AVW@0xffffffff817f1ec1"
+          ]
+        },
+        "bd39145": {
+          "project": "big_test2",
+          "primitive_count": 1,
+          "path_count": 1,
+          "by_primitive": {
+            "AVW": 1
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff83231d90"
+          ]
+        },
+        "c041b4c": {
+          "project": "new_bugs-6",
+          "primitive_count": 19,
+          "path_count": 1460,
+          "by_primitive": {
+            "AVW": 18,
+            "CVW": 1
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff81788204",
+            "AVW@0xffffffff81788209",
+            "AVW@0xffffffff817897f4",
+            "AVW@0xffffffff817897f7",
+            "AVW@0xffffffff84cdde36",
+            "AVW@0xffffffff84cde034",
+            "AVW@0xffffffff84cde03a",
+            "AVW@0xffffffff84ce7864",
+            "AVW@0xffffffff84ce7865",
+            "AVW@0xffffffff84ce7867",
+            "AVW@0xffffffff84ce7869",
+            "AVW@0xffffffff84ce786b",
+            "AVW@0xffffffff856558b4",
+            "AVW@0xffffffff85659df4",
+            "AVW@0xffffffff85659df5",
+            "AVW@0xffffffff85659df7",
+            "AVW@0xffffffff85659df9",
+            "AVW@0xffffffff85659dfb",
+            "CVW@0xffffffff817897f5"
+          ]
+        },
+        "c72da7b": {
+          "project": "big_test1",
+          "primitive_count": 9,
+          "path_count": 17,
+          "by_primitive": {
+            "AVW": 9
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff821c3e91",
+            "AVW@0xffffffff821c3ef2",
+            "AVW@0xffffffff821c3f4b",
+            "AVW@0xffffffff821c4020",
+            "AVW@0xffffffff821c4025",
+            "AVW@0xffffffff821c402a",
+            "AVW@0xffffffff833b39c2",
+            "AVW@0xffffffff833b3a5d",
+            "AVW@0xffffffff833b3a61"
+          ]
+        },
+        "c8ae652": {
+          "project": "big_test1",
+          "primitive_count": 14,
+          "path_count": 117,
+          "by_primitive": {
+            "AVW": 13,
+            "CVW": 1
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff828ae8d3",
+            "AVW@0xffffffff828aee06",
+            "AVW@0xffffffff84a40f04",
+            "AVW@0xffffffff84a61eaa",
+            "AVW@0xffffffff84a61eac",
+            "AVW@0xffffffff84a61eb5",
+            "AVW@0xffffffff84a61fc5",
+            "AVW@0xffffffff84a61fda",
+            "AVW@0xffffffff84a61fef",
+            "AVW@0xffffffff84a620d3",
+            "AVW@0xffffffff84a620d9",
+            "AVW@0xffffffff84a62f3f",
+            "AVW@0xffffffff84a62f40",
+            "CVW@0xffffffff84a620ce"
+          ]
+        },
+        "c90849c": {
+          "project": "big_test3",
+          "primitive_count": 15,
+          "path_count": 322,
+          "by_primitive": {
+            "AVW": 6,
+            "CVW": 9
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff84943ed9",
+            "AVW@0xffffffff84956cf8",
+            "AVW@0xffffffff84958f2c",
+            "AVW@0xffffffff8513ca0f",
+            "AVW@0xffffffff8513cbb4",
+            "AVW@0xffffffff85140767",
+            "CVW@0xffffffff828c4184",
+            "CVW@0xffffffff84943e9e",
+            "CVW@0xffffffff84943ed9",
+            "CVW@0xffffffff84944039",
+            "CVW@0xffffffff84951ae0",
+            "CVW@0xffffffff84956c9d",
+            "CVW@0xffffffff8513c839",
+            "CVW@0xffffffff8513cb4b",
+            "CVW@0xffffffff851406f8"
+          ]
+        },
+        "c96e4df": {
+          "project": "big_test3",
+          "primitive_count": 19,
+          "path_count": 944,
+          "by_primitive": {
+            "CVW": 17,
+            "AVW": 2
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff83daa0e0",
+            "AVW@0xffffffff83daa152",
+            "CVW@0xffffffff81539c0f",
+            "CVW@0xffffffff822e0f57",
+            "CVW@0xffffffff822e0f9c",
+            "CVW@0xffffffff822e0fb1",
+            "CVW@0xffffffff822e0fe3",
+            "CVW@0xffffffff822e1040",
+            "CVW@0xffffffff822e1078",
+            "CVW@0xffffffff822e1353",
+            "CVW@0xffffffff822e16b6",
+            "CVW@0xffffffff822e16e1",
+            "CVW@0xffffffff822e19ed",
+            "CVW@0xffffffff822e1a9b",
+            "CVW@0xffffffff822e1aab",
+            "CVW@0xffffffff822f8570",
+            "CVW@0xffffffff822f8585",
+            "CVW@0xffffffff83daa0b3",
+            "CVW@0xffffffff83daa198"
+          ]
+        },
+        "d2c5e69": {
+          "project": "big_test4",
+          "primitive_count": 30,
+          "path_count": 108,
+          "by_primitive": {
+            "CVW": 19,
+            "AVW": 11
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff83cbbebf",
+            "AVW@0xffffffff83ced028",
+            "AVW@0xffffffff83ced4a5",
+            "AVW@0xffffffff83ced5f0",
+            "AVW@0xffffffff83cee4e7",
+            "AVW@0xffffffff83cef55e",
+            "AVW@0xffffffff83d92eca",
+            "AVW@0xffffffff83da2865",
+            "AVW@0xffffffff83da287e",
+            "AVW@0xffffffff84183b56",
+            "AVW@0xffffffff84183c74",
+            "CVW@0xffffffff8126ec4f",
+            "CVW@0xffffffff82bb5750",
+            "CVW@0xffffffff82bb58d7",
+            "CVW@0xffffffff83cb2090",
+            "CVW@0xffffffff83cbbee7",
+            "CVW@0xffffffff83ce68d0",
+            "CVW@0xffffffff83ceaab0",
+            "CVW@0xffffffff83cec5b2",
+            "CVW@0xffffffff83ced260",
+            "CVW@0xffffffff83ced390",
+            "CVW@0xffffffff83ced3a3",
+            "CVW@0xffffffff83d046cd",
+            "CVW@0xffffffff83d92ee2",
+            "CVW@0xffffffff83d9300f",
+            "CVW@0xffffffff83da27ca",
+            "CVW@0xffffffff83da2898",
+            "CVW@0xffffffff84161462",
+            "CVW@0xffffffff84183c65",
+            "CVW@0xffffffff841c32af"
+          ]
+        },
+        "d8489a7": {
+          "project": "zhengchuancases0403",
+          "primitive_count": 9,
+          "path_count": 48,
+          "by_primitive": {
+            "AVW": 7,
+            "CVW": 2
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff83455020",
+            "AVW@0xffffffff83455025",
+            "AVW@0xffffffff83455100",
+            "AVW@0xffffffff83455f4a",
+            "AVW@0xffffffff83456109",
+            "AVW@0xffffffff83456117",
+            "AVW@0xffffffff8345611e",
+            "CVW@0xffffffff83456252",
+            "CVW@0xffffffff83456270"
+          ]
+        },
+        "e3cd8df": {
+          "project": "my3",
+          "primitive_count": 4,
+          "path_count": 6,
+          "by_primitive": {
+            "CVW": 2,
+            "AVW": 2
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff82541111",
+            "AVW@0xffffffff82541197",
+            "CVW@0xffffffff82541094",
+            "CVW@0xffffffff82546bd0"
+          ]
+        },
+        "e5db00b": {
+          "project": "big_test2",
+          "primitive_count": 9,
+          "path_count": 17,
+          "by_primitive": {
+            "AVW": 9
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff821c3e91",
+            "AVW@0xffffffff821c3ef2",
+            "AVW@0xffffffff821c3f4b",
+            "AVW@0xffffffff821c4020",
+            "AVW@0xffffffff821c4025",
+            "AVW@0xffffffff821c402a",
+            "AVW@0xffffffff833b39c2",
+            "AVW@0xffffffff833b3a5d",
+            "AVW@0xffffffff833b3a61"
+          ]
+        },
+        "e84662c": {
+          "project": "big_test4",
+          "primitive_count": 1,
+          "path_count": 2,
+          "by_primitive": {
+            "AVW": 1
+          },
+          "primitive_keys": [
+            "AVW@0xffffffff83666c85"
+          ]
+        },
+        "efae31b": {
+          "project": "big_test2",
+          "primitive_count": 1,
+          "path_count": 5,
+          "by_primitive": {
+            "CVW": 1
+          },
+          "primitive_keys": [
+            "CVW@0xffffffff8136abee"
           ]
         },
         "f31660c": {
           "project": "big_test3",
-          "primitive_count": 5,
-          "path_count": 214,
+          "primitive_count": 42,
+          "path_count": 1532,
           "by_primitive": {
-            "AVW": 5
+            "CVW": 29,
+            "AVW": 13
           },
           "primitive_keys": [
             "AVW@0xffffffff83c43ada",
             "AVW@0xffffffff83c43af4",
             "AVW@0xffffffff83c43b3c",
             "AVW@0xffffffff83c43b4f",
-            "AVW@0xffffffff83c43b5b"
+            "AVW@0xffffffff83c43b5b",
+            "AVW@0xffffffff83c485d3",
+            "AVW@0xffffffff83c750c2",
+            "AVW@0xffffffff83c7522a",
+            "AVW@0xffffffff83c75238",
+            "AVW@0xffffffff83c75248",
+            "AVW@0xffffffff83c752c0",
+            "AVW@0xffffffff83c754fc",
+            "AVW@0xffffffff83c75515",
+            "CVW@0xffffffff825564ad",
+            "CVW@0xffffffff825564b7",
+            "CVW@0xffffffff83c466d2",
+            "CVW@0xffffffff83c466d6",
+            "CVW@0xffffffff83c46a5a",
+            "CVW@0xffffffff83c4892f",
+            "CVW@0xffffffff83c48940",
+            "CVW@0xffffffff83c48951",
+            "CVW@0xffffffff83c4a170",
+            "CVW@0xffffffff83c4a179",
+            "CVW@0xffffffff83c4a415",
+            "CVW@0xffffffff83c4bba4",
+            "CVW@0xffffffff83c4ec38",
+            "CVW@0xffffffff83c4ec40",
+            "CVW@0xffffffff83c6b690",
+            "CVW@0xffffffff83c6b692",
+            "CVW@0xffffffff83c6b75e",
+            "CVW@0xffffffff83c6b7cd",
+            "CVW@0xffffffff83c6b857",
+            "CVW@0xffffffff83c743a0",
+            "CVW@0xffffffff83c743a2",
+            "CVW@0xffffffff83c7445c",
+            "CVW@0xffffffff83c74480",
+            "CVW@0xffffffff83c7461e",
+            "CVW@0xffffffff83c750ff",
+            "CVW@0xffffffff83c752cc",
+            "CVW@0xffffffff83c754b6",
+            "CVW@0xffffffff83c76300",
+            "CVW@0xffffffff83df1e98"
           ]
         }
       }
@@ -191,29 +1161,16 @@
   },
   "case_rows": [
     {
-      "case_id": "03d7b43",
-      "project": "big_test4",
-      "endstate_count": 2,
-      "primitive_count": 1,
-      "not_usable": 1,
-      "avoidance": 0,
-      "neutralization": 0,
-      "clean": 0,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/big_test4/completed/03d7b43/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
-    },
-    {
       "case_id": "04419e3",
       "project": "zhengchuancases0403",
       "endstate_count": 4,
-      "primitive_count": 8,
-      "not_usable": 0,
+      "primitive_count": 3,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 8,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 2,
+      "excluded_value_write_missing_destination": 5,
+      "excluded_value_write_missing_destination_paths": 10,
       "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/04419e3/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -221,51 +1178,38 @@
       "project": "big_test3",
       "endstate_count": 153,
       "primitive_count": 16,
-      "not_usable": 4,
-      "avoidance": 3,
-      "neutralization": 0,
+      "not_usable": 6,
+      "avoidance": 0,
+      "neutralization": 1,
       "clean": 9,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test3/completed/0540b60/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
-      "case_id": "09b4a3f",
-      "project": "big_test1",
-      "endstate_count": 46,
-      "primitive_count": 17,
-      "not_usable": 0,
-      "avoidance": 0,
-      "neutralization": 0,
-      "clean": 17,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/big_test1/completed/09b4a3f/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
-    },
-    {
       "case_id": "0b1e853",
       "project": "new_bugs-1-2",
       "endstate_count": 20,
-      "primitive_count": 47,
-      "not_usable": 31,
-      "avoidance": 9,
-      "neutralization": 0,
+      "primitive_count": 30,
+      "not_usable": 22,
+      "avoidance": 0,
+      "neutralization": 1,
       "clean": 7,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "excluded_value_write_missing_destination": 17,
+      "excluded_value_write_missing_destination_paths": 319,
       "report": "/home/jpu007/ExpBridge/projects/new_bugs-1-2/completed/0b1e853/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "10005f4",
       "project": "big_test2",
       "endstate_count": 57,
-      "primitive_count": 10,
-      "not_usable": 0,
+      "primitive_count": 3,
+      "not_usable": 3,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 10,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 0,
+      "excluded_value_write_missing_destination": 7,
+      "excluded_value_write_missing_destination_paths": 931,
       "report": "/home/jpu007/ExpBridge/projects/big_test2/completed/10005f4/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -285,39 +1229,26 @@
       "case_id": "10a9db4",
       "project": "big_test1",
       "endstate_count": 4,
-      "primitive_count": 3,
-      "not_usable": 1,
-      "avoidance": 0,
-      "neutralization": 0,
-      "clean": 2,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/big_test1/completed/10a9db4/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
-    },
-    {
-      "case_id": "1917d77",
-      "project": "big_test3",
-      "endstate_count": 7,
-      "primitive_count": 1,
+      "primitive_count": 2,
       "not_usable": 0,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 1,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/big_test3/completed/1917d77/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
+      "clean": 2,
+      "excluded_value_write_missing_destination": 1,
+      "excluded_value_write_missing_destination_paths": 3,
+      "report": "/home/jpu007/ExpBridge/projects/big_test1/completed/10a9db4/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "1966db2",
       "project": "big_test2",
       "endstate_count": 19,
-      "primitive_count": 14,
-      "not_usable": 0,
+      "primitive_count": 3,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 14,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 2,
+      "excluded_value_write_missing_destination": 11,
+      "excluded_value_write_missing_destination_paths": 218,
       "report": "/home/jpu007/ExpBridge/projects/big_test2/completed/1966db2/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -338,10 +1269,10 @@
       "project": "big_test4",
       "endstate_count": 2,
       "primitive_count": 2,
-      "not_usable": 0,
+      "not_usable": 2,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 2,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test4/completed/24d0577/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -353,8 +1284,8 @@
       "primitive_count": 1,
       "not_usable": 0,
       "avoidance": 0,
-      "neutralization": 0,
-      "clean": 1,
+      "neutralization": 1,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test3/completed/28a66a9/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -390,8 +1321,8 @@
       "project": "big_test3",
       "endstate_count": 8,
       "primitive_count": 11,
-      "not_usable": 4,
-      "avoidance": 2,
+      "not_usable": 6,
+      "avoidance": 0,
       "neutralization": 0,
       "clean": 5,
       "excluded_value_write_missing_destination": 0,
@@ -402,65 +1333,65 @@
       "case_id": "32799a3",
       "project": "new_bugs-3-2",
       "endstate_count": 43,
-      "primitive_count": 24,
-      "not_usable": 0,
+      "primitive_count": 2,
+      "not_usable": 2,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 24,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 0,
+      "excluded_value_write_missing_destination": 22,
+      "excluded_value_write_missing_destination_paths": 551,
       "report": "/home/jpu007/ExpBridge/projects/new_bugs-3-2/completed/32799a3/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "34a0f26",
       "project": "big_test3",
       "endstate_count": 19,
-      "primitive_count": 15,
-      "not_usable": 0,
+      "primitive_count": 3,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 15,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 2,
+      "excluded_value_write_missing_destination": 12,
+      "excluded_value_write_missing_destination_paths": 160,
       "report": "/home/jpu007/ExpBridge/projects/big_test3/completed/34a0f26/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "3538a6a",
       "project": "zhengchuancases0403",
       "endstate_count": 8,
-      "primitive_count": 46,
-      "not_usable": 0,
+      "primitive_count": 43,
+      "not_usable": 41,
       "avoidance": 0,
-      "neutralization": 4,
-      "clean": 42,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "neutralization": 0,
+      "clean": 2,
+      "excluded_value_write_missing_destination": 3,
+      "excluded_value_write_missing_destination_paths": 10,
       "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/3538a6a/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "3587cbb",
       "project": "big_test2",
       "endstate_count": 72,
-      "primitive_count": 40,
-      "not_usable": 0,
+      "primitive_count": 3,
+      "not_usable": 2,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 40,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 1,
+      "excluded_value_write_missing_destination": 37,
+      "excluded_value_write_missing_destination_paths": 1594,
       "report": "/home/jpu007/ExpBridge/projects/big_test2/completed/3587cbb/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "3694e28",
       "project": "big_test4",
       "endstate_count": 9,
-      "primitive_count": 30,
-      "not_usable": 0,
+      "primitive_count": 5,
+      "not_usable": 2,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 30,
-      "excluded_value_write_missing_destination": 3,
-      "excluded_value_write_missing_destination_paths": 27,
+      "clean": 3,
+      "excluded_value_write_missing_destination": 28,
+      "excluded_value_write_missing_destination_paths": 246,
       "report": "/home/jpu007/ExpBridge/projects/big_test4/completed/3694e28/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -468,64 +1399,51 @@
       "project": "big_test2",
       "endstate_count": 4,
       "primitive_count": 3,
-      "not_usable": 0,
+      "not_usable": 3,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 3,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test2/completed/36cf9e5/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
-      "case_id": "373ce58",
-      "project": "big_test2",
-      "endstate_count": 3,
-      "primitive_count": 7,
-      "not_usable": 0,
-      "avoidance": 0,
-      "neutralization": 0,
-      "clean": 7,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/big_test2/completed/373ce58/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
-    },
-    {
       "case_id": "380acd1",
       "project": "my3",
       "endstate_count": 230,
-      "primitive_count": 70,
-      "not_usable": 38,
-      "avoidance": 4,
-      "neutralization": 7,
-      "clean": 21,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "primitive_count": 48,
+      "not_usable": 26,
+      "avoidance": 0,
+      "neutralization": 3,
+      "clean": 19,
+      "excluded_value_write_missing_destination": 22,
+      "excluded_value_write_missing_destination_paths": 729,
       "report": "/home/jpu007/ExpBridge/projects/my3/completed/380acd1/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "3a430af",
       "project": "zhengchuancases0403",
       "endstate_count": 342,
-      "primitive_count": 25,
-      "not_usable": 16,
+      "primitive_count": 13,
+      "not_usable": 4,
       "avoidance": 0,
       "neutralization": 0,
       "clean": 9,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "excluded_value_write_missing_destination": 12,
+      "excluded_value_write_missing_destination_paths": 2280,
       "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/3a430af/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "3c53ee4",
       "project": "big_test3",
       "endstate_count": 153,
-      "primitive_count": 18,
-      "not_usable": 4,
-      "avoidance": 5,
-      "neutralization": 0,
+      "primitive_count": 16,
+      "not_usable": 6,
+      "avoidance": 0,
+      "neutralization": 1,
       "clean": 9,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "excluded_value_write_missing_destination": 2,
+      "excluded_value_write_missing_destination_paths": 1071,
       "report": "/home/jpu007/ExpBridge/projects/big_test3/completed/3c53ee4/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -533,38 +1451,25 @@
       "project": "big_test4",
       "endstate_count": 1,
       "primitive_count": 8,
-      "not_usable": 0,
+      "not_usable": 7,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 8,
+      "clean": 1,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test4/completed/4180ff9/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
-      "case_id": "4207b2e",
-      "project": "zhengchuancases0403",
-      "endstate_count": 3,
-      "primitive_count": 5,
-      "not_usable": 0,
-      "avoidance": 0,
-      "neutralization": 0,
-      "clean": 5,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/4207b2e/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
-    },
-    {
       "case_id": "481a3ff",
       "project": "big_test1",
       "endstate_count": 19,
-      "primitive_count": 14,
-      "not_usable": 0,
+      "primitive_count": 4,
+      "not_usable": 2,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 14,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 2,
+      "excluded_value_write_missing_destination": 10,
+      "excluded_value_write_missing_destination_paths": 104,
       "report": "/home/jpu007/ExpBridge/projects/big_test1/completed/481a3ff/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -585,10 +1490,10 @@
       "project": "big_test4",
       "endstate_count": 4,
       "primitive_count": 2,
-      "not_usable": 0,
+      "not_usable": 2,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 2,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test4/completed/4e97561/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -597,65 +1502,52 @@
       "case_id": "520f870",
       "project": "big_test1",
       "endstate_count": 115,
-      "primitive_count": 17,
-      "not_usable": 0,
+      "primitive_count": 2,
+      "not_usable": 2,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 17,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 0,
+      "excluded_value_write_missing_destination": 15,
+      "excluded_value_write_missing_destination_paths": 2559,
       "report": "/home/jpu007/ExpBridge/projects/big_test1/completed/520f870/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "52bbc0a",
       "project": "my3",
       "endstate_count": 32,
-      "primitive_count": 21,
-      "not_usable": 3,
+      "primitive_count": 14,
+      "not_usable": 6,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 18,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 8,
+      "excluded_value_write_missing_destination": 7,
+      "excluded_value_write_missing_destination_paths": 58,
       "report": "/home/jpu007/ExpBridge/projects/my3/completed/52bbc0a/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "52da8b3",
       "project": "big_test4",
       "endstate_count": 14,
-      "primitive_count": 12,
-      "not_usable": 0,
+      "primitive_count": 1,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 12,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 0,
+      "excluded_value_write_missing_destination": 11,
+      "excluded_value_write_missing_destination_paths": 119,
       "report": "/home/jpu007/ExpBridge/projects/big_test4/completed/52da8b3/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
-    },
-    {
-      "case_id": "53ce40c",
-      "project": "zhengchuancases0403",
-      "endstate_count": 15,
-      "primitive_count": 13,
-      "not_usable": 0,
-      "avoidance": 0,
-      "neutralization": 0,
-      "clean": 13,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/53ce40c/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "541ce19",
       "project": "new_bugs-1-2",
       "endstate_count": 5,
-      "primitive_count": 2,
+      "primitive_count": 1,
       "not_usable": 1,
-      "avoidance": 1,
+      "avoidance": 0,
       "neutralization": 0,
       "clean": 0,
-      "excluded_value_write_missing_destination": 1,
-      "excluded_value_write_missing_destination_paths": 3,
+      "excluded_value_write_missing_destination": 2,
+      "excluded_value_write_missing_destination_paths": 6,
       "report": "/home/jpu007/ExpBridge/projects/new_bugs-1-2/completed/541ce19/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -663,9 +1555,9 @@
       "project": "big_test2",
       "endstate_count": 171,
       "primitive_count": 16,
-      "not_usable": 4,
-      "avoidance": 3,
-      "neutralization": 0,
+      "not_usable": 6,
+      "avoidance": 0,
+      "neutralization": 1,
       "clean": 9,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
@@ -689,10 +1581,10 @@
       "project": "big_test3",
       "endstate_count": 20,
       "primitive_count": 4,
-      "not_usable": 0,
+      "not_usable": 4,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 4,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test3/completed/58c872f/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -702,10 +1594,10 @@
       "project": "big_test1",
       "endstate_count": 1,
       "primitive_count": 1,
-      "not_usable": 0,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 1,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test1/completed/5d34cc6/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -717,8 +1609,8 @@
       "primitive_count": 1,
       "not_usable": 0,
       "avoidance": 0,
-      "neutralization": 0,
-      "clean": 1,
+      "neutralization": 1,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/60c837b/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -728,9 +1620,9 @@
       "project": "new_bugs-1-2",
       "endstate_count": 14,
       "primitive_count": 12,
-      "not_usable": 1,
-      "avoidance": 3,
-      "neutralization": 2,
+      "not_usable": 3,
+      "avoidance": 0,
+      "neutralization": 3,
       "clean": 6,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
@@ -741,10 +1633,10 @@
       "project": "big_test1",
       "endstate_count": 1,
       "primitive_count": 1,
-      "not_usable": 0,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 1,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test1/completed/6195888/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -753,13 +1645,13 @@
       "case_id": "61b1603",
       "project": "big_test1",
       "endstate_count": 76,
-      "primitive_count": 14,
-      "not_usable": 5,
+      "primitive_count": 13,
+      "not_usable": 4,
       "avoidance": 0,
       "neutralization": 0,
       "clean": 9,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "excluded_value_write_missing_destination": 1,
+      "excluded_value_write_missing_destination_paths": 14,
       "report": "/home/jpu007/ExpBridge/projects/big_test1/completed/61b1603/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -767,10 +1659,10 @@
       "project": "zhengchuancases0403",
       "endstate_count": 12,
       "primitive_count": 1,
-      "not_usable": 0,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 1,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/6491ea8/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -780,75 +1672,36 @@
       "project": "zhengchuancases0403",
       "endstate_count": 4,
       "primitive_count": 2,
-      "not_usable": 0,
+      "not_usable": 2,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 2,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/65c6b72/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
-      "case_id": "6745e27",
-      "project": "big_test4",
-      "endstate_count": 12,
-      "primitive_count": 1,
-      "not_usable": 0,
-      "avoidance": 0,
-      "neutralization": 0,
-      "clean": 1,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/big_test4/completed/6745e27/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
-    },
-    {
-      "case_id": "677213f",
-      "project": "big_test1",
-      "endstate_count": 1,
-      "primitive_count": 4,
-      "not_usable": 0,
-      "avoidance": 0,
-      "neutralization": 0,
-      "clean": 4,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/big_test1/completed/677213f/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
-    },
-    {
       "case_id": "6cf5652",
       "project": "big_test2",
       "endstate_count": 19,
-      "primitive_count": 8,
-      "not_usable": 1,
-      "avoidance": 4,
-      "neutralization": 0,
-      "clean": 3,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/big_test2/completed/6cf5652/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
-    },
-    {
-      "case_id": "6db30c7",
-      "project": "big_test2",
-      "endstate_count": 45,
-      "primitive_count": 25,
-      "not_usable": 0,
+      "primitive_count": 4,
+      "not_usable": 2,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 25,
+      "clean": 2,
       "excluded_value_write_missing_destination": 4,
-      "excluded_value_write_missing_destination_paths": 24,
-      "report": "/home/jpu007/ExpBridge/projects/big_test2/completed/6db30c7/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
+      "excluded_value_write_missing_destination_paths": 121,
+      "report": "/home/jpu007/ExpBridge/projects/big_test2/completed/6cf5652/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "6dc9ae7",
       "project": "big_test3",
       "endstate_count": 21,
       "primitive_count": 2,
-      "not_usable": 0,
+      "not_usable": 2,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 2,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test3/completed/6dc9ae7/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -909,13 +1762,13 @@
       "case_id": "73c586d",
       "project": "new_bugs-1-2",
       "endstate_count": 19,
-      "primitive_count": 10,
-      "not_usable": 0,
+      "primitive_count": 3,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 10,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 2,
+      "excluded_value_write_missing_destination": 7,
+      "excluded_value_write_missing_destination_paths": 118,
       "report": "/home/jpu007/ExpBridge/projects/new_bugs-1-2/completed/73c586d/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -923,10 +1776,10 @@
       "project": "zhengchuancases0403",
       "endstate_count": 6,
       "primitive_count": 2,
-      "not_usable": 0,
+      "not_usable": 2,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 2,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/7b6206f/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -935,26 +1788,26 @@
       "case_id": "7dd7f2f",
       "project": "big_test3",
       "endstate_count": 18,
-      "primitive_count": 24,
-      "not_usable": 6,
-      "avoidance": 10,
+      "primitive_count": 21,
+      "not_usable": 16,
+      "avoidance": 0,
       "neutralization": 0,
-      "clean": 8,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 5,
+      "excluded_value_write_missing_destination": 3,
+      "excluded_value_write_missing_destination_paths": 33,
       "report": "/home/jpu007/ExpBridge/projects/big_test3/completed/7dd7f2f/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "7e9494b",
       "project": "zhengchuancases0403",
       "endstate_count": 2,
-      "primitive_count": 5,
-      "not_usable": 0,
+      "primitive_count": 3,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 5,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 2,
+      "excluded_value_write_missing_destination": 2,
+      "excluded_value_write_missing_destination_paths": 4,
       "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/7e9494b/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -971,42 +1824,16 @@
       "report": "/home/jpu007/ExpBridge/projects/big_test4/completed/81e96e4/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
-      "case_id": "827ced4",
-      "project": "big_test1",
-      "endstate_count": 38,
-      "primitive_count": 6,
-      "not_usable": 0,
-      "avoidance": 0,
-      "neutralization": 0,
-      "clean": 6,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/big_test1/completed/827ced4/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
-    },
-    {
-      "case_id": "877961f",
-      "project": "zhengchuancases0403",
-      "endstate_count": 6,
-      "primitive_count": 7,
-      "not_usable": 0,
-      "avoidance": 0,
-      "neutralization": 0,
-      "clean": 7,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/877961f/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
-    },
-    {
       "case_id": "8811381",
       "project": "new_bugs-6",
       "endstate_count": 39,
-      "primitive_count": 18,
-      "not_usable": 10,
-      "avoidance": 7,
+      "primitive_count": 2,
+      "not_usable": 2,
+      "avoidance": 0,
       "neutralization": 0,
-      "clean": 1,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 0,
+      "excluded_value_write_missing_destination": 16,
+      "excluded_value_write_missing_destination_paths": 1033,
       "report": "/home/jpu007/ExpBridge/projects/new_bugs-6/completed/8811381/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -1014,10 +1841,10 @@
       "project": "big_test3",
       "endstate_count": 2,
       "primitive_count": 1,
-      "not_usable": 0,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 1,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test3/completed/8993c0f/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -1026,13 +1853,13 @@
       "case_id": "8aedc9a",
       "project": "new_bugs-1-2",
       "endstate_count": 20,
-      "primitive_count": 48,
-      "not_usable": 38,
-      "avoidance": 1,
-      "neutralization": 0,
+      "primitive_count": 31,
+      "not_usable": 21,
+      "avoidance": 0,
+      "neutralization": 1,
       "clean": 9,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "excluded_value_write_missing_destination": 17,
+      "excluded_value_write_missing_destination_paths": 185,
       "report": "/home/jpu007/ExpBridge/projects/new_bugs-1-2/completed/8aedc9a/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -1065,40 +1892,27 @@
       "case_id": "96414aa",
       "project": "big_test1",
       "endstate_count": 18,
-      "primitive_count": 24,
-      "not_usable": 6,
-      "avoidance": 10,
+      "primitive_count": 21,
+      "not_usable": 16,
+      "avoidance": 0,
       "neutralization": 0,
-      "clean": 8,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 5,
+      "excluded_value_write_missing_destination": 3,
+      "excluded_value_write_missing_destination_paths": 33,
       "report": "/home/jpu007/ExpBridge/projects/big_test1/completed/96414aa/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "98228e7",
       "project": "zhengchuancases0403",
       "endstate_count": 16,
-      "primitive_count": 38,
-      "not_usable": 26,
+      "primitive_count": 22,
+      "not_usable": 10,
       "avoidance": 0,
       "neutralization": 0,
       "clean": 12,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "excluded_value_write_missing_destination": 16,
+      "excluded_value_write_missing_destination_paths": 68,
       "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/98228e7/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
-    },
-    {
-      "case_id": "9988f17",
-      "project": "big_test2",
-      "endstate_count": 114,
-      "primitive_count": 4,
-      "not_usable": 0,
-      "avoidance": 0,
-      "neutralization": 0,
-      "clean": 4,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/big_test2/completed/9988f17/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "998c483",
@@ -1117,13 +1931,13 @@
       "case_id": "9f6c56c",
       "project": "zhengchuancases0403",
       "endstate_count": 4,
-      "primitive_count": 2,
-      "not_usable": 0,
+      "primitive_count": 1,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 2,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 0,
+      "excluded_value_write_missing_destination": 1,
+      "excluded_value_write_missing_destination_paths": 2,
       "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/9f6c56c/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -1131,10 +1945,10 @@
       "project": "big_test4",
       "endstate_count": 2,
       "primitive_count": 1,
-      "not_usable": 0,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 1,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test4/completed/9f9ccb1/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -1143,13 +1957,13 @@
       "case_id": "a0ddc98",
       "project": "big_test4",
       "endstate_count": 2,
-      "primitive_count": 17,
-      "not_usable": 14,
+      "primitive_count": 11,
+      "not_usable": 8,
       "avoidance": 0,
       "neutralization": 0,
       "clean": 3,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "excluded_value_write_missing_destination": 6,
+      "excluded_value_write_missing_destination_paths": 14,
       "report": "/home/jpu007/ExpBridge/projects/big_test4/completed/a0ddc98/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -1157,10 +1971,10 @@
       "project": "zhengchuancases0403",
       "endstate_count": 2,
       "primitive_count": 1,
-      "not_usable": 0,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 1,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/a42d845/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -1169,49 +1983,36 @@
       "case_id": "a7db908",
       "project": "big_test1",
       "endstate_count": 76,
-      "primitive_count": 16,
-      "not_usable": 9,
+      "primitive_count": 11,
+      "not_usable": 4,
       "avoidance": 0,
       "neutralization": 0,
       "clean": 7,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "excluded_value_write_missing_destination": 5,
+      "excluded_value_write_missing_destination_paths": 304,
       "report": "/home/jpu007/ExpBridge/projects/big_test1/completed/a7db908/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "aa6df9d",
       "project": "big_test3",
       "endstate_count": 43,
-      "primitive_count": 16,
-      "not_usable": 0,
+      "primitive_count": 1,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 16,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 0,
+      "excluded_value_write_missing_destination": 15,
+      "excluded_value_write_missing_destination_paths": 565,
       "report": "/home/jpu007/ExpBridge/projects/big_test3/completed/aa6df9d/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
-    },
-    {
-      "case_id": "ae6bb86",
-      "project": "big_test3",
-      "endstate_count": 32,
-      "primitive_count": 10,
-      "not_usable": 0,
-      "avoidance": 0,
-      "neutralization": 0,
-      "clean": 10,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/big_test3/completed/ae6bb86/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "b358909",
       "project": "big_test2-wheezy",
       "endstate_count": 24,
       "primitive_count": 5,
-      "not_usable": 0,
+      "not_usable": 4,
       "avoidance": 0,
-      "neutralization": 4,
+      "neutralization": 0,
       "clean": 1,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
@@ -1221,52 +2022,52 @@
       "case_id": "b471b7c",
       "project": "new_bugs-6",
       "endstate_count": 38,
-      "primitive_count": 49,
-      "not_usable": 37,
+      "primitive_count": 30,
+      "not_usable": 18,
       "avoidance": 0,
       "neutralization": 0,
       "clean": 12,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "excluded_value_write_missing_destination": 19,
+      "excluded_value_write_missing_destination_paths": 1460,
       "report": "/home/jpu007/ExpBridge/projects/new_bugs-6/completed/b471b7c/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "b8fe393",
       "project": "big_test2",
       "endstate_count": 4,
-      "primitive_count": 8,
-      "not_usable": 0,
+      "primitive_count": 1,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 8,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 0,
+      "excluded_value_write_missing_destination": 7,
+      "excluded_value_write_missing_destination_paths": 28,
       "report": "/home/jpu007/ExpBridge/projects/big_test2/completed/b8fe393/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "bbeb1c8",
       "project": "zhengchuancases0403",
       "endstate_count": 5,
-      "primitive_count": 7,
+      "primitive_count": 4,
       "not_usable": 3,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 4,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 1,
+      "excluded_value_write_missing_destination": 3,
+      "excluded_value_write_missing_destination_paths": 9,
       "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/bbeb1c8/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "bd39145",
       "project": "big_test2",
       "endstate_count": 1,
-      "primitive_count": 13,
-      "not_usable": 9,
+      "primitive_count": 12,
+      "not_usable": 8,
       "avoidance": 0,
       "neutralization": 0,
       "clean": 4,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "excluded_value_write_missing_destination": 1,
+      "excluded_value_write_missing_destination_paths": 1,
       "report": "/home/jpu007/ExpBridge/projects/big_test2/completed/bd39145/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -1274,10 +2075,10 @@
       "project": "big_test2",
       "endstate_count": 3,
       "primitive_count": 5,
-      "not_usable": 0,
+      "not_usable": 5,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 5,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test2/completed/bf967d2/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -1286,27 +2087,14 @@
       "case_id": "c041b4c",
       "project": "new_bugs-6",
       "endstate_count": 38,
-      "primitive_count": 49,
-      "not_usable": 37,
+      "primitive_count": 30,
+      "not_usable": 18,
       "avoidance": 0,
       "neutralization": 0,
       "clean": 12,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "excluded_value_write_missing_destination": 19,
+      "excluded_value_write_missing_destination_paths": 1460,
       "report": "/home/jpu007/ExpBridge/projects/new_bugs-6/completed/c041b4c/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
-    },
-    {
-      "case_id": "c103d38",
-      "project": "big_test2",
-      "endstate_count": 1,
-      "primitive_count": 1,
-      "not_usable": 0,
-      "avoidance": 0,
-      "neutralization": 0,
-      "clean": 1,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/big_test2/completed/c103d38/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "c244f4a",
@@ -1328,8 +2116,8 @@
       "primitive_count": 1,
       "not_usable": 0,
       "avoidance": 0,
-      "neutralization": 0,
-      "clean": 1,
+      "neutralization": 1,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/c400f7b/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -1338,52 +2126,52 @@
       "case_id": "c72da7b",
       "project": "big_test1",
       "endstate_count": 4,
-      "primitive_count": 21,
-      "not_usable": 11,
-      "avoidance": 6,
+      "primitive_count": 12,
+      "not_usable": 8,
+      "avoidance": 0,
       "neutralization": 0,
       "clean": 4,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "excluded_value_write_missing_destination": 9,
+      "excluded_value_write_missing_destination_paths": 17,
       "report": "/home/jpu007/ExpBridge/projects/big_test1/completed/c72da7b/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "c8ae652",
       "project": "big_test1",
       "endstate_count": 20,
-      "primitive_count": 39,
-      "not_usable": 34,
+      "primitive_count": 25,
+      "not_usable": 20,
       "avoidance": 0,
       "neutralization": 0,
       "clean": 5,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "excluded_value_write_missing_destination": 14,
+      "excluded_value_write_missing_destination_paths": 117,
       "report": "/home/jpu007/ExpBridge/projects/big_test1/completed/c8ae652/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "c90849c",
       "project": "big_test3",
       "endstate_count": 21,
-      "primitive_count": 19,
-      "not_usable": 0,
+      "primitive_count": 4,
+      "not_usable": 3,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 19,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 1,
+      "excluded_value_write_missing_destination": 15,
+      "excluded_value_write_missing_destination_paths": 322,
       "report": "/home/jpu007/ExpBridge/projects/big_test3/completed/c90849c/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "c96e4df",
       "project": "big_test3",
       "endstate_count": 109,
-      "primitive_count": 21,
-      "not_usable": 0,
+      "primitive_count": 2,
+      "not_usable": 2,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 21,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 0,
+      "excluded_value_write_missing_destination": 19,
+      "excluded_value_write_missing_destination_paths": 944,
       "report": "/home/jpu007/ExpBridge/projects/big_test3/completed/c96e4df/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -1391,10 +2179,10 @@
       "project": "big_test2",
       "endstate_count": 1,
       "primitive_count": 8,
-      "not_usable": 0,
+      "not_usable": 7,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 8,
+      "clean": 1,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test2/completed/ccf0a61/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -1404,10 +2192,10 @@
       "project": "new_bugs-3-2",
       "endstate_count": 2,
       "primitive_count": 3,
-      "not_usable": 0,
+      "not_usable": 3,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 3,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/new_bugs-3-2/completed/ccf20f8/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -1416,13 +2204,13 @@
       "case_id": "d2c5e69",
       "project": "big_test4",
       "endstate_count": 4,
-      "primitive_count": 31,
-      "not_usable": 0,
+      "primitive_count": 1,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 31,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 0,
+      "excluded_value_write_missing_destination": 30,
+      "excluded_value_write_missing_destination_paths": 108,
       "report": "/home/jpu007/ExpBridge/projects/big_test4/completed/d2c5e69/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -1442,13 +2230,13 @@
       "case_id": "d8489a7",
       "project": "zhengchuancases0403",
       "endstate_count": 12,
-      "primitive_count": 13,
-      "not_usable": 10,
+      "primitive_count": 4,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
       "clean": 3,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "excluded_value_write_missing_destination": 9,
+      "excluded_value_write_missing_destination_paths": 48,
       "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/d8489a7/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -1456,10 +2244,10 @@
       "project": "big_test4",
       "endstate_count": 1,
       "primitive_count": 1,
-      "not_usable": 0,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 1,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test4/completed/db1c219/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -1469,10 +2257,10 @@
       "project": "zhengchuancases0403",
       "endstate_count": 2,
       "primitive_count": 2,
-      "not_usable": 0,
+      "not_usable": 2,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 2,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/df0d0f5/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -1482,10 +2270,10 @@
       "project": "big_test1",
       "endstate_count": 2,
       "primitive_count": 2,
-      "not_usable": 0,
+      "not_usable": 2,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 2,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test1/completed/dfccdb2/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -1504,68 +2292,42 @@
       "report": "/home/jpu007/ExpBridge/projects/big_test4/completed/e1a1577/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
-      "case_id": "e1fe9f4",
-      "project": "big_test3",
-      "endstate_count": 4,
-      "primitive_count": 6,
-      "not_usable": 0,
-      "avoidance": 0,
-      "neutralization": 0,
-      "clean": 6,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/big_test3/completed/e1fe9f4/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
-    },
-    {
-      "case_id": "e3372a2",
-      "project": "big_test3",
-      "endstate_count": 1,
-      "primitive_count": 1,
-      "not_usable": 0,
-      "avoidance": 0,
-      "neutralization": 0,
-      "clean": 1,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/big_test3/completed/e3372a2/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
-    },
-    {
       "case_id": "e3cd8df",
       "project": "my3",
       "endstate_count": 3,
-      "primitive_count": 9,
-      "not_usable": 7,
+      "primitive_count": 5,
+      "not_usable": 3,
       "avoidance": 0,
       "neutralization": 0,
       "clean": 2,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "excluded_value_write_missing_destination": 4,
+      "excluded_value_write_missing_destination_paths": 6,
       "report": "/home/jpu007/ExpBridge/projects/my3/completed/e3cd8df/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "e5db00b",
       "project": "big_test2",
       "endstate_count": 4,
-      "primitive_count": 21,
-      "not_usable": 11,
-      "avoidance": 6,
+      "primitive_count": 12,
+      "not_usable": 8,
+      "avoidance": 0,
       "neutralization": 0,
       "clean": 4,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "excluded_value_write_missing_destination": 9,
+      "excluded_value_write_missing_destination_paths": 17,
       "report": "/home/jpu007/ExpBridge/projects/big_test2/completed/e5db00b/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "e84662c",
       "project": "big_test4",
       "endstate_count": 2,
-      "primitive_count": 14,
-      "not_usable": 8,
+      "primitive_count": 13,
+      "not_usable": 7,
       "avoidance": 0,
       "neutralization": 0,
       "clean": 6,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "excluded_value_write_missing_destination": 1,
+      "excluded_value_write_missing_destination_paths": 2,
       "report": "/home/jpu007/ExpBridge/projects/big_test4/completed/e84662c/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
@@ -1585,50 +2347,37 @@
       "case_id": "efae31b",
       "project": "big_test2",
       "endstate_count": 2,
-      "primitive_count": 3,
-      "not_usable": 0,
+      "primitive_count": 2,
+      "not_usable": 2,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 3,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
+      "clean": 0,
+      "excluded_value_write_missing_destination": 1,
+      "excluded_value_write_missing_destination_paths": 5,
       "report": "/home/jpu007/ExpBridge/projects/big_test2/completed/efae31b/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "f31660c",
       "project": "big_test3",
       "endstate_count": 84,
-      "primitive_count": 38,
-      "not_usable": 0,
+      "primitive_count": 1,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 38,
-      "excluded_value_write_missing_destination": 5,
-      "excluded_value_write_missing_destination_paths": 214,
+      "clean": 0,
+      "excluded_value_write_missing_destination": 42,
+      "excluded_value_write_missing_destination_paths": 1532,
       "report": "/home/jpu007/ExpBridge/projects/big_test3/completed/f31660c/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
-    },
-    {
-      "case_id": "f328fbf",
-      "project": "zhengchuancases0403",
-      "endstate_count": 11,
-      "primitive_count": 11,
-      "not_usable": 0,
-      "avoidance": 0,
-      "neutralization": 0,
-      "clean": 11,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/f328fbf/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "f3ce716",
       "project": "zhengchuancases0403",
       "endstate_count": 2,
       "primitive_count": 1,
-      "not_usable": 0,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 1,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/zhengchuancases0403/completed/f3ce716/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -1638,10 +2387,10 @@
       "project": "big_test3",
       "endstate_count": 2,
       "primitive_count": 2,
-      "not_usable": 0,
+      "not_usable": 2,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 2,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test3/completed/f3e9678/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
@@ -1651,26 +2400,13 @@
       "project": "big_test4",
       "endstate_count": 2,
       "primitive_count": 1,
-      "not_usable": 0,
+      "not_usable": 1,
       "avoidance": 0,
       "neutralization": 0,
-      "clean": 1,
+      "clean": 0,
       "excluded_value_write_missing_destination": 0,
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test4/completed/f951f66/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
-    },
-    {
-      "case_id": "fabca5c",
-      "project": "big_test2",
-      "endstate_count": 38,
-      "primitive_count": 6,
-      "not_usable": 0,
-      "avoidance": 0,
-      "neutralization": 0,
-      "clean": 6,
-      "excluded_value_write_missing_destination": 0,
-      "excluded_value_write_missing_destination_paths": 0,
-      "report": "/home/jpu007/ExpBridge/projects/big_test2/completed/fabca5c/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     },
     {
       "case_id": "fdc0000",
