@@ -11,6 +11,12 @@ Auto-usable primitive sites: 276
 Breakdown by primitive: {"AAW": 166, "FPD": 83, "IF": 27}
 Breakdown by reason: {"arbitrary_address_write": 166, "control_flow_hijack": 83, "symbolic_free_arg": 27}
 
+## Strict Object Matching
+
+For primitives that still require object matching, constrained path offsets are matched in strict mode.
+A matched object offset is accepted only when it lands in an attacker-controllable data region.
+In the current object database, this mostly means elastic spray buffers such as msg_msg/user_key_payload-style payload areas.
+
 ## AVW/CVW Destination Recovery
 
 Old AVW/CVW endstate pickles store the written value expression, not the write destination expression.

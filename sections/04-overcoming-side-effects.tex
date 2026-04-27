@@ -40,7 +40,7 @@ In addition to avoidance, side effects can also be addressed through neutralizat
 
 In the motivating example, suppose the attacker wants to exploit the CFH primitive. Instead of calling \texttt{syscall\_A()} to avoid the AAW side effect, the attacker can invoke \texttt{syscall\_B()} and neutralize the AAW at \circled{3}. 
 
-To make AAW safe, the attacker must provide a valid writable kernel pointer at the dereference site. A standard approach is to spray objects with a pointer field at the exact dereferenced offset \cite{SETTLERS66:online,Onedaysh20:online}. By selecting the spray object layout, the attacker places a valid kernel address there, which becomes the write target and avoids an invalid dereference.
+Here, the AAW at \circled{3} is not the selected primitive; it is a residual side effect that must be made safe. One way to do so is object matching: the attacker sprays an object whose layout provides a valid writable pointer at the dereferenced offset~\cite{SETTLERS66:online,Onedaysh20:online}. Under stronger exploit capabilities, the same pointer-shaped side effect may also be neutralized by materializing a valid pointer chain in kernel-addressable controlled memory. In both cases, the selected CFH primitive is preserved while the residual AAW side effect no longer crashes the execution.
 
 % In practice, attackers identify and verify suitable spray targets through manual analysis~\cite{SETTLERS66:online}.
 
@@ -154,7 +154,7 @@ Let us consider an attacker who uses GREBE or SyzScope to find primitives and fo
 
 \noindent\textbf{2. Incomplete Execution Path Exploration:} Although SyzScope sees multiple effects on one path, its incompleteness lacks support for sprayed memory manipulation-based avoidance. First, SyzScope only tracks the first path it exercises for a given primitive, rendering it potentially overlooking alternative paths leading to the same primitive. In this example, if path \circled{1}→\circled{2}→\circled{4}→\circled{5} is exercised first, the better path \circled{1}→\circled{3} is ignored and discarded (note that \circled{3} and \circled{5} are both AAW effects). Second, SyzScope does not enforce execution through syscall completion and therefore can miss behaviors, e.g., \circled{3}→\circled{7}→\circled{9}, failing to help address post-primitive side effects.
 
-\noindent\textbf{3. Overestimation of Pointer Forging:} SyzScope, based on symbolic execution, assumes the attacker can forge arbitrary levels of kernel pointers in sprayed memory. This means that if all pointer dereferences, e.g., \texttt{*(obj->ptr)} or \texttt{*(obj->f->ptr)}, are all reported as primitives. However, when multiple such primitives or effects are present in the same execution path, some of them are bound to become side effects. Consequently, primitives and their associated paths found by SyzScope may be impractical for real-world exploits, because they do not attempt to neutralize such side effects by spraying appropriate heap objects.
+\noindent\textbf{3. Lack of Primitive-Aware Reasoning:} Existing primitive discovery frameworks report effects largely by type and instruction site, but do not separate two questions that matter for exploitation: whether the selected effect remains useful as the primitive, and whether the remaining effects on the same path can be tolerated. This distinction is essential because the preservation rule is primitive-specific. CFH, AAW, and arbitrary-free-style IF are pointer-related sites whose value comes from controlling a pointer target. In contrast, CVW, AVW, CAW, and OUW are useful only when their write target corresponds to a meaningful victim-object offset. Treating all sites with one matching rule either overestimates paths whose side effects remain unsafe or underestimates pointer-related sites whose residual pointer dereferences can be neutralized by modern exploit techniques.
 
 
 
@@ -177,5 +177,4 @@ Let us consider an attacker who uses GREBE or SyzScope to find primitives and fo
 
 
 % However, it provides no guarantee that the reported path's side effects can be resolved in practice. This is because SyzScope implicitly assumes the attacker can forge arbitrary levels of pointer indirection in the sprayed memory, neutralizing side effects silently. But this assumption does not hold in the real world. Moreover, SyzScope fails to link each primitive to its subsequent execution trajectory (e.g., \circled{5}→\circled{6}, \circled{3}→\circled{7}→\circled{9}, etc.), thereby missing the downstream effects behind the primitive entirely. As a result, SyzScope’s primitive reports offer very limited value for exploit development.
-
 

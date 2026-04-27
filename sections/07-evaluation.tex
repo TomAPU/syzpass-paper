@@ -15,7 +15,7 @@ To answer these research questions, we evaluate SyzPass on real-world vulnerabil
 
 We collect our evaluation dataset from Syzbot by crawling kernel bugs reported between 2018 and 2025. We first exclude bugs without available PoCs, as our pipeline requires concrete inputs. Next, we retain memory corruption bugs only from by selecting only KASAN, ODEBUG, general protection fault ones. We further prune unstable cases by automatically compiling and rerunning each PoC, excluding bugs that cannot be stably reproduced and are left with 342 cases. Finally, we conduct symbolic execution for 4 hours on them to filter out cases which our symbolic executor can not reach the end of the bug triggering syscall/interrupt on any path. Finally, we have 115 memory corruption bugs which we test subsequently.
 
-For each bug, we run context exploration for 10 hours; afterwards, we allocate 4 hours for primitive discovery and side effect avoidance. Side effects neutralization is performed without a time limit, as it completes deterministically. We used the relaxed mode for the object matching for the side effects neutralization since it can fully leverage the object database.
+For each bug, we run context exploration for 10 hours; afterwards, we allocate 4 hours for primitive discovery and side effect avoidance. Side effects neutralization is performed without a time limit, as it completes deterministically. We use the primitive-aware rules in Table~\ref{tab:primitive-aware-rules}: pointer-related sites are preserved when their targets are controlled, while value-write and bounded-write sites require recovered destinations and useful victim-object offsets.
 
 All experiments are conducted on Ubuntu 20.04.5 LTS with 2 TB memory and AMD EPYC 7542 32-Core Processor × 2 (total 64 cores). 
 
@@ -41,22 +41,22 @@ We classify each discovered primitive instance as \emph{not usable} if all explo
 Otherwise, a primitive instance is \emph{usable}, and we further attribute usability to one of three outcomes:
 (1) \emph{clean} if it is usable without SyzPass;
 (2) \emph{avoidance} if SyzPass makes it usable by exploring and selecting side-effect-free execution paths;
-or (3) \emph{neutralization} if SyzPass makes it usable by neutralizing otherwise unavoidable side effects via object matching.
+or (3) \emph{neutralization} if SyzPass makes it usable by neutralizing otherwise unavoidable side effects.
 
 \input{generated/primitive_aware_breakdown}
 
 
 
 Overall, we observe 1,420 primitive instances across all analyzed bugs.
-Among them, 1,048 are usable, and 372 are not usable.
-Notably, SyzPass accounts for 206 of the 1,048 usable instances (74 by side-effect avoidance and 132 by side-effect neutralization), indicating that a substantial fraction of usability arises only after explicitly reasoning about and mitigating side effects.
+Among them, 933 are usable, and 487 are not usable.
+Notably, SyzPass accounts for 91 of the 933 usable instances (74 by side-effect avoidance and 17 by side-effect neutralization), indicating that a substantial fraction of usability arises only after explicitly reasoning about and mitigating side effects.
 
-If we focus on higher-risk primitives (OUW, AAW, CFH, and IF), the result reflects our exploit-aware model: AAW, CFH, and symbolic-argument IF are counted as clean because address disclosure and kernel-memory control make object matching unnecessary for those primitives. SyzPass still accounts for 75 of 446 usable high-risk primitives. This impact is concentrated in primitives that still require field/layout matching: SyzPass accounts for 62 of 146 usable OUW primitives and 13 of 51 usable IF primitives.
+If we focus on higher-risk primitives (OUW, AAW, CFH, and IF), the result reflects our primitive-aware model: pointer-related sites are preserved when their targets are controlled, while residual side effects are handled by avoidance, object matching, or pointer materialization. SyzPass accounts for 45 of 416 usable high-risk primitives. This impact is concentrated in primitives whose selected site still requires field/layout reasoning or whose residual side effects require explicit handling: SyzPass accounts for 38 usable OUW primitives and 7 usable IF primitives.
 %488 instances in total, of which 307 are usable; 183 of these usable high-risk instances are attributable to SyzPass (61 by avoidance and 122 by neutralization), accounting for 59.6\% of usable high-risk instances.
 % In particular, AAW and FPD show heavy reliance on neutralization (32 each), while OUW benefits from both avoidance (29) and neutralization (33), reflecting that side-effect behaviors in these primitives can be both path-sensitive and structurally unavoidable.
 
-At the bug level, all 115 bugs contain at least one usable primitive instance.
-Moreover, 33 bugs benefit from SyzPass via avoidance and/or neutralization, including 15 benefiting from avoidance and 27 benefiting from neutralization (9 benefit from both). For the remaining 82 bugs, 64 contain only clean primitive instances and thus do not require avoidance or neutralization. Another 18 bugs contain either clean or non-usable instances.
+At the bug level, 114 of the 115 bugs contain at least one usable primitive instance.
+Moreover, 17 bugs benefit from SyzPass via avoidance and/or neutralization, including 15 benefiting from avoidance and 4 benefiting from neutralization (2 benefit from both). For the remaining 98 bugs, 64 contain only clean primitive instances and thus do not require avoidance or neutralization. Another 33 bugs contain either clean or non-usable instances, and one case has only non-usable primitive instances.
 
 These results collectively indicate that side effects are common among Linux kernel vulnerabilities, and SyzPass can resolve a meaningful portion of them.
 

@@ -16,6 +16,8 @@
 % Therefore, understanding the nature of side effects is critical: some (e.g., simple overwrites) may be manageable or neutralizable, while others (e.g., dereferencing corrupted pointers) demand strict avoidance or precise neutralization using carefully selected heap objects.
 % This variability in consequences motivates the need for fine-grained per-path analysis, as automated by SyzPass, to ensure chosen primitives are paired with side-effect-free or side-effect-resolved paths for stable exploit construction.
 
+\noindent\textbf{Portability of Pointer Materialization.} Modern exploitation techniques weaken the assumption that KASLR and SMAP alone prevent attackers from constructing valid kernel pointers. Nevertheless, SyzPass does not rely exclusively on such techniques. Side-channel based address disclosure can be unavailable in emulated environments such as QEMU TCG, and future kernels may partially mitigate specific pointer-materialization strategies. We therefore model both pointer materialization and object matching: the former captures stronger capabilities available in many real deployments, while the latter provides a more portable strategy when compatible spray objects exist.
+
 \noindent\textbf{Suppressing Side Effects via Kernel Stalling.} Beyond avoidance and neutralization, attackers may suppress side effects by stalling kernel execution. For example, leveraging FUSE to block \texttt{copy\_from\_user()} can hang the kernel thread during user-kernel data transfer~\cite{fuze_exp}. This prevents subsequent side-effect-inducing instructions from executing. However, this strategy is less general, as it relies on specific blocking points between the primitive and the side effects.
 
 %While this does not yield a complete exploit path on its own, it can serve as a useful workaround to suppress crashes in cases where clean avoidance or neutralization is infeasible, and can be especially valuable in information disclosure or staging multi-step exploitation.
@@ -31,6 +33,5 @@
 % For peerreview papers, this IEEEtran command inserts a page break and
 % creates the second title. It will be ignored for other modes.
 % \IEEEpeerreviewmaketitle
-
 
 
