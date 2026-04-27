@@ -1,10 +1,10 @@
 \section{Evaluation}
-To evaluate our side effect avoidance and neutralization strategies, we formulate the two questions:
+To evaluate SyzPass as exploit guidance, we formulate the two questions:
 
-\noindent\textbf{RQ1. How well does SyzPass resolve side effects by avoidance or neutralization strategy?}
+\noindent\textbf{RQ1. What primitive candidates and sensitivity results does SyzPass report under object matching alone and under pointer materialization?}
 % How well does SyzPass facilitate exploit in general
 
-\noindent\textbf{RQ2. Can SyzPass assist in developing working exploits?}
+\noindent\textbf{RQ2. What expert-assisted exploit evidence supports the reported guidance?}
 
 To answer these research questions, we evaluate SyzPass on real-world vulnerabilities discovered by Syzbot. Details about the evaluation are illustrated in \S~\ref{expset}
 
@@ -15,7 +15,9 @@ To answer these research questions, we evaluate SyzPass on real-world vulnerabil
 
 We collect our evaluation dataset from Syzbot by crawling kernel bugs reported between 2018 and 2025. We first exclude bugs without available PoCs, as our pipeline requires concrete inputs. Next, we retain memory-corruption reports from KASAN, ODEBUG, and general-protection-fault categories. We further prune unstable cases by automatically compiling and rerunning each PoC, excluding bugs that cannot be stably reproduced; this leaves 342 cases. Finally, we conduct symbolic execution for 4 hours on each case and keep the cases for which our symbolic executor reaches the end of the bug-triggering syscall or interrupt on at least one path. This leaves 115 memory-corruption bugs for subsequent analysis.
 
-For each bug, we run context exploration for 10 hours; afterwards, we allocate 4 hours for primitive discovery and side effect avoidance. Side effects neutralization is performed without a time limit, as it completes deterministically. We use the primitive-aware rules in Table~\ref{tab:primitive-aware-rules}: under the pointer-materialization capability model, pointer-related sites are preserved when their targets are controlled; value-write sites are checked against their determined destination fields; and bounded-write sites must be satisfiable against useful victim-object fields. If a value-write site does not have a determined destination field in the analyzed record, we exclude that site from the aggregate primitive-aware counts instead of inferring a target.
+For each bug, we run context exploration for 10 hours; afterwards, we allocate 4 hours for primitive discovery and side effect avoidance. Side effects neutralization is performed without a time limit, as it completes deterministically.
+
+\noindent\textbf{Threat model and accounting.} We separate three evidence buckets. \emph{OM-only candidates} are the portable baseline: the attacker can trigger the bug, control syscall and spray data, and reclaim vulnerable memory with sprayable objects, but residual effects must be made safe by object matching. \emph{PM-enabled candidates} additionally permit pointer materialization for AAW, CFH/FPD, and IF$_{sym}$ using address disclosure and kernel-addressable controlled memory; PM-additional sites are upper-bound sensitivity results, not SyzPass wins. \emph{Case-study evidence} is expert-assisted and records which SyzPass output was consumed by manual exploit development. Candidates are not completed exploits: allocator reachability, lifetime, KASLR disclosure, grooming, and final gadgets remain manual unless validated. A bug enters the aggregate when its record contains primitive-aware metadata for at least one counted site. Individual AVW/CVW sites without determined destination fields are excluded rather than inferred, because strict field-based matching cannot decide whether they target meaningful victim-object fields.
 
 \begin{table}[t]
   \centering
@@ -28,9 +30,10 @@ For each bug, we run context exploration for 10 hours; afterwards, we allocate 4
     \midrule
     Stable memory-corruption bugs & cases & 342 & Reproducible Syzbot cases \\
     Symbolically reachable bugs & cases & 115 & Cases analyzed by SyzPass \\
-    Complete primitive-aware records & cases & 97 & Case denominator for strict counts \\
-    Reported primitive sites & sites & 781 & Primitive denominator in Table~\ref{tab:primitive-usability-breakdown} \\
+    Aggregate primitive-aware records & cases & 97 & Deduplicated cases with counted sites \\
+    Counted primitive sites & sites & 781 & Strict denominator in Table~\ref{tab:primitive-usability-breakdown} \\
     Excluded AVW/CVW sites & sites & 522 & Missing determined destination field \\
+    Conservative denominator & sites & 1,303 & Counted + excluded sites \\
     Excluded AVW/CVW path records & paths & 19,538 & Duplicate path records not counted \\
     \bottomrule
   \end{tabular}}
@@ -38,7 +41,7 @@ For each bug, we run context exploration for 10 hours; afterwards, we allocate 4
   \label{tab:dataset-funnel}
 \end{table}
 
-Table~\ref{tab:dataset-funnel} makes the counting denominator explicit. The 97 complete records are the case denominator for the strict primitive-aware aggregate, while the 522 excluded AVW/CVW sites are reported separately to avoid treating missing destination information as either successful or failed matching.
+\noindent\textbf{Reading the counts.} The funnel is 342 stable bugs $\rightarrow$ 115 symbolically reachable bugs $\rightarrow$ 97 aggregate records $\rightarrow$ 781 counted primitive sites plus 522 unscored AVW/CVW sites. The 97-record aggregate is over analyzable explored paths, not a claim that the other stable Syzbot bugs lack candidates: 227 miss syscall/interrupt completion, and 18 more lack counted primitive-aware records. The 522 excluded AVW/CVW sites span 47 cases (283 AVW and 239 CVW). They are a trace-metadata limitation: the record identifies a value-write primitive but does not bind the write to a destination field, so Table~\ref{tab:primitive-aware-rules} cannot decide whether the write targets a useful victim-object field. We therefore report them next to the main result; if counted as failures, the OM-only rate is 15/1,303 and PM-enabled rate is 291/1,303, while SyzPass-attributed neutralization remains 14.
 
 All experiments are conducted on Ubuntu 20.04.5 LTS with 2 TB memory and AMD EPYC 7542 32-Core Processor × 2 (total 64 cores). 
 
@@ -59,30 +62,48 @@ All experiments are conducted on Ubuntu 20.04.5 LTS with 2 TB memory and AMD EPY
 
 
 
-Table~\ref{tab:primitive-usability-breakdown} provides an aggregate breakdown of primitive instances by usability category.
-We classify each discovered primitive instance as \emph{not usable} if all explored paths exhibit lethal side effects (e.g., pointer dereference) and our mitigation strategies fail to remove them.
-Otherwise, a primitive instance is \emph{usable}, and we further attribute usability to one of three outcomes:
-(1) \emph{clean} if it is usable without SyzPass;
-(2) \emph{avoidance} if SyzPass makes it usable by exploring and selecting side-effect-free execution paths;
-or (3) \emph{neutralization} if SyzPass makes it usable by neutralizing otherwise unavoidable side effects.
+Table~\ref{tab:primitive-usability-breakdown} reports the same primitive sites under two views. A \emph{counted site} has enough metadata to apply Table~\ref{tab:primitive-aware-rules}; an \emph{excluded site} is an AVW/CVW site whose write destination is unavailable. In the OM-only baseline, Cand. = Clean + Avoid + Neut.; Clean needs no SyzPass action, while Avoid and Neut. are SyzPass-attributed. PM Add. is a separate upper-bound sensitivity count for AAW, CFH/FPD, and IF$_{sym}$ under address disclosure and kernel-addressable controlled memory; PM Total is not per-bug validation that those prerequisites are present.
+
+\noindent\textbf{Accounting at a glance.} The main OM-only result is 15 counted candidates: one clean site and 14 SyzPass-attributed neutralization candidates (15/781, or 15/1,303 if exclusions are counted as failures). PM adds 276 upper-bound sensitivity candidates, yielding 291 PM-enabled candidates (291/1,303 conservatively), but these 276 are not SyzPass wins. No counted site satisfies our strict transition for aggregate avoidance, so OM Avoid is zero; avoidance is supported as case-study path guidance. The 522 excluded AVW/CVW sites are unscorable under the current records, not successful matches.
 
 \input{generated/primitive_aware_breakdown}
 
 
 
-Overall, we observe 781 primitive instances across the 97 bugs with complete primitive-aware records.
-Among them, 291 are usable, and 490 are not usable.
-Notably, SyzPass accounts for 14 of the 291 usable instances, all by side-effect neutralization under the strict primitive-aware field model, indicating that some primitive sites become usable only after explicitly reasoning about and mitigating side effects.
-Under this strict aggregate, no primitive instance is attributed to avoidance. Avoidance is still part of the exploration and case-study guidance, but the instances that remain in the aggregate either are already clean under the primitive-aware capability model or require neutralization to become usable.
+Overall, we observe 781 primitive instances across the 97 bugs with aggregate primitive-aware records. Under OM-only, 15 sites are candidates: 1 clean site and 14 SyzPass-attributed neutralization candidates. Under PM-enabled accounting, 276 additional pointer-related sites become candidates (166 AAW, 83 CFH/FPD, and 27 IF$_{sym}$), yielding 291 candidates and 490 remaining failures. These 276 sites are upper-bound capability-model sensitivity results, not SyzPass wins.
 
-If we focus on higher-risk primitives (OUW, AAW, CFH, and IF), the result reflects our primitive-aware model: pointer-related sites are preserved when their targets are controlled, while residual side effects are handled by avoidance, object matching, or pointer materialization. SyzPass accounts for 10 of 287 usable high-risk primitives. This impact is concentrated in non-symbolic invalid-free sites whose selected operation remains double-free-like and whose residual side effects require explicit object matching.
+For higher-risk primitives (OUW, AAW, CFH, and IF), pointer-related sites are preserved when their targets are controlled, while lethal pointer-shaped residual effects are handled by avoidance, object matching, or pointer materialization. SyzPass attribution comes from 10 IF$_{con}$ neutralization candidates among 287 PM-enabled high-risk candidates, concentrated in double-free-like sites whose residual effects require explicit object matching.
 %488 instances in total, of which 307 are usable; 183 of these usable high-risk instances are attributable to SyzPass (61 by avoidance and 122 by neutralization), accounting for 59.6\% of usable high-risk instances.
 % In particular, AAW and FPD show heavy reliance on neutralization (32 each), while OUW benefits from both avoidance (29) and neutralization (33), reflecting that side-effect behaviors in these primitives can be both path-sensitive and structurally unavoidable.
 
-At the bug level, 63 of the 97 bugs contain at least one usable primitive instance.
-Moreover, 10 bugs benefit from SyzPass via neutralization. For the remaining 87 bugs, 2 contain only clean primitive instances and thus do not require avoidance or neutralization. Another 51 bugs contain either clean or non-usable instances, and 34 cases have only non-usable primitive instances.
+At the bug level, 63 of the 97 bugs contain at least one PM-enabled candidate primitive instance: 10 have SyzPass-attributed neutralization, 2 have only non-SyzPass candidates, and 51 mix non-SyzPass candidates with failed sites. The remaining 34 bugs have only failed counted sites.
 
-These results collectively indicate that side effects are common among Linux kernel vulnerabilities, and that strict primitive-aware neutralization can still turn otherwise unusable sites into actionable exploit guidance.
+The 14 SyzPass-attributed instances consist of 10 IF$_{con}$ sites across 10 bugs and 4 AVW sites across 2 bugs. The IF$_{con}$ sites are double-free-like frees whose residual effects match elastic spray objects such as \texttt{msg\_msg}, \texttt{user\_key\_payload}, or \texttt{simple\_xattr}; the AVW sites have determined destination fields that match useful fields in \texttt{msg\_msg}/\texttt{user\_key\_payload}-style layouts. These outputs are neutralization candidates rather than complete exploit proofs; Table~\ref{tab:om-validation} summarizes their validation status.
+
+\begin{table}[t]
+  \centering
+  \scriptsize
+  \renewcommand{\arraystretch}{1.02}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{llll}
+    \toprule
+	    \textbf{Case} & \textbf{OM-neut. sites} & \textbf{Representative matched objects} & \textbf{Validation} \\
+    \midrule
+    0540b60 & IF$_{con}\!\times1$ & \texttt{msg\_msg}, \texttt{user\_key\_payload}, \texttt{simple\_xattr} & Unval. layout \\
+    0b1e853 & IF$_{con}\!\times1$ & \texttt{msg\_msg}, \texttt{user\_key\_payload}, \texttt{simple\_xattr} & Unval. layout \\
+    28a66a9 & IF$_{con}\!\times1$ & \texttt{msg\_msg}, \texttt{user\_key\_payload}, \texttt{simple\_xattr} & Unval. layout \\
+    380acd1 & AVW$\times2$, IF$_{con}\!\times1$ & \texttt{msg\_msg}, \texttt{user\_key\_payload} & E2E exploit \\
+    3c53ee4 & IF$_{con}\!\times1$ & \texttt{msg\_msg}, \texttt{user\_key\_payload}, \texttt{simple\_xattr} & Unval. layout \\
+    55a499b & IF$_{con}\!\times1$ & \texttt{msg\_msg}, \texttt{user\_key\_payload}, \texttt{simple\_xattr} & Unval. layout \\
+    60c837b & IF$_{con}\!\times1$ & \texttt{user\_key\_payload} & Unval. layout \\
+    6123f04 & AVW$\times2$, IF$_{con}\!\times1$ & \texttt{user\_key\_payload} & Unval. layout \\
+    8aedc9a & IF$_{con}\!\times1$ & \texttt{msg\_msg}, \texttt{user\_key\_payload}, \texttt{simple\_xattr} & Unval. layout \\
+    c400f7b & IF$_{con}\!\times1$ & \texttt{msg\_msg}, \texttt{user\_key\_payload}, \texttt{simple\_xattr} & Unval. layout \\
+    \bottomrule
+  \end{tabular}}
+  \caption{Validation scope for the 14 object-matching neutralization candidates. Three sites in one bug are E2E validated; the remaining 11 are layout-only candidates that were not checked for allocator reachability, lifetime control, crash-free replay, or end-to-end exploitability.}
+  \label{tab:om-validation}
+\end{table}
 
 % lethal side effects are common enough to materially restrict primitive usability, and SyzPass can make a meaningful portion of the primitive space usable.
 
@@ -253,108 +274,27 @@ These results collectively indicate that side effects are common among Linux ker
 
 % Case study: End-to-end exploits.
 \subsection{Case Studies}
-To understand how SyzPass helps with exploit construction in practice, we conduct three case studies. Specifically, from the 10 bugs that benefited from SyzPass, we selected three that can be triggered by non-root users across different kernel versions and followed SyzPass's guidance to develop exploits. These case studies validate the guidance produced by SyzPass rather than claim fully automatic exploit generation; when an exploit needs a manual step such as selecting a KASLR bypass, we state it explicitly. In this section, we detail these bugs, exploit strategies, and how SyzPass identifies high-risk primitives and resolves side effects among them to facilitate exploit development.
-%We use \texttt{vulmem} to denote memory regions involved in UAF or OOB reads. 
-We use \texttt{vulmem} to denote memory regions accessed out of bounds or after free (OOB or UAF).
-Such memory is symbolized, since an attacker can control its content through heap spraying.
+To understand how SyzPass helps with exploit construction in practice, we conduct three case studies selected from locally triggerable bugs across different kernel versions. These case studies validate guidance produced by SyzPass rather than claim fully automatic exploit generation: SyzPass reports candidate primitives, paths, constraints, and matched objects, while the exploit developer still supplies steps such as choosing a KASLR bypass, heap-grooming method, and final ROP/gadget chain. We use \texttt{vulmem} to denote attacker-controlled OOB/UAF memory symbolized during analysis. All three case studies are working exploits; \texttt{380acd1} additionally validates a counted OM-neutralization candidate, while \texttt{e3cd8d} and \texttt{52bbc0} validate path and constraint guidance outside the strict OM-attributed aggregate.
 
+\begin{table}[t]
+  \centering
+  \scriptsize
+  \renewcommand{\arraystretch}{1.03}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{llll}
+    \toprule
+    \textbf{Bug} & \textbf{SyzPass output} & \textbf{Manual exploit work} & \textbf{Evidence level} \\
+    \midrule
+    e3cd8d~\cite{e3cd8d:online} & CFH path and heap-value constraints & KASLR source, spray object, gadgets & Path guidance + manual E2E \\
+    380acd1~\cite{380acd} & Alternative trigger, avoidance, \texttt{msg\_msg} neutralization & Leak interpretation, cross-cache, final hijack & Counted OM + manual E2E \\
+    52bbc0~\cite{52bbc} & Alternative PoCs and CFH/side-effect constraints & Spray selection and ROP/global corruption & Path guidance + manual E2E \\
+    \bottomrule
+  \end{tabular}}
+  \caption{Boundary between SyzPass guidance and manual exploit work in the case studies.}
+  \label{tab:case-study-boundary}
+\end{table}
 
-% \subsubsection{Exploit against 380acd}
-% \subsubsection{Exploit against e3cd8d}
-
-\vspace{0.015in}
-\noindent\textbf{Exploit against e3cd8d.}
-The \texttt{e3cd8d} bug~\cite{e3cd8d:online} , originally discovered by syzbot, resides in the \textit{net} subsystem and was initially reported as \textit{WARNING: ODEBUG bug in qdisc\_create}, affecting Linux kernel version 5.15. The SyzPass pipeline automatically identifies it inherently a UAF vulnerability with a high-risk CFH primitive. %It further improves the primitive by selecting a path that avoids side effects. 
-With the help of SyzPass, we developed an exploit for this vulnerability and achieved privilege escalation. The details are as follows:
-
-The vulnerable object is of type \texttt{Qdisc}, allocated from the \texttt{kmalloc-512} cache. It contains an embedded \texttt{timer} object in its \texttt{privdata} field. When the kernel frees the \texttt{Qdisc} object, it does not clear the pointer to the freed object. Thus, during the timer interrupt, the kernel may access the embedded \texttt{timer} object and cause a UAF. The key kernel code relevant to the exploit of the vulnerability is shown in Figure~\ref{fig:case_study_e3cd8d}.
-% old: The vulnerable object is of type \texttt{Qdisc}, allocated from the \texttt{kmalloc-512} cache. In this object's \texttt{privdata} field, a \texttt{timer} object is embedded. When the kernel frees the \texttt{Qdisc} object, it does not clear the pointer to the object. Thus, inside the timer interrupt of the kernel, the kernel accesses the embedded \texttt{timer} object, causing a UAF. The key kernel code relevant to the exploit of the vulnerability is shown at Figure~\ref{fig:case_study_e3cd8d}.
-%  ==NEW== 
-% The vulnerable object is of type \texttt{Qdisc}, allocated from the \texttt{kmalloc-512} cache. It contains an embedded \texttt{timer} object in its \texttt{privdata} field. When the kernel frees the \texttt{Qdisc} object, it does not clear the pointer to the freed object. Thus, during the timer interrupt, the kernel may access the embedded \texttt{timer} object and cause a UAF. The key kernel code relevant to the exploit of the vulnerability is shown in Figure~\ref{fig:case_study_e3cd8d}.
-
-
-\begin{figure}[htbp]
-    \centering
-    \begin{minipage}[t]{\linewidth}
-        \begin{lstlisting}[language=C]
-static void __hrtimer_run_queues(...)
-{
-    ...
-    // timer is the UAF object
-    timer = container_of(node, struct hrtimer, node);
-    // timer->_softexpires  <@ \blackcircled{1} @> 
-    if (basenow < hrtimer_get_softexpires_tv64(timer))
-        break;
-
-    __run_hrtimer(cpu_base, base, timer, &basenow, flags);
-}
-static void __run_hrtimer(..., struct hrtimer *timer, ...)
-{
-...
-__remove_hrtimer(timer, base, HRTIMER_STATE_INACTIVE, 0);
-fn = timer->function;
-...
-// Control flow hijack
-restart = fn(timer); <@ \blackcircled{3} @> 
-}
-
-static void __remove_hrtimer(struct hrtimer *timer,...)
-{
-	u8 state = timer->state;
-
-	WRITE_ONCE(timer->state, newstate);
-	if (!(state & HRTIMER_STATE_ENQUEUED)) <@ \blackcircled{2} @> 
-		return;
-        ...
-	if (!timerqueue_del(...  &timer->node))
-		...
-}
-\end{lstlisting}
-    \end{minipage}
-    
-    \caption{Code Snippet for the e3cd8d Bug}
-    \label{fig:case_study_e3cd8d}
-    \vspace{-10pt}
-\end{figure}
-
-% Within \texttt{\_\_hrtimer\_run\_queues}, the \texttt{timer} object is freed but subsequently accessed, creating a use-after-free condition. This allows an attacker to use heap spraying to control its contents and influence kernel behavior. According to SyzPass analysis, for the sprayed memory (denoted as \texttt{vulmem}), the CFH primitive can be reliably triggered if the constraints \texttt{vulmem[448:456] == 0} and \texttt{vulmem[424:432] < 0x1823cf3f2c687365} are satisfied. Under these conditions, the kernel will interpret \texttt{vulmem[432:440]} as a function pointer and dereference it, resulting in control-flow hijacking. Meanwhile, Syzpass also discovered that a none null \texttt{vulmem[448:456]} value can also drive the kernel to reach the control-flow hijacking, there will be other side effects involving multiple level pointer dereference, and such path should be avoided.  
-
-Within \texttt{\_\_hrtimer\_run\_queues()}, the \texttt{timer} object is freed and subsequently accessed, resulting in a use-after-free condition. This enables the attacker to use heap spraying to control its contents and manipulate kernel. 
-
-According to SyzPass analysis, a clean path towards the CFH primitive can be triggered. For the sprayed memory controlled by the attacker, if the constraints  \texttt{vulmem[424:432] < 0x1823cf3f2c687365} and \texttt{vulmem[448:449] == 0} are satisfied, the kernel interprets \texttt{vulmem[432:440]} as a function pointer and dereferences it, achieving control-flow hijacking.  
-
-Mapping the results back to the kernel code, we identify three key locations marked as \blackcircled{1}, \blackcircled{2}, and \blackcircled{3}. At \blackcircled{1}, the constraint requires \texttt{\_softexpires} to be less than a specific timestamp; otherwise, the primitive will not be triggered. At \blackcircled{2}, the constraint enforces \texttt{state \& HRTIMER\_STATE\_ENQUEUED == 0}, ensuring an early return from \texttt{\_\_remove\_hrtimer()} and avoiding side effects. Finally, at \blackcircled{3}, the function pointer is dereferenced, allowing the attacker to hijack control flow.
-
-% SyzPass also discovers other suboptimal paths for the CFH primitive. If \texttt{vulmem[448:456]} is non-zero, it also leads to CFH. However, this path involves additional side effects with multiple levels of pointer dereference, impractical for exploit, and  therefore excluded by our avoidance strategy. Without SyzPass, the attacker has to take extensive time and effort to manually discover the primitive and exclude such paths to develop the exploit.
-This execution path is selected by SyzPass as it leads to the CFH primitive with minimal side effects. SyzPass also identified alternative paths, such as when \texttt{vulmem[448:449]} is non-zero, which still trigger the CFH but involve deep pointer dereference chains and incur additional side effects, making them impractical for exploitation. These paths are automatically excluded by our avoidance strategy. Without SyzPass, manually identifying such primitives and finding suitable paths would require significant human effort.
-
-Since no other usable or side-effect-free primitives are available, we develop the exploit assuming the attacker has already bypassed KASLR using established techniques~\cite{liu2023entrybleed,maar2025good,kleak} or a different bug~\cite{google_project_zero_exploit}. Leveraging the clean CFH path identified by SyzPass, we construct a reliable privilege escalation exploit. Given that no pointer neutralization is required, we reclaim the sprayed memory using the \texttt{user\_key\_payload} object. After reclaiming and hijacking control flow, we employ a stack pivot gadget to redirect the stack to our controlled memory. Because the hijack occurs in interrupt context, traditional \texttt{prepare\_creds()} based credential forging is unsuitable; instead, we corrupt the \texttt{modprobe\_path} global variable using kernel gadgets to escalate privileges. 
-
-\vspace{0.015in}
-\noindent\textbf{Exploit against 380acd1.} 
-The \texttt{380acd1} bug~\cite{380acd} is another vulnerability in the \textit{net} subsystem, affecting Linux kernel 4.15. The original syzbot report titled it \texttt{KASAN: use-after-free Read in skb\_dequeue}. The bug is triggered during program termination, when \texttt{skb\_dequeue()} is invoked to clean up socket-related resources. SyzPass automatically identified alternative syscall sequences to trigger the vulnerability. It then discovered high-risk primitives within these paths and applied side effect avoidance and neutralization strategies to make them suitable for exploitation. Using this guidance, we developed an end-to-end exploit on a kernel with all standard mitigations enabled (i.e., KASLR, SMEP/SMAP, and KPTI).
-
- 
-
-The vulnerability stems from a flaw in the error handling path of \texttt{tpacket\_rcv()}, where an \texttt{sk\_buff} object is freed without being properly unlinked from the \texttt{sk\_buff} linked list. Since the \texttt{sk\_buff} object represents a packet, any operation towards the associated socket encounters UAF and being potentially exploitable for the attacker.
-
-Through SyzPass's context exploration, it discovers another syscall \texttt{recvmsg()} that can also be used to trigger the vulnerability. SyzPass does not currently classify information-leak primitives. Based on the vulnerability root cause and the \texttt{recvmsg()} behavior surfaced by SyzPass, we manually identified that this syscall can leak information by reading the \texttt{data} field of \texttt{sk\_buff}. Once lethal side effects are avoided or neutralized, this leak can disclose kernel memory.
-
-However, \texttt{recvfrom()} conducts an unlink operation using the linked list header at the beginning of the \texttt{sk\_buff} object, making the leak primitive less promising. Fortunately, SyzPass discovered two strategies to resolve this.  
-
-The first strategy is avoidance-based. Through context exploration, SyzPass discovered that setting the \texttt{flags} parameter in \texttt{recvfrom()} with \texttt{MSG\_PEEK} can disable the unlink operation, avoiding pointer dereferences caused by it, effectively avoiding side effects. The second strategy is neutralization based. Through object matching, SyzPass pinpoints that \texttt{msg\_msg} being a suitable object since it contains two writable pointers at its header, allowing the unlink to happen without crashing the kernel.
-
-We implemented both strategies to validate their feasibility. Each can independently leak kernel memory and defeat KASLR. For \texttt{MSG\_PEEK} based avoidance strategy, we used \texttt{user\_key\_payload} to achieve the leak. For neutralization based leak, we used the \texttt{msg\_msg} to achieve the leak. Since \texttt{msg\_msg} was isolated on the target kernel due to the \texttt{GFP\_KERNEL\_ACCOUNT} flag during its allocation, we leveraged cross-cache attack \cite{cross_cache_p0} to force the \texttt{msg\_msg} object to reclaim the memory. 
-
-% After achieving KASLR leakage, we leveraged another primitive within the same vulnerability. Similar to the \texttt{e3cd8d} case, this vulnerability contains a control-flow hijack primitive. It is triggered during socket closure when the \texttt{destructor} function pointer in the freed \texttt{sk\_buff} object is dereferenced. Thus, with the guidance of SyzPass, we constructed data that satisfying desired constraints in our sprayed memory to trigger the control-flow hijack. Undet this control-flow hijack, since we don't have control over stack data and lack of suitable stack pivoting primitive, we leveraged the \texttt{\_\_hlist\_del} gadget to corrupt the \texttt{modprobe\_path} global variable to achieve end-to-end privilege escalation. 
-
-After achieving KASLR bypass, we leveraged another primitive in the vulnerability. Like the \texttt{e3cd8d} case, it enables a control-flow hijack when the \texttt{destructor} function pointer in the freed \texttt{sk\_buff} object is dereferenced during socket closure. Guided by SyzPass, we crafted memory satisfying the required constraints to trigger this hijack. As suitable stack pivoting gadget was found, we used a \texttt{\_\_hlist\_del} gadget to corrupt the \texttt{modprobe\_path} global variable and achieved end-to-end privilege escalation.
-
-
-\noindent\textbf{Exploit against 52bbc0.}
-The \texttt{52bbc0} bug~\cite{52bbc} is a vulnerability in the \textit{netfilter} subsystem, affecting Linux kernel 6.8. The original syzbot report titled it \texttt{WARNING: ODEBUG bug in hash\_netiface4\_destroy}. The root cause of this vulnerability is when the kernel frees the \texttt{hash\_netiface4} object, it forgets to free a timer that is going to access it later. Thus the kernel would access the \texttt{timer\_list} field embedded in the \texttt{hash\_netiface4} object and cause UAF. 
-
-Through context exploration, SyzPass discovers two distinct PoCs. One triggers the memory corruption at the \texttt{enqueue\_timer()} function, and another triggers the corruption at \texttt{\_\_run\_timers()}. The remaining part of the exploit development is similar to the \texttt{e3cd8d} bug, given the similarity of their contexts. According to SyzPass, for the sprayed memory (denoted as \texttt{vulmem}), if \texttt{vulmem[40:48] == 0}, an arbitrary write side effect can be avoided, and \texttt{vulmem[64:72]} would be dereferenced as function pointer, similar to the primitive provided by the \texttt{e3cd8d} bug. Based on the guidance, we sprayed \texttt{user\_key\_payload} object to satisfy the constraint, and hijacked the control flow. Since the stack directly contains our sprayed data, we achieved ROP directly and applied the same strategy used for the \texttt{e3cd8d} bug by global variable corruption.
+For \texttt{e3cd8d}, SyzPass reports a CFH path guarded by \texttt{\_softexpires} and \texttt{state} constraints; the exploit consumes those heap-byte constraints, then manually supplies a KASLR source, \texttt{user\_key\_payload} spray, and final global-corruption payload. For \texttt{380acd1}, SyzPass reports an alternative \texttt{recvmsg()} trigger, an \texttt{MSG\_PEEK} path that avoids an unlink side effect, and a \texttt{msg\_msg} header match that neutralizes the unlink when avoidance is not used. We validated both strategies as KASLR-leak enablers and then completed privilege escalation manually through cross-cache placement and final control-flow hijack; this is the case that validates a counted OM-neutralization candidate. For \texttt{52bbc0}, SyzPass reports two PoCs and a CFH path whose constraints avoid an arbitrary-write side effect; the exploit consumes the constraint \texttt{vulmem[40:48] == 0}, then manually supplies a \texttt{user\_key\_payload} spray and ROP/global-corruption payload. These examples show that SyzPass can expose paths, constraints, and object matches consumed by expert exploit development, but they do not turn the aggregate candidates into automatically generated exploits.
 
 
 

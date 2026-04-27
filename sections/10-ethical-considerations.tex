@@ -5,7 +5,7 @@
 \noindent\textbf{Stakeholders and Impacts.}
 The primary stakeholders of this work are kernel developers, downstream vendors, and security researchers, who can use our analysis to better assess exploitability and prioritize patching and remediation efforts.
 We do acknowledge the dual-use risks of our solution, as it potentially improves an attacker's ability to craft kernel exploits. On the other hand,
-by identifying exploit primitives and their associated side effects, our system helps distinguish vulnerabilities that are practically exploitable from those that are less likely to be weaponized, providing actionable signals for defensive decision-making.
+by identifying exploit primitives and their associated side effects, our system provides candidate signals for expert exploitability triage and defensive prioritization.
 % While SyzPass analyzes exploit primitives and side effects, it does not automatically generate end-to-end exploits; as such, it does not substantially lower the barrier to real-world exploitation.
 %We therefore expect the benefits to defenders and maintainers to outweigh potential risks of misuse.
 
@@ -14,4 +14,3 @@ by identifying exploit primitives and their associated side effects, our system 
 All exploit development and testing were performed in controlled environments for academic research purposes only.
 The three bugs we exploited were from syzbot's historical reports, and all three had already been patched in upstream Linux and major downstream kernels prior to our analysis.
 %We did not target any third-party infrastructure, and we did not attempt exploitation on systems.
-

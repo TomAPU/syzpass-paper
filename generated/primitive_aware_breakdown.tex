@@ -1,26 +1,24 @@
 \begin{table}[t]
   \centering
-  \small
-  \renewcommand{\arraystretch}{1.05}
+  \scriptsize
+  \renewcommand{\arraystretch}{1.02}
   \resizebox{\linewidth}{!}{%
-  \begin{tabular}{lrrrr}
+  \begin{tabular}{lrrrrrrrrr}
     \toprule
-    \textbf{Primitive} &
-    \textbf{Not Usable} &
-    \textbf{Avoidance} &
-    \textbf{Neutralization} &
-    \textbf{Clean} \\
+    & & \multicolumn{5}{c}{\textbf{OM-only baseline}} & \multicolumn{2}{c}{\textbf{PM sensitivity}} & \\
+    \cmidrule(lr){3-7}\cmidrule(lr){8-9}
+    \textbf{Primitive} & \textbf{Counted} & \textbf{Cand.} & \textbf{Clean} & \textbf{Avoid} & \textbf{Neut.} & \textbf{Fail} & \textbf{Add.} & \textbf{Total} & \textbf{Excl.} \\
     \midrule
-    CVW/AVW & 206 & 0 & 4 & 0 \\
-    CAW     & 30 & 0 & 0 & 0 \\
-    OUW     & 238 & 0 & 0 & 0 \\
-    AAW     & 0 & 0 & 0 & 166 \\
-    CFH     & 0 & 0 & 0 & 83 \\
-    IF      & 16 & 0 & 10 & 28 \\
+    CVW/AVW & 210 & 4  & 0 & 0 & 4  & 206 & 0   & 4   & 522 \\
+    CAW     & 30  & 0  & 0 & 0 & 0  & 30  & 0   & 0   & 0 \\
+    OUW     & 238 & 0  & 0 & 0 & 0  & 238 & 0   & 0   & 0 \\
+    AAW     & 166 & 0  & 0 & 0 & 0  & 166 & 166 & 166 & 0 \\
+    CFH/FPD & 83  & 0  & 0 & 0 & 0  & 83  & 83  & 83  & 0 \\
+    IF      & 54  & 11 & 1 & 0 & 10 & 43  & 27  & 38  & 0 \\
     \midrule
-    Total   & 490 & 0 & 14 & 277 \\
+    Total   & 781 & 15 & 1 & 0 & 14 & 766 & 276 & 291 & 522 \\
     \bottomrule
   \end{tabular}}
-  \caption{Breakdown of primitives by usability category. CVW and AVW are grouped as one low-risk category.}
+  \caption{Primitive candidate accounting. Counted excludes Excl. sites. In the OM-only baseline, SyzPass-attributed results are Avoid + Neut.; Clean does not require SyzPass. PM Add. and Total are upper-bound pointer-materialization sensitivity views, not SyzPass wins.}
   \label{tab:primitive-usability-breakdown}
 \end{table}

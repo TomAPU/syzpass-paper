@@ -1146,7 +1146,7 @@
     }
   },
   "auto_usable": {
-    "policy": "AAW, CFH, and IF with a symbolic free argument are counted as clean because exploit-aware matching assumes address disclosure and controllable kernel memory.",
+    "policy": "Internal name for paper upper-bound PM Sensitivity: AAW, CFH, and IF with a symbolic free argument are PM-additional candidates under address disclosure and controllable kernel memory; they are not SyzPass-attributed wins and do not validate those prerequisites per bug.",
     "primitive_count": 276,
     "by_primitive": {
       "AAW": 166,
@@ -2421,5 +2421,17 @@
       "excluded_value_write_missing_destination_paths": 0,
       "report": "/home/jpu007/ExpBridge/projects/big_test1/completed/fdc0000/PathAnalysisPrimitiveAware/Report_PathAnalysis.json"
     }
-  ]
+  ],
+  "paper_totals": {
+    "counted": 781,
+    "om_clean": 1,
+    "om_avoid": 0,
+    "om_neutralization": 14,
+    "pm_sensitivity": 276,
+    "pm_candidates": 291,
+    "fail": 490,
+    "excluded_value_write_missing_destination": 522,
+    "conservative_denominator": 1303,
+    "syzpass_attributed": 14
+  }
 }

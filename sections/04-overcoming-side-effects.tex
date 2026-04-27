@@ -1,5 +1,5 @@
 \section{Overcoming Side Effects}
-In this section, we illustrate avoidance and neutralization as two generic strategies for solving side effects under the motivating example. We further analyze the limitations of existing primitive discovery frameworks under side effects.
+In this section, we illustrate avoidance and neutralization as two generic strategies for reasoning about and handling side effects under the motivating example. We further analyze the limitations of existing primitive discovery frameworks under side effects.
 
 \subsection{Side Effect Avoidance} % via Syscall Adjusting 
 % Make subsubsec about syscall/spray
@@ -177,4 +177,3 @@ Let us consider an attacker who uses GREBE or SyzScope to find primitives and fo
 
 
 % However, it provides no guarantee that the reported path's side effects can be resolved in practice. This is because SyzScope implicitly assumes the attacker can forge arbitrary levels of pointer indirection in the sprayed memory, neutralizing side effects silently. But this assumption does not hold in the real world. Moreover, SyzScope fails to link each primitive to its subsequent execution trajectory (e.g., \circled{5}→\circled{6}, \circled{3}→\circled{7}→\circled{9}, etc.), thereby missing the downstream effects behind the primitive entirely. As a result, SyzScope’s primitive reports offer very limited value for exploit development.
-

@@ -111,7 +111,7 @@
 
 
 
-\title{SyzPass: Toward Side-Effect-Free Exploit Primitive Generation for the Linux Kernel}
+\title{SyzPass: Primitive-Aware Side-Effect Guidance for Kernel Exploit Development}
 
 \author{\IEEEauthorblockN{Anonymous}}
 
@@ -121,7 +121,6 @@
         Network and Distributed System Security (NDSS) Symposium 2026\\
         23 - 27 February 2026, San Diego, CA, USA\\
         ISBN 979-8-9919276-8-0\\
-        https://dx.doi.org/10.14722/ndss.2026.[23$|$24]xxxx\\
         www.ndss-symposium.org
 }
 \hspace{\columnsep}\makebox[\columnwidth]{}}
@@ -130,25 +129,9 @@
 
 
 \begin{abstract}
-Modern Linux kernel exploit development hinges on identifying powerful exploit primitives, i.e., unintended memory operations that can corrupt security-critical kernel objects. Unfortunately, these primitives are often entangled with additional undesirable memory operations, or side effects (e.g., dereferencing invalid pointers), which can trigger crashes and derail exploit attempts. Although side effects are a well-known challenge in manual exploit development, they remain an overlooked obstacle in automated exploit generation.
+Modern Linux kernel exploit development hinges on identifying powerful exploit primitives, i.e., unintended memory operations that can corrupt security-critical kernel objects. Unfortunately, these primitives are often entangled with additional undesirable memory operations, or side effects (e.g., dereferencing invalid pointers), which can trigger crashes and derail exploit attempts. Although side effects are well known in manual exploit development, they remain an under-modeled obstacle in automated exploit guidance.
 
-In this paper, we identify and address this gap by proposing two complementary strategies: side effect avoidance, which steers control flow along cleaner paths, and side effect neutralization, which lets residual effects execute safely through primitive-aware object matching or pointer materialization.
-We present SyzPass, an automated framework that identifies and resolves side effects using high-sensitivity vulnerability context exploration, symbolic-execution-guided path exploration, and primitive-aware matching. Evaluated on 342 real-world Linux kernel bugs, SyzPass reports strict primitive-aware results for 97 cases with complete primitive-aware records. Under this strict accounting, SyzPass provides actionable side-effect neutralization strategies for 14 primitive instances from 10 bugs, and its guidance enables the construction of three privilege-escalation exploits.
-
-
-
-\cut{
-Modern Linux kernel exploit development hinges on finding powerful \emph{primitives}—unintended memory operations that an attacker can steer toward security-critical objects.  Unfortunately, these primitives are often entangled with additional unintended operations, we refer to \emph{side effects}, that corrupt unrelated data or dereference invalid pointers, crashing the kernel and derailing an exploit. We \emph{identify} this overlooked obstacle and propose two complementary, generic solutions: \emph{side effects avoidance}, which steers control flow onto cleaner paths, and \emph{side effects neutralization}, which pairs pointer dereferences with sprayable kernel objects.
-
-Furthermore, we present \textbf{SyzPass}, an automated framework that discovers memory effects within vulnerabilities and performs high sensitivity vulnerability context exploration, symbolic execution guided path exploration and layout-aware object matching to resolve side effects based on the two strategies for them. Evaluated on \mbox{115} real-world bugs, SyzPass can purify primitives in \mbox{33} cases and enables the construction of \mbox{three} privilege-escalation exploits. By bridging the gap between primitive discovery and practical exploit generation, SyzPass demonstrates that taming side effects is both essential and feasible.
-}
-
-
-% We present \textbf{SyzPass}, the first automated framework that makes kernel exploit primitives \emph{side-effect free}.  SyzPass combines (i) \emph{high-sensitivity vulnerability-context exploration} that mutates proof-of-concept triggers to surface alternative code paths, (ii) \emph{symbolic execution–guided path pruning} that ranks paths by their side-effect profile, and (iii) \emph{layout-aware object matching} that neutralizes unavoidable pointer-dereference side effects by pairing them with sprayable kernel objects.  Together, two generic strategies—\emph{avoidance} and \emph{neutralization}—systematically eliminate the need for hand-curated heap layouts or ad-hoc work-arounds.
-
-% Evaluating SyzPass on \mbox{33} real-world, previously unexplored Syzbot bugs shows that it can triaging primitives in them and automatically discover primitive resolution strategies for \mbox{9} cases.
-
-% purify primitives in \mbox{9} cases, and its guidance enabled us to craft \mbox{three} reliable, privilege-escalation exploits against kernels from 4.15 to 6.8.  These results demonstrate that SyzPass bridges the long-standing gap between automatic primitive discovery and practical exploit generation, and that taming side effects is both feasible and essential for the next generation of kernel AEG tools.
+In this paper, we study side-effect handling as conservative candidate guidance rather than proof of full exploitability. SyzPass identifies side effects and reports primitive-aware guidance using high-sensitivity context exploration, symbolic-execution-guided path exploration, and object-layout matching. Starting from 342 real-world Linux kernel bugs, SyzPass obtains strict primitive-aware results for 97 aggregate records, covering 781 counted primitive sites and explicitly reporting 522 AVW/CVW sites whose destinations are unavailable. Under the portable object-matching baseline, 15 sites satisfy our candidate predicate (15/781, or 15/1,303 if exclusions are counted as failures): one is already clean and 14 are SyzPass-attributed neutralization candidates. No counted site is credited to aggregate avoidance under this strict site-level rule; avoidance is instead validated as path guidance in case studies. We also report pointer materialization as an upper-bound sensitivity model, under which 276 additional pointer-related sites become candidates, not SyzPass wins. Three expert-assisted privilege-escalation case studies validate selected guidance: one exercises a counted object-matching neutralization candidate, while two validate path and constraint guidance outside the strict aggregate.
 
 \end{abstract}
 \IEEEpeerreviewmaketitle
@@ -163,10 +146,6 @@ Furthermore, we present \textbf{SyzPass}, an automated framework that discovers 
 \input{sections/07-evaluation}
 \input{sections/08-discussion}
 \input{sections/09-conclusion}
-\cleardoublepage
-\appendix
-\input{sections/10-ethical-considerations}
-\input{sections/11-open-science}
 % optional clearing of the page
 \cleardoublepage
 \bibliographystyle{IEEEtran}
