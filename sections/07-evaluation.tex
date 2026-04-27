@@ -13,9 +13,32 @@ To answer these research questions, we evaluate SyzPass on real-world vulnerabil
 \subsection{Experiment Setup}\label{expset}
 % We evaluate SyzPass on 33 kernel bugs collected from Syzbot, dated between 2018 and 2024. These bugs span various kernel subsystems, including \texttt{net}, \texttt{bpf}, and \texttt{netfilter}, to ensure comprehensive coverage.
 
-We collect our evaluation dataset from Syzbot by crawling kernel bugs reported between 2018 and 2025. We first exclude bugs without available PoCs, as our pipeline requires concrete inputs. Next, we retain memory corruption bugs only from by selecting only KASAN, ODEBUG, general protection fault ones. We further prune unstable cases by automatically compiling and rerunning each PoC, excluding bugs that cannot be stably reproduced and are left with 342 cases. Finally, we conduct symbolic execution for 4 hours on them to filter out cases which our symbolic executor can not reach the end of the bug triggering syscall/interrupt on any path. Finally, we have 115 memory corruption bugs which we test subsequently.
+We collect our evaluation dataset from Syzbot by crawling kernel bugs reported between 2018 and 2025. We first exclude bugs without available PoCs, as our pipeline requires concrete inputs. Next, we retain memory-corruption reports from KASAN, ODEBUG, and general-protection-fault categories. We further prune unstable cases by automatically compiling and rerunning each PoC, excluding bugs that cannot be stably reproduced; this leaves 342 cases. Finally, we conduct symbolic execution for 4 hours on each case and keep the cases for which our symbolic executor reaches the end of the bug-triggering syscall or interrupt on at least one path. This leaves 115 memory-corruption bugs for subsequent analysis.
 
-For each bug, we run context exploration for 10 hours; afterwards, we allocate 4 hours for primitive discovery and side effect avoidance. Side effects neutralization is performed without a time limit, as it completes deterministically. We use the primitive-aware rules in Table~\ref{tab:primitive-aware-rules}: pointer-related sites are preserved when their targets are controlled; value-write sites are checked against their determined destination fields; and bounded-write sites must be satisfiable against useful victim-object fields. If a value-write site does not have a determined destination field in the analyzed record, we exclude that site from the aggregate primitive-aware counts instead of inferring a target.
+For each bug, we run context exploration for 10 hours; afterwards, we allocate 4 hours for primitive discovery and side effect avoidance. Side effects neutralization is performed without a time limit, as it completes deterministically. We use the primitive-aware rules in Table~\ref{tab:primitive-aware-rules}: under the pointer-materialization capability model, pointer-related sites are preserved when their targets are controlled; value-write sites are checked against their determined destination fields; and bounded-write sites must be satisfiable against useful victim-object fields. If a value-write site does not have a determined destination field in the analyzed record, we exclude that site from the aggregate primitive-aware counts instead of inferring a target.
+
+\begin{table}[t]
+  \centering
+  \small
+  \renewcommand{\arraystretch}{1.05}
+  \resizebox{\linewidth}{!}{%
+  \begin{tabular}{llrl}
+    \toprule
+    \textbf{Stage} & \textbf{Unit} & \textbf{Count} & \textbf{Role in evaluation} \\
+    \midrule
+    Stable memory-corruption bugs & cases & 342 & Reproducible Syzbot cases \\
+    Symbolically reachable bugs & cases & 115 & Cases analyzed by SyzPass \\
+    Complete primitive-aware records & cases & 97 & Case denominator for strict counts \\
+    Reported primitive sites & sites & 781 & Primitive denominator in Table~\ref{tab:primitive-usability-breakdown} \\
+    Excluded AVW/CVW sites & sites & 522 & Missing determined destination field \\
+    Excluded AVW/CVW path records & paths & 19,538 & Duplicate path records not counted \\
+    \bottomrule
+  \end{tabular}}
+  \caption{Evaluation dataset funnel and counting denominator. Excluded AVW/CVW sites are recorded explicitly and are not counted as either successes or failures because strict offset-based matching requires a determined destination field.}
+  \label{tab:dataset-funnel}
+\end{table}
+
+Table~\ref{tab:dataset-funnel} makes the counting denominator explicit. The 97 complete records are the case denominator for the strict primitive-aware aggregate, while the 522 excluded AVW/CVW sites are reported separately to avoid treating missing destination information as either successful or failed matching.
 
 All experiments are conducted on Ubuntu 20.04.5 LTS with 2 TB memory and AMD EPYC 7542 32-Core Processor × 2 (total 64 cores). 
 
@@ -50,6 +73,7 @@ or (3) \emph{neutralization} if SyzPass makes it usable by neutralizing otherwis
 Overall, we observe 781 primitive instances across the 97 bugs with complete primitive-aware records.
 Among them, 291 are usable, and 490 are not usable.
 Notably, SyzPass accounts for 14 of the 291 usable instances, all by side-effect neutralization under the strict primitive-aware field model, indicating that some primitive sites become usable only after explicitly reasoning about and mitigating side effects.
+Under this strict aggregate, no primitive instance is attributed to avoidance. Avoidance is still part of the exploration and case-study guidance, but the instances that remain in the aggregate either are already clean under the primitive-aware capability model or require neutralization to become usable.
 
 If we focus on higher-risk primitives (OUW, AAW, CFH, and IF), the result reflects our primitive-aware model: pointer-related sites are preserved when their targets are controlled, while residual side effects are handled by avoidance, object matching, or pointer materialization. SyzPass accounts for 10 of 287 usable high-risk primitives. This impact is concentrated in non-symbolic invalid-free sites whose selected operation remains double-free-like and whose residual side effects require explicit object matching.
 %488 instances in total, of which 307 are usable; 183 of these usable high-risk instances are attributable to SyzPass (61 by avoidance and 122 by neutralization), accounting for 59.6\% of usable high-risk instances.
@@ -58,7 +82,7 @@ If we focus on higher-risk primitives (OUW, AAW, CFH, and IF), the result reflec
 At the bug level, 63 of the 97 bugs contain at least one usable primitive instance.
 Moreover, 10 bugs benefit from SyzPass via neutralization. For the remaining 87 bugs, 2 contain only clean primitive instances and thus do not require avoidance or neutralization. Another 51 bugs contain either clean or non-usable instances, and 34 cases have only non-usable primitive instances.
 
-These results collectively indicate that side effects are common among Linux kernel vulnerabilities, and SyzPass can resolve a meaningful portion of them.
+These results collectively indicate that side effects are common among Linux kernel vulnerabilities, and that strict primitive-aware neutralization can still turn otherwise unusable sites into actionable exploit guidance.
 
 % lethal side effects are common enough to materially restrict primitive usability, and SyzPass can make a meaningful portion of the primitive space usable.
 
@@ -229,7 +253,7 @@ These results collectively indicate that side effects are common among Linux ker
 
 % Case study: End-to-end exploits.
 \subsection{Case Studies}
-To understand how SyzPass helps with exploit construction in practice, we conduct three case studies. Specifically, from the 10 bugs that benefited from SyzPass, we selected three that can be triggered by non-root users across different kernel versions and followed SyzPass's guidance to develop exploits. In this section, we detail these bugs, exploit strategies, and how SyzPass identifies high-risk primitives and resolves side effects among them to facilitate exploit development.
+To understand how SyzPass helps with exploit construction in practice, we conduct three case studies. Specifically, from the 10 bugs that benefited from SyzPass, we selected three that can be triggered by non-root users across different kernel versions and followed SyzPass's guidance to develop exploits. These case studies validate the guidance produced by SyzPass rather than claim fully automatic exploit generation; when an exploit needs a manual step such as selecting a KASLR bypass, we state it explicitly. In this section, we detail these bugs, exploit strategies, and how SyzPass identifies high-risk primitives and resolves side effects among them to facilitate exploit development.
 %We use \texttt{vulmem} to denote memory regions involved in UAF or OOB reads. 
 We use \texttt{vulmem} to denote memory regions accessed out of bounds or after free (OOB or UAF).
 Such memory is symbolized, since an attacker can control its content through heap spraying.
@@ -308,13 +332,13 @@ Since no other usable or side-effect-free primitives are available, we develop t
 
 \vspace{0.015in}
 \noindent\textbf{Exploit against 380acd1.} 
-The \texttt{380acd1} bug~\cite{380acd} is another vulnerability in the \textit{net} subsystem, affecting Linux kernel 4.15. The original syzbot report titled it \texttt{KASAN: use-after-free Read in skb\_dequeue}. The bug is triggered during program termination, when \texttt{skb\_dequeue()} is invoked to clean up socket-related resources. SyzPass automatically identified alternative syscall sequences to trigger the vulnerability. It then discovered high-risk primitives within these paths and applied side effect avoidance and neutralization strategies to make them suitable for exploitation. We successfully developed an end-to-end exploit on the kernel with all standard mitigations enabled (i.e., KASLR, SMEP/SMAP, and KPTI). for this vulnerability under the guidance of SyzPass.
+The \texttt{380acd1} bug~\cite{380acd} is another vulnerability in the \textit{net} subsystem, affecting Linux kernel 4.15. The original syzbot report titled it \texttt{KASAN: use-after-free Read in skb\_dequeue}. The bug is triggered during program termination, when \texttt{skb\_dequeue()} is invoked to clean up socket-related resources. SyzPass automatically identified alternative syscall sequences to trigger the vulnerability. It then discovered high-risk primitives within these paths and applied side effect avoidance and neutralization strategies to make them suitable for exploitation. Using this guidance, we developed an end-to-end exploit on a kernel with all standard mitigations enabled (i.e., KASLR, SMEP/SMAP, and KPTI).
 
  
 
 The vulnerability stems from a flaw in the error handling path of \texttt{tpacket\_rcv()}, where an \texttt{sk\_buff} object is freed without being properly unlinked from the \texttt{sk\_buff} linked list. Since the \texttt{sk\_buff} object represents a packet, any operation towards the associated socket encounters UAF and being potentially exploitable for the attacker.
 
-Through SyzPass's context exploration, it discovers another syscall \texttt{recvmsg()} that can also be used to trigger the vulnerability. Despite SyzPass does not currently support identification of infoleak primitives, through the understanding of the root cause of the vulnerability and the nature of the \texttt{recvmsg()} syscall, we manually discovered that this syscall can achieve a information leakage by reading the \texttt{data} field of \texttt{sk\_buff}, leading to a infoleak primitive. And as long as no lethal side effects are present, the information leakage would succeed.
+Through SyzPass's context exploration, it discovers another syscall \texttt{recvmsg()} that can also be used to trigger the vulnerability. SyzPass does not currently classify information-leak primitives. Based on the vulnerability root cause and the \texttt{recvmsg()} behavior surfaced by SyzPass, we manually identified that this syscall can leak information by reading the \texttt{data} field of \texttt{sk\_buff}. Once lethal side effects are avoided or neutralized, this leak can disclose kernel memory.
 
 However, \texttt{recvfrom()} conducts an unlink operation using the linked list header at the beginning of the \texttt{sk\_buff} object, making the leak primitive less promising. Fortunately, SyzPass discovered two strategies to resolve this.  
 

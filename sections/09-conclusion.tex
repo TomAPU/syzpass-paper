@@ -1,7 +1,5 @@
 \section{Conclusion}
-In this paper, we identify the overlooked problem of side effects in Linux kernel exploitation. We propose two strategies (i.e., avoidance and neutralization) that enable attackers to resolve side effects and craft kernel exploits. We implement these strategies in SyzPass, an automated framework for exploit primitive analysis and side effects resolution. We evaluate SyzPass on 115 real-world kernel bugs reported on Syzbot, demonstrating the widespread presence of side effects among them. We report SyzPass can mitigate the side effects of a large fraction of primitives, with the results being most prominent for high-risk primitives.
-Finally, we develop three kernel exploits following the guidance of SyzPass, demonstrating its utility in exploit construction. 
-
+In this paper, we identify the overlooked problem of side effects in Linux kernel exploitation. We propose avoidance and neutralization as two strategies for reasoning about these effects and implement them in SyzPass, an automated framework for exploit primitive analysis and side-effect resolution. In a strict primitive-aware evaluation over 97 complete cases, SyzPass identifies 14 primitive instances from 10 bugs whose usability depends on side-effect neutralization. Finally, we develop three kernel exploits following the guidance of SyzPass, demonstrating its utility in exploit construction.
 
 
 
