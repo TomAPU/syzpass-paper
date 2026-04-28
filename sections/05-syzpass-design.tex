@@ -16,13 +16,13 @@ A SyzPass report therefore has a concrete shape: selected primitive site, trigge
 
 % primitives reside in the vulnerabilities and corresponding actionable side effects solving strategies consist of associated syscall sequence, data constraints for sprayed memory, and matched objects that can neutralize remaining side effects. 
 
-Using the original PoC, SyzPass first explores vulnerability contexts to identify alternative syscall sequences that trigger the vulnerability, i.e., \emph{High Sensitivity Vulnerability Context Exploration}. It then explores execution paths after the initial corruption to search for alternative execution paths to avoid side effects, i.e., \emph{Primitive Discovery \& Side Effect Avoidance}.
-For primitives where side effects are unavoidable, SyzPass examines memory layout requirements to neutralize them, i.e., \emph{Side Effect Neutralization Analysis}. Leveraging this analysis with a kernel heap object database that we collected, SyzPass matches suitable kernel objects to spray for neutralizing such unavoidable side effects.
+Using the original PoC, SyzPass first explores vulnerability contexts to identify alternative syscall sequences that trigger the vulnerability, i.e., \emph{High-Sensitivity Context Exploration}. It then explores execution paths after the initial corruption to search for alternative execution paths to avoid side effects, i.e., \emph{Primitive Discovery \& Side-Effect Avoidance}.
+For primitives where side effects are unavoidable, SyzPass examines memory layout requirements to neutralize them, i.e., \emph{Side-Effect Neutralization Analysis}. Leveraging this analysis with a kernel heap object database that we collected, SyzPass matches suitable kernel objects to spray for neutralizing such unavoidable side effects.
 
 % SyzPass first leverages high-sensitivity fuzzing to explore alternative vulnerability contexts the attacker can leverage. It then uses symbolic execution to analyze the possible execution paths that an attacker could manipulate the kernel to follow using memory spraying. Finally, it analyzes these paths and match associated data constraints with kernel memory objects to comprehensively apply  side effect avoidance and side effect neutralization to solve the side effects issue.
 
 
-\subsection{High Sensitivity Vulnerability Context Exploration}
+\subsection{High-Sensitivity Context Exploration}
 \label{sec:context_exploration}
 
 The goal of the vulnerability context exploration component is to support syscall-adjustment-enabled avoidance. We leverage syscall fuzzing because it adjusts syscalls by design (e.g., sequence and argument values). On the other hand, it is significantly more difficult to fuzz attacker-sprayed memory, which is why we leave it to the next component.
@@ -39,7 +39,7 @@ Therefore, we need to design an enhanced crash signature to enable more sensitiv
 
 \noindent\textbf{2. Noise Resilient:} One naive solution is to track post-initial-effect paths, which is the most sensitive.
 However, this is susceptible to noise. Specifically, branches that are unrelated to the vulnerability may appear in the results. Additionally, branches associated with the vulnerability but unaffected by syscall arguments will also be included.
-For example, the branches \circled{7}→\circled{8} and \circled{7}→\circled{9} would be differentiated under this approach, even though they are not influenced by the syscalls and should not factor into crash differentiation; instead, they should be differentiated by side effect avoidance by memory spraying (see \S\ref{sec:symbolic_execution}).
+For example, the branches \circled{7}→\circled{8} and \circled{7}→\circled{9} would be differentiated under this approach, even though they are not influenced by the syscalls and should not factor into crash differentiation; instead, they should be differentiated by side-effect avoidance through memory spraying (see \S\ref{sec:symbolic_execution}).
 
 %While being sensitive, the mechanism must remain robust against noises, such as variables irrelevant to the vulnerability, memories influenced by heap spraying. This ensures the classification results remain stable.
 
@@ -119,13 +119,21 @@ To exclude noise, we add candidate branches to the final set only when they are 
 
 With this new signature and fuzzing through mutation on the original PoC, we can effectively discover alternative syscall sequences for bug triggering, exploring vulnerability contexts in a highly sensitive manner, and setting foundations for subsequent analysis. 
 
-\subsection{Effect Discovery and Side Effect Avoidance}
+\subsection{Effect Discovery and Side-Effect Avoidance}
 \label{sec:symbolic_execution}
 
 \begin{figure}[htbp]
   \centering
-  \includegraphics[width=\linewidth,trim=0 0 0 5, clip]{figures/symexec.pdf}
-  \caption{\label{fig:symexec}Effects Discovery and Side Effect Avoidance}
+  \begin{tikzpicture}
+    \node[inner sep=0pt, anchor=south west] (img) at (0,0) {\includegraphics[width=\linewidth,trim=0 0 0 5, clip]{figures/symexec.pdf}};
+    \begin{scope}[x=0.01\linewidth,y=0.01\linewidth]
+      \fill[white] (14,94) rectangle (86,99);
+      \node[font=\bfseries\small] at (50,96.5) {Path and Effect Discovery};
+      \fill[white] (18,34.5) rectangle (83,40.5);
+      \node[font=\bfseries\small] at (50.5,37.5) {Side-Effect Avoidance};
+    \end{scope}
+  \end{tikzpicture}
+  \caption{\label{fig:symexec}Effect Discovery and Side-Effect Avoidance}
 \end{figure}
 
 While the previous component explores various execution paths influenced by one source of attacker-controlled input, i.e., syscalls, this component focuses on paths affected by the other major input source: the attacker's sprayed memory.
@@ -133,7 +141,7 @@ In particular, this component employs symbolic execution by modeling the attacke
 
 Through symbolic execution, we perform fine-grained memory operation analysis to identify memory effects.
 For example, if a \texttt{call} instruction targets a register containing symbolic data, we classify it as a control-flow hijack (CFH) effect.
-Moreover, it also enables the exploration of alternative execution paths corresponding to each identified memory effect. Consequently, we can enumerate potential paths for each memory effect and perform side effect avoidance.
+Moreover, it also enables the exploration of alternative execution paths corresponding to each identified memory effect. Consequently, we can enumerate potential paths for each memory effect and perform side-effect avoidance.
 
 % This is crucial because additional effects may be discovered after the initial memory error, which has both positive and negative implications. On the one hand, more effects provide greater flexibility for primitive selection. On the other hand, observing multiple effects along a single execution path raises concerns about side effects. Knowing the complete set of effects associated with each path helps with side effect avoidance.
 
@@ -225,11 +233,11 @@ In support of this strategy, we modify the existing work's \cite{zou2022syzscope
 
 \noindent\textbf{2. Primitive Discovery:} During symbolic execution, we inspect each memory operation to identify exploit primitives, following the definitions in prior work~\cite{zou2022syzscope}.
 For every memory write, we classify primitives based on the target address and value: writes to symbolic addresses are categorized as Arbitrary Address Write (AAW) or Constrained Address Write (CAW); writes targeting heap-sprayed memory are denoted as OOB/UAF Write (OUW); writes with symbolic values are classified as Arbitrary Value Write (AVW) or Constrained Value Write (CVW). The arbitrariness of addresses and values is determined via SMT solving over the collected symbolic constraints.
-In addition, we monitor function call targets and arguments to detect Invalid Free (IF) and Control Flow Hijack (CFH).
+In addition, we monitor function call targets and arguments to detect Invalid Free (IF) and Control-Flow Hijack (CFH).
 We exclude memory read operations from primitive collection, as they do not directly enable privilege escalation, though their access patterns and pointer dereferences are still tracked as side effects. 
 %\zhiyun{I thought we consider only pointer dereferences as side effects?}
 
-\noindent\textbf{3. Side Effect Avoidance:} With the collected paths and primitives, we rank paths by their side-effect burden and select, for each primitive, a path with minimal side effects, ideally no side effects.
+\noindent\textbf{3. Side-Effect Avoidance:} With the collected paths and primitives, we rank paths by their side-effect burden and select, for each primitive, a path with minimal side effects, ideally no side effects.
 
 A prerequisite for this comparison is to identify all execution paths corresponding to the same primitive. To achieve this, we establish a mechanism to associate instances of the same primitive across different paths by labeling them based on their type and the instruction address at which they occur. This is simple yet effective, and it supports comparing primitives across different vulnerability contexts.
 %ensuring that semantically equivalent primitives are treated uniformly during analysis.
@@ -248,7 +256,7 @@ As discussed in \S~\ref{chap:eps}, pointer-dereference-related side effects are 
 
 %Through this process, we systematically leverage the explored vulnerability contexts and post-corruption execution paths to discover primitives and avoid side effects. In some cases, however, we may still want to consider primitives associated with non-ideal paths, i.e., those that exhibit pointer dereference-related side effects and are inherently unavoidable. For example, it is possible that all paths have the same kind of side effect for a particular primitive. To address these cases, we leverage side-effect neutralization technique, which we detail next.
 
-\subsection{Side Effects Neutralization Analysis}
+\subsection{Side-Effect Neutralization Analysis}
 \noindent\textbf{Neutralizing side effects while preserving the primitive.}
 SyzPass performs neutralization after fixing the attacker's selected primitive. In our analysis, a \emph{selected primitive site} $s$ is the effect the attacker intends to exploit on one strategy, and the other effects on the same path are \emph{residual effects}. SyzPass asks two questions: whether $s$ remains useful as the primitive, and whether every residual effect can be avoided by path selection or made safe after it occurs. This separation is necessary because different primitive types fail in different ways. A pointer-shaped primitive can remain useful once its pointer target is attacker-controlled. In contrast, a value-write or bounded-write primitive is useful only if it corrupts a meaningful victim-object field rather than attacker-controlled payload data.
 
@@ -386,7 +394,7 @@ Note that, as an optimization, we can first construct a tree for all effects on 
 Following prior analysis of attacker-controllable fields in kernel objects~\cite{chen2020systematic}, we enrich object layouts with data nodes to represent memory regions that are considered user-controllable. In this context, a data node denotes an object field whose content can be influenced by the attacker. 
 
 
-\noindent\textbf{4. Object Pairing for Side Effects Neutralization:} Our object pairing process consists of two phases. The primary mode performs primitive-aware matching, requiring both data nodes and pointer dereference chains to align with the candidate object. This is the mode used for the reported $\mathsf{OM}$ results. SyzPass can also run a relaxed diagnostic mode that considers pointer dereference structure alone, which helps exploit developers inspect naturally satisfiable value requirements. For instance, if the data constraint requires some part of the vulnerable memory to be greater than or equal to zero, it is likely satisfiable by many objects naturally.
+\noindent\textbf{4. Object Matching for Side-Effect Neutralization:} Our object-matching process consists of two phases. The primary mode performs primitive-aware matching, requiring both data nodes and pointer dereference chains to align with the candidate object. This is the mode used for the reported $\mathsf{OM}$ results. SyzPass can also run a relaxed diagnostic mode that considers pointer dereference structure alone, which helps exploit developers inspect naturally satisfiable value requirements. For instance, if the data constraint requires some part of the vulnerable memory to be greater than or equal to zero, it is likely satisfiable by many objects naturally.
 
 In both modes, we trim the primitive from associated path layouts to prevent the matching to neutralize the primitive, ensuring its exploitability. Then we match path layouts with object layouts one by one. Specifically, we check whether the required layout can align with the object layout without violating structural or permission constraints. For each pointer node in the path layout, we search for a matching node in the object layout that (i) covers an equal or greater byte range, (ii) provides equal or greater permission.
 %\zhiyun{I don't understand what we mean by ``preserving the relationship''}

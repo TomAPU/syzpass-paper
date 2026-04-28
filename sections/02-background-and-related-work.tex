@@ -40,7 +40,7 @@ Thus, in this paper, we \textbf{do not} select primitives based on the behaviors
 
 \subsection{Syzkaller and Syzbot}
 %\zhiyun{move this subsection to the end of background.}
-Syzkaller\cite{syzkaller} is a state-of-the-art fuzzing framework designed specifically for fuzzing the Linux kernel. It uses syscall description templates to generate test cases, executing them on a target Linux kernel to identify potential vulnerabilities. Moreover, it performs test case mutation based on coverage feedback to further explore deeper code blocks. Once a bug is detected, Syzkaller will attempt to reproduce the bug and automatically generate both Syzlang-based and C-based proof-of-concept (PoC) exploits.
+Syzkaller\cite{syzkaller} is a state-of-the-art fuzzing framework designed specifically for fuzzing the Linux kernel. It uses syscall description templates to generate test cases, executing them on a target Linux kernel to identify potential vulnerabilities. Moreover, it performs test case mutation based on coverage feedback to further explore deeper code blocks. Once a bug is detected, Syzkaller will attempt to reproduce the bug and automatically generate both Syzlang-based and C-based proof-of-concept (PoC) reproducers.
 
 Syzbot\cite{syzbot} is a fuzzing cluster operated by Google that comprises 24 instances\cite{bursey2024syzretrospector} running Syzkaller to continuously fuzz the Linux kernel. It has discovered more than 17,000 bugs in the Linux kernel, and over 3,400 commits directly mention it~\cite{LinuxPlu99:online}. Given that Syzbot has not only uncovered a vast number of bugs but also provides detailed information for each bug with the associated kernel commit, kernel configuration, and PoC, we select bugs discovered by Syzbot as our evaluation dataset.
 
@@ -112,4 +112,3 @@ The goal of both frameworks is to discover more primitives for a given vulnerabi
 % High-level solution. Side effect avoidance and neutralization. 
 
 % Why we choose fuzzing to avoid side effects, for example.
-

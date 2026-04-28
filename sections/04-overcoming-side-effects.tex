@@ -1,12 +1,12 @@
 \section{Overcoming Side Effects}
 In this section, we illustrate avoidance and neutralization as two generic strategies for reasoning about and handling side effects under the motivating example. We further analyze the limitations of existing primitive discovery frameworks under side effects.
 
-\subsection{Side Effect Avoidance} % via Syscall Adjusting 
+\subsection{Side-Effect Avoidance} % via Syscall Adjusting
 % Make subsubsec about syscall/spray
 
 % In the motivating example bug, The attacker can adjust the syscalls or their arguments to change the context of the vulnerability \cite{zou2022syzscope}. Thus, syscall adjusting can naturally influence the vulnerability behaviors and avoid side effects.
 
-The most intuitive way to mitigate side effects is to identify \textit{alternative execution paths} that avoid triggering them while still triggering the desired primitive. However, since an attacker does not know ahead of time which primitive to pick for exploitation and which effects would become side effects, it is generally a good idea to explore as many alternative execution paths as possible. In particular, there are two kinds of attacker-controllable input in an exploit that can determine the execution path: (1) syscall sequence and arguments, and (2) memory contents introduced through heap spraying. Both can influence the execution path. We thus further categorize the side effect avoidance into the following two types:
+The most intuitive way to mitigate side effects is to identify \textit{alternative execution paths} that avoid triggering them while still triggering the desired primitive. However, since an attacker does not know ahead of time which primitive to pick for exploitation and which effects would become side effects, it is generally a good idea to explore as many alternative execution paths as possible. In particular, there are two kinds of attacker-controllable input in an exploit that can determine the execution path: (1) syscall sequence and arguments, and (2) memory contents introduced through heap spraying. Both can influence the execution path. We thus further categorize side-effect avoidance into the following two types:
 
 \vspace{0.015in}
 \noindent\textbf{Avoidance by Syscall Adjustments.}
@@ -14,35 +14,35 @@ Syscall adjustments can change the context in which a bug is triggered ~\cite{zo
 
 % Thus, an attacker can carefully craft the vulnerability triggering syscall sequence to prevent the kernel from entering side effect triggering code, thus avoiding side effects.
 
-Going back to the motivating example and Figure~\ref{fig:motivating}, if the attacker intends to leverage a CFH primitive, either syscall choice may leave an AAW effect as a side effect that needs to be avoided.
+Going back to the motivating example and Figure~\ref{fig:motivating}, if the attacker intends to leverage a CFH primitive, either syscall choice may leave an AAW-type residual effect that needs to be avoided.
 
-To do so, the first observation is that \texttt{syscall\_A()} is better than \texttt{syscall\_B()}, since the AAW effect at \circled{3} is unavoidable when using \texttt{syscall\_B()}. In contrast, the AAW effect at \circled{5} can be avoided if the arguments of \texttt{syscall\_A()} are adjusted properly, i.e., by setting \textcolor{DarkGreen}{\texttt{arg1}} to zero, which can influence the \texttt{if} statement at \circled{4}, and thereby bypassing the AAW side effect at \circled{5}.
+To do so, the first observation is that \texttt{syscall\_A()} is better than \texttt{syscall\_B()}, since the AAW-type residual effect at \circled{3} is unavoidable when using \texttt{syscall\_B()}. In contrast, the same kind of residual effect at \circled{5} can be avoided if the arguments of \texttt{syscall\_A()} are adjusted properly, i.e., by setting \textcolor{DarkGreen}{\texttt{arg1}} to zero, which can influence the \texttt{if} statement at \circled{4}, and thereby bypassing the residual effect at \circled{5}.
 
 \vspace{0.015in}
 \noindent\textbf{Avoidance by Memory Spraying.}
 When a vulnerability is triggered, the kernel enters a ``weird machine'' state \cite{weirdmachine}. In this state, the code no longer follows its intended behavior. Instead, it accesses unintended memory regions, including areas belonging to attacker-sprayed kernel memory, which can also alter the control flow and potentially avoid side effects.
 %So the attacker can leverage heap spraying and heap feng shui techniques to guide unintended memory accesses to the sprayed memory, redirecting the control flow to avoid side effects.
 
-Suppose, in the motivating example, the attacker wants to develop an exploit by leveraging an AAW primitive, which means that the CFH becomes a side effect and should be avoided. Looking at \texttt{syscall\_A()} and \texttt{syscall\_B()}, we can see both have an AAW primitive. However, \texttt{syscall\_A()} is less preferred in this case because the CFH primitive cannot be avoided, unlike in \texttt{syscall\_B()}.
+Suppose, in the motivating example, the attacker wants to develop an exploit by leveraging an AAW primitive, which means that the CFH-type transfer becomes a residual side effect and should be avoided. Looking at \texttt{syscall\_A()} and \texttt{syscall\_B()}, we can see both have an AAW primitive. However, \texttt{syscall\_A()} is less preferred in this case because the CFH-type residual effect cannot be avoided, unlike in \texttt{syscall\_B()}.
 
 
-To avoid the CFH side effect in \texttt{syscall\_B()}, the attacker first creates a dangling \textcolor{red}{\texttt{obj}} pointer, then sprays memory so the bytes overlapping \textcolor{red}{\texttt{obj}}\texttt{->field} are \texttt{0x0}. When \texttt{syscall\_B()} is invoked, execution at \circled{7} follows \circled{9} instead of \circled{8}, thus avoiding CFH.
+To avoid this CFH-type residual effect in \texttt{syscall\_B()}, the attacker first creates a dangling \textcolor{red}{\texttt{obj}} pointer, then sprays memory so the bytes overlapping \textcolor{red}{\texttt{obj}}\texttt{->field} are \texttt{0x0}. When \texttt{syscall\_B()} is invoked, execution at \circled{7} follows \circled{9} instead of \circled{8}, thus avoiding the residual effect.
 
 
-% the attacker invokes \texttt{syscall\_B()} and seeks to avoid CFH at \circled{8}. To prevent the kernel code from stepping into \circled{8}, the attacker expect \textcolor{red}{\texttt{obj}}\texttt{->field} be zero. Since \textcolor{red}{\texttt{obj}} is a dangling pointer, its value can be controlled by the attacker via heap spraying. Thus, with this knowledge, the attacker can carefully craft sprayed memory content and nullify \textcolor{red}{\texttt{obj}} to avoid the CFH side effect at \circled{8}
+% the attacker invokes \texttt{syscall\_B()} and seeks to avoid CFH at \circled{8}. To prevent the kernel code from stepping into \circled{8}, the attacker expect \textcolor{red}{\texttt{obj}}\texttt{->field} be zero. Since \textcolor{red}{\texttt{obj}} is a dangling pointer, its value can be controlled by the attacker via heap spraying. Thus, with this knowledge, the attacker can carefully craft sprayed memory content and nullify \textcolor{red}{\texttt{obj}} to avoid the CFH-type residual effect at \circled{8}
 
 
 % the attacker can manipulate its content by memory spraying and nullify \textcolor{red}{\texttt{obj}}\texttt{->field} to make the kernel jump over \circled{8} and avoid side effects. 
 
-\subsection{Side Effect Neutralization}
+\subsection{Side-Effect Neutralization}
 Avoidance is preferable when an alternative path can skip the undesired effect entirely. However, some useful primitive paths unavoidably execute another memory effect first. In that case, the attacker may still use the path if the residual effect can be made safe.
 
 
-In the motivating example, consider the strategy that selects the CFH in \texttt{syscall\_B()} as the exploit primitive. Along this path, the AAW at \circled{3} executes before the desired CFH and therefore becomes a residual side effect rather than the selected primitive. Avoidance cannot remove it on this syscall path. Neutralization instead asks whether the AAW can execute without crashing the kernel or destroying the later CFH opportunity.
+In the motivating example, consider the strategy that selects the CFH in \texttt{syscall\_B()} as the exploit primitive. Along this path, the AAW-type effect at \circled{3} executes before the desired CFH and therefore becomes a residual side effect rather than the selected primitive. Avoidance cannot remove it on this syscall path. Neutralization instead asks whether the residual write can execute without crashing the kernel or destroying the later CFH opportunity.
 
-One way to do so is object matching: the attacker reclaims the freed object with a sprayed object whose layout places a valid writable pointer at the offset dereferenced by the AAW~\cite{SETTLERS66:online,Onedaysh20:online}. The write may still happen, but it lands in memory that is valid and harmless for the chosen exploit strategy.
+One way to do so is object matching: the attacker reclaims the freed object with a sprayed object whose layout places a valid writable pointer at the dereferenced offset~\cite{SETTLERS66:online,Onedaysh20:online}. The write may still happen, but it lands in memory that is valid and harmless for the chosen exploit strategy.
 
-Under stronger exploit capabilities, neutralization may not need to rely on an existing sprayed kernel object. Recent techniques can disclose kernel addresses and stage attacker-controlled data at kernel addresses that the kernel can legally dereference. In such settings, the attacker can materialize the required pointer chain directly: the residual AAW still executes, but its pointer operands resolve to valid attacker-chosen kernel memory. In both cases, the selected CFH is preserved while the residual AAW no longer blocks execution.
+Under stronger exploit capabilities, neutralization may not need to rely on an existing sprayed kernel object. Recent techniques can disclose kernel addresses and stage attacker-controlled data at kernel addresses that the kernel can legally dereference. In such settings, the attacker can materialize the required pointer chain directly: the residual write still executes, but its pointer operands resolve to valid attacker-chosen kernel memory. In both cases, the selected CFH is preserved while the residual write no longer blocks execution.
 
 % In practice, attackers identify and verify suitable spray targets through manual analysis~\cite{SETTLERS66:online}.
 
@@ -92,7 +92,7 @@ Under stronger exploit capabilities, neutralization may not need to rely on an e
 
 % \subsection{Path Exploration}
 % Symbolic execution on fuzzed results. But we are doing it in a way that aims to avoid side effects.
-% \subsection{Side Effects Avoidance}
+% \subsection{Side-Effect Avoidance}
 % % Fuzz+SymExec
 % %Fuzz: lowerbound effects? A+B+C effects vs A & B Only
 % The most straightforward way to conquer side effects is to find an alternative feasible path that simply does not trigger side effects. To achieve this, an attacker can either adjust syscalls and their arguments to change the way the bug being triggered or manipulate sprayed memory to steer the weird machine after triggering the bug.
