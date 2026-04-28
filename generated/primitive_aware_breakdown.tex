@@ -1,22 +1,29 @@
 \begin{table}[!ht]
   \centering
   \scriptsize
-  \setlength{\tabcolsep}{2.4pt}
+  \setlength{\tabcolsep}{3pt}
   \renewcommand{\arraystretch}{1.05}
-  \begin{tabular}{@{}lrrrrrrr@{}}
+  \begin{tabular}{@{}lrlrrrrr@{}}
     \toprule
-    \textbf{Primitive} & \textbf{Sites} & \makecell[r]{\textbf{PM}\\\textbf{mat.}} & \textbf{Direct} & \textbf{Avoid} & \makecell[r]{\textbf{OM}\\\textbf{neut.}} & \makecell[r]{\textbf{Unres.}\\\textbf{PM}} & \makecell[r]{\textbf{Unres.}\\\textbf{OM}} \\
+    \textbf{Primitive} & \textbf{Sites} & \textbf{Model} & \textbf{Direct} & \textbf{Avoid} & \textbf{Neut.} & \textbf{Mat.} & \textbf{Unres.} \\
     \midrule
-    CVW/AVW & 210 & -- & 0 & 0 & 4 & 206 & 206 \\
-    CAW     & 30 & -- & 0 & 0 & 0 & 30 & 30 \\
-    OUW     & 238 & -- & 0 & 0 & 0 & 238 & 238 \\
-    AAW     & 166 & 166 & 0 & 0 & 0 & 0 & 166 \\
-    CFH     & 83 & 83 & 0 & 0 & 0 & 0 & 83 \\
-    IF      & 54 & 27 & 1 & 0 & 10 & 16 & 43 \\
+    CVW/AVW & 210 & OM & 0 & 0 & 4 & -- & 206 \\
+            &       & PM & 0 & 0 & 4 & -- & 206 \\
+    CAW     & 30 & OM & 0 & 0 & 0 & -- & 30 \\
+            &       & PM & 0 & 0 & 0 & -- & 30 \\
+    OUW     & 238 & OM & 0 & 0 & 0 & -- & 238 \\
+            &       & PM & 0 & 0 & 0 & -- & 238 \\
+    AAW     & 166 & OM & 6 & 0 & 13 & -- & 147 \\
+            &       & PM & 0 & 0 & 0 & 166 & 0 \\
+    CFH     & 83 & OM & 6 & 0 & 8 & -- & 69 \\
+            &       & PM & 0 & 0 & 0 & 83 & 0 \\
+    IF      & 54 & OM & 1 & 0 & 12 & -- & 41 \\
+            &       & PM & 1 & 0 & 10 & 27 & 16 \\
     \midrule
-    Total   & 781 & 276 & 1 & 0 & 14 & 490 & 766 \\
+    Total   & 781 & OM & 13 & 0 & 37 & -- & 731 \\
+            &       & PM & 1 & 0 & 14 & 276 & 490 \\
     \bottomrule
   \end{tabular}
-  \caption{Primitive-site handling under pointer materialization and object matching.}
+  \caption{Primitive-site outcomes under the two capability models.}
   \label{tab:primitive-usability-breakdown}
 \end{table}

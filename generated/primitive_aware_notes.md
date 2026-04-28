@@ -1,17 +1,17 @@
 # Primitive-Aware Aggregation Notes
 
-## PM-Only Candidate Sites
+## PM Materialization Sites
 
-AAW, CFH, and IF with a symbolic free argument are reported as PM-only candidate sites in the paper.
+AAW, CFH, and IF with a symbolic free argument are reported as PM-materialized candidate sites in the paper.
 These sites follow the PM-enabled model that assumes address disclosure and attacker-controlled fake kernel objects for pointer-shaped requirements; the aggregation does not validate those prerequisites per bug.
-Non-symbolic IF is treated as double-free-like and remains subject to normal object matching.
+OM is computed independently for the same sites, including sites that PM can materialize.
+Non-symbolic IF is treated as double-free-like and remains subject to object matching.
 CVW and AVW use deterministic destination-offset field matching; CAW and OUW use field-satisfiability matching.
 
-PM-only primitive sites: 276
+PM-materialized primitive sites: 276
 Breakdown by primitive: {"AAW": 166, "CFH": 83, "IF": 27}
 Breakdown by reason: {"arbitrary_address_write": 166, "control_flow_hijack": 83, "symbolic_free_arg": 27}
-The remaining site accepted without neutralization in the PM-enabled table is one OM-clean concrete IF site; it is not part of the PM-only count.
-Paper-facing totals: {"conservative_denominator": 1303, "counted": 781, "excluded_value_write_missing_destination": 522, "fail": 490, "om_avoid": 0, "om_clean": 1, "om_neutralization": 14, "pm_candidates": 291, "pm_sensitivity": 276, "syzpass_attributed": 14}
+Paper-facing totals: {"conservative_denominator": 1303, "counted": 781, "excluded_value_write_missing_destination": 522, "fail": 490, "om_avoid": 0, "om_candidates": 50, "om_clean": 13, "om_fail": 731, "om_neutralization": 37, "pm_avoid": 0, "pm_candidates": 291, "pm_clean": 1, "pm_fail": 490, "pm_materialization": 276, "pm_neutralization": 14, "pm_sensitivity": 276, "syzpass_attributed": 290}
 
 ## Strict Object Matching
 
