@@ -1,6 +1,6 @@
 \section{Demystifying Side Effects}
 
-Modern kernel exploit development often involves deriving new (and often stronger) exploit primitives from initial ones. However, many of these primitives come with unintended consequences, known as ``side effects''. Side effects are changes to the system state that occur alongside the desired action but may interfere with the overall exploit strategy. In many cases, side effects can prevent an exploit from working altogether (e.g., causing crashes), making them a critical obstacle to successful exploitation.
+Modern kernel exploit development often involves deriving new (and often stronger) exploit primitives from unintended memory operations caused by a bug. These operations rarely appear in isolation: one bug-triggering path may perform several writes, frees, or pointer dereferences. In this paper, we call such unintended memory operations \emph{effects}. Once an exploit strategy selects one effect as the desired primitive, the remaining effects on that same path become \emph{side effects}. In many cases, side effects can prevent an exploit from working altogether (e.g., causing crashes), making them a critical obstacle to successful exploitation.
 
 In this section, we use a motivating example to illustrate the intricate relationship between primitives and side effects.
 
@@ -96,7 +96,7 @@ Not all side effects are equally harmful. Side effects involving pointer derefer
 
 %As a result, in this paper, we \textbf{do not} determine primitives based on the behaviors of effects. Instead, we leave the freedom of choosing the exploit strategy to the exploit developer and treat all effects as potential primitives equally. Thus, for each of them, we try to find strategies to solve other effects for it. In addition, we prioritize solving side effects involving pointer dereferences.
 
-In this paper, we \textbf{do not} determine primitives from behaviors of effects. Instead, we leave exploit-strategy selection to the developer and treat all effects as equally viable candidate primitives. For each candidate, we then seek mitigation strategies for the remaining effects (i.e., side effects). We further prioritize mitigating side effects that involve pointer dereferences.
+In this paper, we \textbf{do not} determine primitives from behaviors of effects. Instead, we leave exploit-strategy selection to the developer and treat all effects as potential primitives. For each potential primitive, we then seek mitigation strategies for the remaining effects (i.e., side effects). We further prioritize mitigating side effects that involve pointer dereferences.
 
 
 % For each potential primitive provided by the vulnerability, we assume the attacker chooses it as the primitive for the exploit, then treat all other unintended memory operations as side effects to be minimized

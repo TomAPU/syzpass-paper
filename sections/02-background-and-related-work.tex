@@ -59,7 +59,7 @@ Various techniques are proposed to improve its stability and chance of success \
 
 \noindent\textbf{Primitive Pivoting.} Pivoting a primitive is crucial especially when the initial primitive is weak.
 Primitive transition and upgrade are usually done by corrupting sensitive kernel objects.
-There are a lot of research on identifying sensitive kernel objects \cite{chen2019slake, chen2020systematic, wang2023alphaexp, xie2025bridgerouter, wang2023alphaexp} and using them to pivot a primitive to get more severe ones (e.g., infoleak, arbitrary read and arbitrary write).
+Prior work identifies sensitive kernel objects \cite{chen2019slake, chen2020systematic, wang2023alphaexp, xie2025bridgerouter} and uses them to pivot a primitive to get more severe ones (e.g., infoleak, arbitrary read and arbitrary write).
 
 % \noindent\textbf{Return-Oriented Programming.} KEPLER \cite{kepler} and RetSpill \cite{zeng2023retspill} construct ROP chains within the kernel.
 
@@ -73,7 +73,7 @@ However, these approaches lack support for flexible multi-step primitive transit
 
 
 \subsection{Automated Exploit Primitive Discovery for Linux Kernel}
-Served as the starting point for exploit construction, primitive discovery is one of the most essential aspects of AEG, and it must be performed on a per-vulnerability basis. GREBE \cite{lin2022grebe} identifies key objects related to a given vulnerability and uses them as fuzzing feedback to discover alternative paths or kernel contexts to trigger the same vulnerability, revealing the high-risk primitives of a seemingly low-risk vulnerability.
+As the starting point for exploit construction, primitive discovery is one of the most essential aspects of AEG, and it must be performed on a per-vulnerability basis. GREBE \cite{lin2022grebe} identifies key objects related to a given vulnerability and uses them as fuzzing feedback to discover alternative paths or kernel contexts to trigger the same vulnerability, revealing the high-risk primitives of a seemingly low-risk vulnerability.
 Similarly, SyzScope \cite{zou2022syzscope} also performs fuzzing by enabling related system calls to explore more bug contexts.
 % potentially escalating a seemingly low-risk vulnerability into a high-risk one.
 While GREBE cannot uncover primitives behind the initial memory corruption, SyzScope, the state-of-the-art primitive discovery solution, goes beyond the initial primitive to reveal subsequent primitives by leveraging symbolic execution. For each revealed primitive, SyzScope also provides the control-flow and kernel context that leads to the primitive.
@@ -112,6 +112,4 @@ The goal of both frameworks is to discover more primitives for a given vulnerabi
 % High-level solution. Side effect avoidance and neutralization. 
 
 % Why we choose fuzzing to avoid side effects, for example.
-
-
 

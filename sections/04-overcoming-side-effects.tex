@@ -14,7 +14,7 @@ Syscall adjustments can change the context in which a bug is triggered ~\cite{zo
 
 % Thus, an attacker can carefully craft the vulnerability triggering syscall sequence to prevent the kernel from entering side effect triggering code, thus avoiding side effects.
 
-Going back to the motivating example and Figure~\ref{fig:motivating}, if the attacker intends to leverage the CFH primitive to exploit the vulnerability, regardless of whether it is in \texttt{syscall\_A()} or \texttt{syscall\_B()}, there is a corresponding AAW effect can be a side effect and needs to be avoided.
+Going back to the motivating example and Figure~\ref{fig:motivating}, if the attacker intends to leverage a CFH primitive, either syscall choice may leave an AAW effect as a side effect that needs to be avoided.
 
 To do so, the first observation is that \texttt{syscall\_A()} is better than \texttt{syscall\_B()}, since the AAW effect at \circled{3} is unavoidable when using \texttt{syscall\_B()}. In contrast, the AAW effect at \circled{5} can be avoided if the arguments of \texttt{syscall\_A()} are adjusted properly, i.e., by setting \textcolor{DarkGreen}{\texttt{arg1}} to zero, which can influence the \texttt{if} statement at \circled{4}, and thereby bypassing the AAW side effect at \circled{5}.
 
@@ -40,7 +40,7 @@ In addition to avoidance, side effects can also be addressed through neutralizat
 
 In the motivating example, suppose the attacker wants to exploit the CFH primitive. Instead of calling \texttt{syscall\_A()} to avoid the AAW side effect, the attacker can invoke \texttt{syscall\_B()} and neutralize the AAW at \circled{3}. 
 
-Here, the AAW at \circled{3} is not the selected primitive; it is a residual side effect that must be made safe. One way to do so is object matching: the attacker sprays an object whose layout provides a valid writable pointer at the dereferenced offset~\cite{SETTLERS66:online,Onedaysh20:online}. Under stronger exploit capabilities, the same pointer-shaped side effect may also be neutralized by materializing a valid pointer chain in kernel-addressable controlled memory. In both cases, the selected CFH primitive is preserved while the residual AAW side effect no longer crashes the execution.
+Here, the AAW at \circled{3} is not the selected primitive; it is a residual side effect that must be made safe. One way to do so is object matching: the attacker sprays an object whose layout provides a valid writable pointer at the dereferenced offset~\cite{SETTLERS66:online,Onedaysh20:online}. Under stronger exploit capabilities, the same pointer-shaped side effect may also be neutralized by materializing a valid pointer chain in a kernel-resident attacker-controlled fake object. In both cases, the selected CFH primitive is preserved while the residual AAW side effect no longer crashes the execution.
 
 % In practice, attackers identify and verify suitable spray targets through manual analysis~\cite{SETTLERS66:online}.
 

@@ -1,5 +1,5 @@
 \section{SyzPass Design}
-To overcome these shortcomings, we design SyzPass, a framework that discovers primitive sites, measures their side effects, and reports primitive-aware candidate guidance for exploit development. In this section, we describe how SyzPass explores alternative contexts, reasons about post-corruption paths, and matches residual side effects against attacker-sprayable object layouts.
+To overcome these shortcomings, we design SyzPass, a framework that discovers primitive sites, measures their side effects, and reports candidate primitive sites as guidance for exploit development. In this section, we describe how SyzPass explores alternative contexts, reasons about post-corruption paths, and matches residual side effects against attacker-sprayable object layouts.
 
 
 \subsection{Workflow}
@@ -12,6 +12,7 @@ To overcome these shortcomings, we design SyzPass, a framework that discovers pr
 
 The workflow of SyzPass is shown in Figure~\ref{fig:fuzz-graph}. It takes as input the target kernel configuration and a PoC that triggers the vulnerability. The output is a set of primitives, each associated with a set of side-effect outcomes; a primitive may appear on a path that encounters zero or more side effects.
 Furthermore, each side effect outcome is also tied to a corresponding strategy, including syscall sequences and sprayed data constraints for syscall avoidance, and kernel objects to neutralize residual side effects.
+A SyzPass report therefore has a concrete shape: selected primitive site, triggering path, path and spray constraints, residual side effects, and either an object match or a pointer-materialization assumption that makes those residual effects safe.
 
 % primitives reside in the vulnerabilities and corresponding actionable side effects solving strategies consist of associated syscall sequence, data constraints for sprayed memory, and matched objects that can neutralize remaining side effects. 
 
@@ -68,7 +69,7 @@ To balance these requirements, we propose a branch set collection algorithm, as 
 \State $P \gets \emptyset$ \Comment{pending candidate branches}
 \State $B \gets \emptyset$ \Comment{collected branch set}
 \State $Bucket \gets \emptyset$ \Comment{map between IPDs and branches }
-Symbolize(S)\Comment{symbolize UAF/OOB R memory }
+\State Symbolize($S$) \Comment{symbolize UAF/OOB read memory }
 % \State Symbolize heap-sprayed controllable memory in $S$
 
 \While{execution continues}
@@ -96,7 +97,7 @@ Symbolize(S)\Comment{symbolize UAF/OOB R memory }
 Our key insight is that attackers mainly influence kernel execution through two channels: heap spraying and bug-triggering syscalls (including arguments). Because tracking syscall influence is expensive under cross-syscall interactions, we reverse the analysis: instead of identifying which branches are influenced by syscall arguments, we identify spray-influenced branches and exclude them when distinguishing crash behaviors. This keeps the mechanism practical for repeated fuzzer-triggered crashes, although we evaluate the resulting guidance rather than standalone tracing overhead.
 
 To this end, we employ concolic execution by symbolizing UAF or OOB read memory. We detail the procedure in Algorithm~\ref{alg:effective-branchset}. As concolic execution progresses until the end of the syscall, we examine branches and their path constraints (if any) to extract the branch set.
-If a path condition is not symbolized, i.e., not influenced by heap spraying memory (so that thus potentially influenced by bug-triggering syscall arguments), we add the corresponding branch into pending candidate branches \textit{P}, indicating that they are candidate branches for collection.
+If a path condition is not symbolized, i.e., not influenced by heap spraying memory and therefore potentially influenced by bug-triggering syscall arguments, we add the corresponding branch into pending candidate branches \textit{P}, indicating that they are candidate branches for collection.
 
 % The reason why these candidate branches are not directly merged into the final branch set \textit{B} is that we need an extra filter to exclude branches irrelevant to memory effects within this vulnerability.  
 To exclude noise, we add candidate branches to the final set only when they are relevant to subsequent memory effects. We use the following heuristic: a branch is relevant iff at least one effect is control-dependent on it. Specifically, we apply \textit{immediate post-dominator} (IPD) analysis. The IPD of a branch is the first basic block guaranteed to execute regardless of branch direction; blocks after the IPD are not control-dependent on that branch. Therefore, if an effect occurs between the branch instruction and its IPD (i.e., it happens conditionally), we include it in the final branch set \textit{B}; otherwise, we treat it as noise and discard it.
@@ -248,9 +249,9 @@ As discussed in \S~\ref{chap:eps}, pointer-dereference-related side effects are 
 %Through this process, we systematically leverage the explored vulnerability contexts and post-corruption execution paths to discover primitives and avoid side effects. In some cases, however, we may still want to consider primitives associated with non-ideal paths, i.e., those that exhibit pointer dereference-related side effects and are inherently unavoidable. For example, it is possible that all paths have the same kind of side effect for a particular primitive. To address these cases, we leverage side-effect neutralization technique, which we detail next.
 
 \subsection{Side Effects Neutralization Analysis}
-SyzPass performs neutralization with primitive-aware site reasoning. For accounting, we model one selected primitive site $s$ per exploit strategy and treat the other effects on the same path as residual effects. We separately determine whether $s$ is preserved as a useful primitive and whether there exists a path where all residual effects can be avoided by path selection or neutralized after they occur. This separation matters because a pointer-related primitive can be useful once its pointer target is attacker-controlled, while a value-write or bounded-write primitive must corrupt a useful victim-object field rather than attacker-controlled payload data.
+SyzPass performs neutralization with primitive-aware site reasoning. For accounting, we model one selected primitive site $s$ per exploit strategy and treat the other effects on the same path as residual effects. We separately determine whether $s$ is preserved as a useful primitive and whether there exists a path where all residual effects can be avoided by path selection or neutralized after they occur. This separation matters because a pointer-shaped primitive can be useful once its pointer target is attacker-controlled, while a value-write or bounded-write primitive must corrupt a useful victim-object field rather than attacker-controlled payload data.
 
-SyzPass separates this reasoning from the attacker's capability model. Table~\ref{tab:capability-models} summarizes the two models used throughout the paper: object matching ($\mathsf{OM}$), our portable baseline, and pointer materialization ($\mathsf{PM}$), a stronger model for pointer-related primitives.
+SyzPass separates this reasoning from the attacker's capability model. Table~\ref{tab:capability-models} summarizes the two models used throughout the paper: object matching ($\mathsf{OM}$), our portable baseline, and pointer materialization ($\mathsf{PM}$), a stronger model for pointer-shaped primitive or residual-effect requirements. Intuitively, $\mathsf{OM}$ asks whether a real sprayed kernel object can satisfy the required layout, while $\mathsf{PM}$ asks how the answer changes when the attacker can also place a controlled fake object at a disclosed kernel address.
 
 \begin{table}[t]
   \centering
@@ -259,17 +260,19 @@ SyzPass separates this reasoning from the attacker's capability model. Table~\re
   \renewcommand{\arraystretch}{1.08}
   \begin{tabular}{@{}p{0.15\linewidth}p{0.50\linewidth}p{0.25\linewidth}@{}}
     \toprule
-    \textbf{Model} & \textbf{Additional capability} & \textbf{Role in counts} \\
+    \textbf{Model} & \textbf{Capability assumptions} & \textbf{Role in counts} \\
     \midrule
     $\mathsf{OM}$ & Unprivileged trigger, syscall/spray control, heap reclaim by sprayable objects & Portable baseline \\
-    $\mathsf{PM}$ & $\mathsf{OM}$ plus disclosed kernel addresses and kernel-addressable controlled memory & Pointer-related capabilities \\
+    $\mathsf{PM}$ & $\mathsf{OM}$ plus disclosed kernel addresses and attacker-controlled fake objects at known kernel addresses & Pointer-shaped requirements \\
     \bottomrule
   \end{tabular}
-  \caption{Capability models. $\mathsf{OM}$ captures portable object matching, while $\mathsf{PM}$ captures stronger pointer materialization for pointer-related primitives.}
+  \caption{Capability models. $\mathsf{OM}$ captures portable object matching, while $\mathsf{PM}$ captures stronger pointer materialization for pointer-shaped requirements.}
   \label{tab:capability-models}
 \end{table}
 
-Recent exploitation techniques motivate $\mathsf{PM}$: software side channels can disclose kernel addresses from unprivileged contexts~\cite{kernelsnitch}, and recent KernelCTF writeups show that attackers can place fake kernel-resident payloads at known kernel addresses with techniques such as NPerm~\cite{kernelctf-nperm}. Fixed or weakly randomized kernel regions have also appeared in real systems, as illustrated by the \texttt{cpu\_entry\_area} randomization issue and its use in exploit construction~\cite{cve20230597,kernelctf-cpuentry}. These techniques make pointer materialization realistic in many environments. SyzPass therefore reports both models: $\mathsf{PM}$ captures the growing strength of modern pointer capabilities, while $\mathsf{OM}$ remains the portable strategy when a real sprayed object can satisfy the side effect.
+Recent exploitation techniques motivate $\mathsf{PM}$: software side channels can disclose kernel addresses from unprivileged contexts~\cite{kernelsnitch}, and recent KernelCTF writeups show that attackers can place fake kernel-resident payloads at known kernel addresses with techniques such as NPerm~\cite{kernelctf-nperm}. Fixed or weakly randomized kernel regions have also appeared in real systems, as illustrated by the \texttt{cpu\_entry\_area} randomization issue and its use in exploit construction~\cite{cve20230597,kernelctf-cpuentry}. These techniques motivate a stronger capability view. SyzPass therefore reports both models: $\mathsf{PM}$ captures results under pointer materialization, while $\mathsf{OM}$ remains the portable strategy when a real sprayed object can satisfy the side effect. $\mathsf{PM}$ is applied only to pointer-shaped primitive or residual-effect requirements: it can supply a valid pointer target for selected pointer-shaped primitives or residual pointer dereferences, but it does not make a value-write primitive useful unless that write still targets a meaningful victim-object field.
+
+The rules below are read in two steps. First, $\mathsf{Preserve}$ checks whether the selected primitive remains useful for the exploit strategy. Pointer-shaped primitives require attacker control of the pointer target; invalid frees are split into symbolic arbitrary-free sites and concrete double-free-like sites; value writes must target useful victim-object fields. Second, $\mathsf{Safe}$ checks whether the other effects on the same path can be avoided or made safe under $\mathsf{OM}$ or $\mathsf{PM}$.
 
 Formally, let $\mathcal{P}_s$ be the explored paths that reach primitive site $s$, $E(p)$ be the memory effects on path $p$, and $C_p$ be the path constraints. SyzPass accepts site $s$ under capability model $\kappa$ iff there exists a path that preserves the selected site and makes every residual effect safe:
 \[
@@ -280,7 +283,7 @@ Formally, let $\mathcal{P}_s$ be the explored paths that reach primitive site $s
 \forall e \in E(p)\setminus\{s\}.\ \mathsf{Safe}_{\kappa}(e,C_p).
 \end{aligned}
 \]
-This outer existential captures side-effect avoidance: if one explored path reaches the same primitive site without a dangerous residual effect, SyzPass chooses that path instead of neutralizing the effect. For residual effects that remain on the chosen path, SyzPass uses the same safety predicate across primitive types:
+This outer existential captures side-effect avoidance: if one explored path reaches the same primitive site without an unsafe residual effect, SyzPass chooses that path instead of neutralizing the effect. For residual effects that remain on the chosen path, SyzPass uses the same safety predicate across primitive types:
 \[
 \begin{aligned}
 \mathsf{Safe}_{\kappa}(e,C_p) \triangleq
@@ -288,7 +291,7 @@ This outer existential captures side-effect avoidance: if one explored path reac
 (\kappa=\mathsf{PM} \land \mathsf{Ptr}(e) \land \mathsf{Mat}(e,C_p)).
 \end{aligned}
 \]
-Here, FPD is the function-pointer-dereference subtype of CFH. Operationally, $\mathsf{OM}(e,C_p)$ holds when the residual dereference/data requirements fit a sprayable object layout, including alignment of required data bytes to attacker-controllable object bytes. $\mathsf{Mat}(e,C_p)$ holds only under $\mathsf{PM}$, when disclosed kernel addresses and kernel-addressable controlled memory can satisfy a pointer-shaped residual effect. $\mathsf{Ctrl}(x)$ means that $x$ is derived from symbolized vulnerable memory, syscall input, or spray data; $\mathsf{Sym}(x)$ means that $x$ remains symbolic in the path constraints. $\mathsf{DFLike}$ means the invalid-free argument resolves to the vulnerable object itself or adjacent memory, not an attacker-forged pointer. $\mathcal{F}_{u}$ is the set of meaningful victim-object fields in our object database, excluding attacker-controllable payload buffers; for value writes, $\mathsf{field}(\mathsf{dst}(s))$ must be determined on the analyzed path.
+Here, FPD is the function-pointer-dereference subtype of CFH. Operationally, $\mathsf{OM}(e,C_p)$ holds when the residual dereference/data requirements fit a sprayable object layout, including alignment of required data bytes to attacker-controllable object bytes. $\mathsf{Mat}(e,C_p)$ holds only under $\mathsf{PM}$, when disclosed kernel addresses and a kernel-resident attacker-controlled fake object can satisfy a pointer-shaped residual effect. $\mathsf{Ctrl}(x)$ means that $x$ is derived from symbolized vulnerable memory, syscall input, or spray data; $\mathsf{Sym}(x)$ means that $x$ remains symbolic in the path constraints. $\mathsf{DFLike}$ means the invalid-free argument resolves to the vulnerable object itself or adjacent memory, not an attacker-forged pointer. $\mathcal{F}_{u}$ is the set of meaningful victim-object fields in our object database, excluding attacker-controllable payload buffers; for value writes, $\mathsf{field}(\mathsf{dst}(s))$ must be determined on the analyzed path.
 
 \noindent\textbf{Predicate extraction.} SyzPass computes these predicates from symbolic state and layout artifacts. $\mathsf{Ctrl}$ and $\mathsf{Sym}$ come from symbolic expressions; $\mathsf{DFLike}$ uses the solver to place the \texttt{kfree()} argument inside or adjacent to vulnerable memory. $\mathsf{field}(\mathsf{dst})$ comes from a paired same-instruction address primitive or memory-write constraint. $\mathcal{F}_{u}$ comes from the object-layout database and excludes attacker-controlled payload buffers, keeping value-write matching focused on meaningful victim-object fields.
 
