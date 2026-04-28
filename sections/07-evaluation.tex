@@ -1,7 +1,7 @@
 \section{Evaluation}
 To evaluate SyzPass as exploit guidance, we formulate two questions:
 
-\noindent\textbf{RQ1. What primitive candidates can SyzPass report under object matching and pointer materialization?}
+\noindent\textbf{RQ1. Which primitive sites become candidates under object matching and pointer materialization?}
 % How well does SyzPass facilitate exploit in general
 
 \noindent\textbf{RQ2. How does SyzPass guidance support exploit development?}
@@ -17,9 +17,9 @@ We collect our evaluation dataset from Syzbot by crawling kernel bugs reported b
 
 For each bug, we run context exploration for 10 hours; afterwards, we allocate 4 hours for primitive discovery and side effect avoidance. Side effects neutralization is performed without a time limit, as it completes deterministically.
 
-\noindent\textbf{Threat model and accounting.} We report two capability views. \emph{Object matching} (OM) is the portable baseline: the attacker can trigger the bug, control syscall and spray data, and reclaim vulnerable memory with sprayable objects, while residual effects must fit real object layouts. \emph{Pointer materialization} (PM) additionally permits address disclosure and attacker-controlled fake objects at known kernel addresses for pointer-shaped primitive or residual-effect requirements. PM captures stronger modern pointer capabilities, while the case studies show how reported paths, constraints, and object matches are consumed by exploit development.
+\noindent\textbf{Threat model and terms.} We report two capability views. \emph{Object matching} (OM) is the portable baseline: the attacker can trigger the bug, control syscall and spray data, and reclaim vulnerable memory with sprayable objects, while residual effects must fit real object layouts. \emph{Pointer materialization} (PM) additionally permits address disclosure and attacker-controlled fake objects at known kernel addresses for pointer-shaped primitive or residual-effect requirements. Under PM, SyzPass asks whether the explored path remains safe once such pointer capabilities are available; the disclosure and staging steps themselves are outside this side-effect analysis. The case studies show how reported paths, constraints, and object matches are used during exploit development.
 
-\noindent\textbf{Counting terms.} A \emph{candidate site} is a primitive site with at least one explored path whose selected primitive is preserved and whose residual side effects are safe under OM or PM. A \emph{clean} candidate already has a safe path. A \emph{SyzPass-attributed} candidate becomes safe because SyzPass identifies guidance that resolves a residual side effect; in the OM aggregate below, these attributed candidates are object-matching neutralizations.
+\noindent\textbf{Counting terms.} A \emph{candidate site} is a primitive site with at least one explored path whose selected primitive is preserved and whose residual side effects are safe under OM or PM. A \emph{clean} candidate already has a safe path. Some candidates require SyzPass to resolve a residual side effect; in the OM aggregate below, these are object-matching neutralizations.
 
 \begin{table}[!ht]
   \centering
@@ -36,11 +36,11 @@ For each bug, we run context exploration for 10 hours; afterwards, we allocate 4
     Counted primitive sites & 781 & Main sites \\
     \bottomrule
   \end{tabular}
-  \caption{Evaluation dataset funnel from stable Syzbot memory-corruption bugs to counted primitive sites.}
-  \label{tab:dataset-funnel}
+  \caption{Evaluation dataset and primitive-site coverage.}
+  \label{tab:dataset-coverage}
 \end{table}
 
-\noindent\textbf{Reading the counts.} The funnel is 342 stable bugs $\rightarrow$ 115 symbolically reachable bugs $\rightarrow$ 97 bugs with counted sites $\rightarrow$ 781 primitive sites. The 97 counted bugs are the symbolically reachable cases that expose at least one primitive site with the metadata needed by the primitive-aware rules in Table~\ref{tab:primitive-aware-rules}.
+\noindent\textbf{Reading the counts.} Starting from 342 stable bugs, SyzPass reaches 115 bugs symbolically; 97 of them expose at least one primitive site with the information needed by the primitive-aware rules in Table~\ref{tab:primitive-aware-rules}. These 97 counted bugs contain 781 primitive sites in total. The remaining 18 reachable bugs do not contribute to Table~\ref{tab:primitive-usability-breakdown} because the explored states did not expose such a site.
 
 All experiments are conducted on Ubuntu 20.04.5 LTS with 2 TB memory and AMD EPYC 7542 32-Core Processor × 2 (total 64 cores). 
 
@@ -67,13 +67,13 @@ Table~\ref{tab:primitive-usability-breakdown} reports the same primitive sites u
 
 
 
-Overall, we observe 781 primitive sites across the 97 counted bugs. Under PM, 291 sites satisfy the candidate predicate, spanning 63 of 97 counted bugs and including 166 AAW, 83 CFH/FPD, 38 IF, and 4 CVW/AVW sites. This total consists of 276 PM-only pointer-materialization candidates plus the 15 candidates that also satisfy OM. The portable OM subset contains 1 clean site and 14 SyzPass-attributed candidates. This gap highlights how stronger pointer materialization changes the reachable primitive space while preserving object matching as the deployment-independent baseline.
+Overall, we observe 781 primitive sites across the 97 counted bugs. Under PM, 291 sites become candidates, spanning 63 of 97 counted bugs and including 166 AAW, 83 CFH/FPD, 38 IF, and 4 CVW/AVW sites. This total consists of 276 PM-only pointer-materialization candidates plus the 15 candidates that also satisfy OM. The portable OM subset contains 1 clean site and 14 candidates that require neutralization. This gap highlights how stronger pointer materialization changes the reachable primitive space while preserving object matching as the deployment-independent baseline.
 
 For higher-risk primitives (OUW, AAW, CFH, and IF), pointer-shaped sites are preserved when their targets are controlled, while lethal pointer-shaped residual effects are handled by avoidance, object matching, or pointer materialization. The OM candidates are concentrated in double-free-like IF$_{con}$ sites whose residual effects require explicit object matching, showing why primitive-aware preservation and side-effect neutralization must be reasoned about together.
 %488 instances in total, of which 307 are usable; 183 of these usable high-risk instances are attributable to SyzPass (61 by avoidance and 122 by neutralization), accounting for 59.6\% of usable high-risk instances.
 % In particular, AAW and FPD show heavy reliance on neutralization (32 each), while OUW benefits from both avoidance (29) and neutralization (33), reflecting that side-effect behaviors in these primitives can be both path-sensitive and structurally unavoidable.
 
-At the bug level, 63 of the 97 bugs contain at least one PM-enabled candidate site. The 14 SyzPass-attributed OM instances consist of 10 IF$_{con}$ sites and 4 AVW sites; together, they span 10 unique bugs because the AVW candidates occur in bugs that also contain IF$_{con}$ candidates. The IF$_{con}$ sites are double-free-like frees whose residual effects match elastic spray objects such as \texttt{msg\_msg}, \texttt{user\_key\_payload}, or \texttt{simple\_xattr}; the AVW sites have destination fields that match useful fields in \texttt{msg\_msg}/\texttt{user\_key\_payload}-style layouts. These matched layouts provide concrete starting points for exploit construction, and we validate representative guidance through the case studies below.
+At the bug level, 63 of the 97 bugs contain at least one PM-enabled candidate site. The 15 OM candidates consist of one clean IF site and 14 sites that require neutralization. The latter consist of 10 IF$_{con}$ sites and 4 AVW sites; together, they span 10 unique bugs because the AVW candidates occur in bugs that also contain IF$_{con}$ candidates. The IF$_{con}$ sites are double-free-like frees whose residual effects match elastic spray objects such as \texttt{msg\_msg}, \texttt{user\_key\_payload}, or \texttt{simple\_xattr}; the AVW sites have destination fields that match useful fields in \texttt{msg\_msg}/\texttt{user\_key\_payload}-style layouts. These matched layouts provide concrete starting points for exploit construction, and we validate representative guidance through the case studies below.
 
 % lethal side effects are common enough to materially restrict primitive usability, and SyzPass can make a meaningful portion of the primitive space usable.
 
@@ -244,9 +244,18 @@ At the bug level, 63 of the 97 bugs contain at least one PM-enabled candidate si
 
 % Case study: End-to-end exploits.
 \subsection{Case Studies}
-To understand how SyzPass helps with exploit construction in practice, we conduct three working exploit case studies selected from locally triggerable bugs across different kernel versions: \texttt{e3cd8d}~\cite{e3cd8d:online}, \texttt{380acd1}~\cite{380acd}, and \texttt{52bbc0}~\cite{52bbc}. These case studies focus on how SyzPass guidance is consumed during exploit development: SyzPass reports candidate primitives, paths, constraints, and matched objects, which guide later choices such as KASLR bypass, heap-grooming method, and final ROP/gadget chain. We use \texttt{vulmem} to denote attacker-controlled OOB/UAF memory symbolized during analysis. Together, the case studies cover three common uses of the report: choosing a safer trigger path, satisfying heap-byte constraints, and applying object-matching neutralization.
+To understand how SyzPass helps with exploit construction in practice, we conduct three working privilege-escalation case studies selected from locally triggerable bugs across different kernel versions: \texttt{e3cd8d}~\cite{e3cd8d:online}, \texttt{380acd1}~\cite{380acd}, and \texttt{52bbc0}~\cite{52bbc}. In each case, we use the paths, heap-byte constraints, residual effects, and object matches reported by SyzPass to guide later exploit decisions. We use \texttt{vulmem} to denote attacker-controlled OOB/UAF memory symbolized during analysis. The three cases cover complementary forms of guidance: constraint-guided CFH, path avoidance plus object matching, and heap-byte constraints for avoiding a write side effect.
 
-For \texttt{e3cd8d}, SyzPass reports a CFH path guarded by \texttt{\_softexpires} and \texttt{state} constraints; the exploit consumes those heap-byte constraints, then supplies a KASLR source, \texttt{user\_key\_payload} spray, and final global-corruption payload. For \texttt{380acd1}, SyzPass reports an alternative \texttt{recvmsg()} trigger, an \texttt{MSG\_PEEK} path that avoids an unlink side effect, and a \texttt{msg\_msg} header match that neutralizes the unlink when avoidance is not used. We validated both strategies as KASLR-leak enablers and then completed privilege escalation through cross-cache placement and final control-flow hijack; this case validates one counted OM-neutralization candidate. For \texttt{52bbc0}, SyzPass reports two PoCs and a CFH path whose constraints avoid an arbitrary-write side effect; the exploit consumes the constraint \texttt{vulmem[40:48] == 0}, then uses a \texttt{user\_key\_payload} spray and ROP/global-corruption payload. These examples show that SyzPass exposes paths, constraints, and object matches that are directly consumed during exploit construction.
+\noindent\textbf{\texttt{e3cd8d}: constraint-guided CFH.}
+The vulnerable \texttt{Qdisc} object contains an embedded timer; after the object is freed, the timer path can still access the reclaimed memory. SyzPass reports a CFH path in which \texttt{\_softexpires} lets the timer execute and \texttt{state} steers \texttt{\_\_remove\_hrtimer()} away from a side path with additional pointer operations. The exploit follows these constraints by shaping the reclaimed object with \texttt{user\_key\_payload}, uses the reported function-pointer dereference as the control-flow transfer point, and completes privilege escalation with global-variable corruption.
+
+\noindent\textbf{\texttt{380acd1}: avoidance and object matching.}
+This bug leaves an \texttt{sk\_buff} object in a linked list after it is freed. SyzPass discovers \texttt{recvmsg()} as an alternative trigger and reports two ways to handle the unlink side effect: \texttt{MSG\_PEEK} keeps the leak path while skipping the unlink, and object matching pairs the residual unlink dereferences with the pointer fields at the head of \texttt{msg\_msg}. We implemented both strategies as KASLR-leak enablers. For the neutralization variant, cross-cache placement reclaims the vulnerable slot with \texttt{msg\_msg}; after the leak, a later destructor-path CFH primitive completes privilege escalation. This case validates a counted OM-neutralization candidate.
+
+\noindent\textbf{\texttt{52bbc0}: path and heap-byte guidance.}
+This \textit{netfilter} timer UAF frees a \texttt{hash\_netiface4} object while a later timer path can still access its embedded \texttt{timer\_list}. SyzPass reports two trigger contexts and a CFH path where setting \texttt{vulmem[40:48] == 0} avoids an AAW side effect before the function-pointer dereference at \texttt{vulmem[64:72]}. The exploit follows this guidance by shaping the sprayed \texttt{user\_key\_payload} object to satisfy the constraint, then uses the CFH site to run a ROP/global-corruption payload. This case shows that SyzPass provides concrete path and heap-byte guidance even when object matching is unnecessary.
+
+Together, the three studies cover path selection, heap-byte constraints, and object-matching neutralization. They show how the candidate sites in Table~\ref{tab:primitive-usability-breakdown} translate into concrete exploit-development guidance.
 
 
 

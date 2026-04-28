@@ -85,7 +85,7 @@ We make three key observations about these definitions.
 \noindent\textbf{1. Primitives Are Chosen}: Whether an effect is considered a primitive depends on the attacker's strategy. For example, although CFH is often seen as powerful (e.g., for ROP), if the attacker chooses to use UAF Write instead (to corrupt heap objects), the CFH would become a side effect, which can lead to crashes if we do not overwrite it with a legitimate kernel function address.
 
 \noindent\textbf{2. We Model One Selected Primitive at a Time}: 
-Real exploits may combine multiple effects across repeated triggers or exploit stages. For tractable per-path accounting, SyzPass models one selected primitive site for one exploit strategy and treats the remaining effects on that same path as side effects.
+Real exploits may combine multiple effects across repeated triggers or exploit stages. For tractable per-path accounting, SyzPass models one selected primitive site for one exploit strategy and treats the remaining effects on that same path as side effects. SyzPass initially treats each effect site as a possible selected-primitive hypothesis; primitive-specific preservation rules later decide whether that hypothesis remains useful on the analyzed path.
 
 \noindent\textbf{3. Some Side Effects Are More Lethal}: 
 Not all side effects are equally harmful. Side effects involving pointer dereferences are especially dangerous because they can fail immediately when the corrupted pointer field is filled with an invalid value (e.g., 0x0 from zero-initialized spray objects). For example, CFH and AAW are typically riskier than UAF Write: if the reclaimed object is zero-initialized and a pointer field is dereferenced without validation, the kernel will crash.
