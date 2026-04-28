@@ -1,22 +1,22 @@
-\begin{table}[!h]
+\begin{table}[!ht]
   \centering
   \small
   \setlength{\tabcolsep}{4pt}
   \renewcommand{\arraystretch}{1.05}
-  \begin{tabular}{@{}lrrrr@{}}
+  \begin{tabular}{@{}lrrr@{}}
     \toprule
-    \textbf{Primitive} & \textbf{Sites} & \textbf{OM} & \textbf{PM} & \textbf{Excl.} \\
+    \textbf{Primitive} & \textbf{Sites} & \textbf{PM} & \textbf{OM} \\
     \midrule
-    CVW/AVW & 210 & 4  & 4   & 522 \\
-    CAW     & 30  & 0  & 0   & 0 \\
-    OUW     & 238 & 0  & 0   & 0 \\
-    AAW     & 166 & 0  & 166 & 0 \\
-    CFH/FPD & 83  & 0  & 83  & 0 \\
-    IF      & 54  & 11 & 38  & 0 \\
+    CVW/AVW & 210 & 4   & 4  \\
+    CAW     & 30  & 0   & 0  \\
+    OUW     & 238 & 0   & 0  \\
+    AAW     & 166 & 166 & 0  \\
+    CFH/FPD & 83  & 83  & 0  \\
+    IF      & 54  & 38  & 11 \\
     \midrule
-    Total   & 781 & 15 & 291 & 522 \\
+    Total   & 781 & 291 & 15 \\
     \bottomrule
   \end{tabular}
-  \caption{Primitive-aware candidate accounting. Sites exclude AVW/CVW sites with unavailable destinations (Excl.). OM is the portable object-matching result; PM additionally accounts for pointer materialization.}
+  \caption{Primitive-aware candidate accounting under two capability models. PM includes pointer materialization for pointer-related primitives; OM is the portable object-matching subset.}
   \label{tab:primitive-usability-breakdown}
 \end{table}
