@@ -249,11 +249,15 @@ As discussed in \S~\ref{chap:eps}, pointer-dereference-related side effects are 
 %Through this process, we systematically leverage the explored vulnerability contexts and post-corruption execution paths to discover primitives and avoid side effects. In some cases, however, we may still want to consider primitives associated with non-ideal paths, i.e., those that exhibit pointer dereference-related side effects and are inherently unavoidable. For example, it is possible that all paths have the same kind of side effect for a particular primitive. To address these cases, we leverage side-effect neutralization technique, which we detail next.
 
 \subsection{Side Effects Neutralization Analysis}
-\noindent\textbf{Neutralization side effects while preserving the primitive.}
+\noindent\textbf{Neutralizing side effects while preserving the primitive.}
 SyzPass performs neutralization after fixing the attacker's selected primitive. In our analysis, a \emph{selected primitive site} $s$ is the effect the attacker intends to exploit on one strategy, and the other effects on the same path are \emph{residual effects}. SyzPass asks two questions: whether $s$ remains useful as the primitive, and whether every residual effect can be avoided by path selection or made safe after it occurs. This separation is necessary because different primitive types fail in different ways. A pointer-shaped primitive can remain useful once its pointer target is attacker-controlled. In contrast, a value-write or bounded-write primitive is useful only if it corrupts a meaningful victim-object field rather than attacker-controlled payload data.
 
 \noindent\textbf{Capability models.}
-SyzPass separates primitive-aware reasoning from the attacker's capability model. Table~\ref{tab:capability-models} summarizes the two models used throughout the paper: object matching ($\mathsf{OM}$), our portable baseline, and pointer materialization ($\mathsf{PM}$), a stronger model for pointer-shaped primitive or residual-effect requirements. Intuitively, $\mathsf{OM}$ asks whether a real sprayed kernel object can satisfy the required layout, while $\mathsf{PM}$ asks how the answer changes when the attacker can also place a controlled fake object at a disclosed kernel address.
+Traditionally, portable side-effect neutralization assumes that residual pointer dereferences must be satisfied by real sprayable kernel objects. Under this view, the attacker may trigger the bug, control syscall and spray data, and reclaim vulnerable memory, but SyzPass does not assume a general ability to disclose kernel addresses or place attacker-controlled fake objects at known kernel addresses. This is the object-matching model ($\mathsf{OM}$): neutralization asks whether a real sprayed object can satisfy the required layout.
+
+Recent exploitation techniques weaken this boundary. Software side channels can disclose kernel addresses from unprivileged contexts~\cite{kernelsnitch}, and recent KernelCTF writeups show that attackers can stage kernel-resident payloads at known kernel addresses with techniques such as NPerm~\cite{kernelctf-nperm}. Fixed or weakly randomized kernel regions have also appeared in real systems, as illustrated by the \texttt{cpu\_entry\_area} randomization issue and its use in exploit construction~\cite{cve20230597,kernelctf-cpuentry}. These techniques motivate the pointer-materialization model ($\mathsf{PM}$): after address disclosure and staging are available, neutralization asks whether the selected primitive and residual pointer-shaped effects remain memory-safe when the attacker can supply a controlled fake object at a disclosed kernel address.
+
+SyzPass reports both models. $\mathsf{OM}$ remains the portable baseline, while $\mathsf{PM}$ captures this stronger pointer-capability view. $\mathsf{PM}$ applies only to pointer-shaped primitive or residual-effect requirements: it can supply a valid pointer target for selected pointer-shaped primitives or residual pointer dereferences, but it does not make a value-write primitive useful unless that write still targets a meaningful victim-object field.
 
 \begin{table}[!h]
   \centering
@@ -264,18 +268,13 @@ SyzPass separates primitive-aware reasoning from the attacker's capability model
     \toprule
     \textbf{Model} & \textbf{Capability assumptions} & \textbf{Role in counts} \\
     \midrule
-    $\mathsf{OM}$ & Unprivileged trigger, syscall/spray control, heap reclaim by sprayable objects & Portable baseline \\
-    $\mathsf{PM}$ & $\mathsf{OM}$ plus disclosed kernel addresses and attacker-controlled fake objects at known kernel addresses & Pointer-shaped requirements \\
+    $\mathsf{OM}$ & Syscall/spray control and heap reclaim with sprayable objects & Portable baseline \\
+    $\mathsf{PM}$ & $\mathsf{OM}$ plus disclosed kernel addresses and kernel-resident fake objects & Pointer-shaped requirements \\
     \bottomrule
   \end{tabular}
   \caption{Capability models. $\mathsf{OM}$ captures portable object matching, while $\mathsf{PM}$ captures stronger pointer materialization for pointer-shaped requirements.}
   \label{tab:capability-models}
 \end{table}
-
-\noindent\textbf{Why include pointer materialization.}
-Recent exploitation techniques motivate $\mathsf{PM}$: software side channels can disclose kernel addresses from unprivileged contexts~\cite{kernelsnitch}, and recent KernelCTF writeups show that attackers can place fake kernel-resident payloads at known kernel addresses with techniques such as NPerm~\cite{kernelctf-nperm}. Fixed or weakly randomized kernel regions have also appeared in real systems, as illustrated by the \texttt{cpu\_entry\_area} randomization issue and its use in exploit construction~\cite{cve20230597,kernelctf-cpuentry}. SyzPass therefore reports both models: $\mathsf{PM}$ captures results under pointer materialization, while $\mathsf{OM}$ remains the portable strategy when a real sprayed object can satisfy the side effect.
-
-$\mathsf{PM}$ focuses on the pointer-safety question after address disclosure and staging are available. Under this model, SyzPass asks whether the selected primitive and residual pointer-shaped effects would remain memory-safe on the explored path. Thus, $\mathsf{PM}$ can supply a valid pointer target for selected pointer-shaped primitives or residual pointer dereferences, but it does not make a value-write primitive useful unless that write still targets a meaningful victim-object field.
 
 \noindent\textbf{Acceptance rule.}
 The decision is read in two steps. First, $\mathsf{Preserve}$ checks whether the selected primitive remains useful for the exploit strategy. Second, $\mathsf{Safe}$ checks whether each residual effect on the same path can be avoided or made safe under $\mathsf{OM}$ or $\mathsf{PM}$.
