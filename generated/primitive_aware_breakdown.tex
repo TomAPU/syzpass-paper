@@ -1,22 +1,22 @@
 \begin{table}[!ht]
   \centering
-  \small
-  \setlength{\tabcolsep}{4pt}
+  \scriptsize
+  \setlength{\tabcolsep}{2.4pt}
   \renewcommand{\arraystretch}{1.05}
-  \begin{tabular}{@{}lrrr@{}}
+  \begin{tabular}{@{}lrrrrrrr@{}}
     \toprule
-    \textbf{Primitive} & \textbf{Sites} & \textbf{PM} & \textbf{OM} \\
+    \textbf{Primitive} & \textbf{Sites} & \makecell[r]{\textbf{PM}\\\textbf{mat.}} & \textbf{Direct} & \textbf{Avoid} & \makecell[r]{\textbf{OM}\\\textbf{neut.}} & \makecell[r]{\textbf{Unres.}\\\textbf{PM}} & \makecell[r]{\textbf{Unres.}\\\textbf{OM}} \\
     \midrule
-    CVW/AVW & 210 & 4   & 4  \\
-    CAW     & 30  & 0   & 0  \\
-    OUW     & 238 & 0   & 0  \\
-    AAW     & 166 & 166 & 0  \\
-    CFH & 83  & 83  & 0  \\
-    IF      & 54  & 38  & 11 \\
+    CVW/AVW & 210 & -- & 0 & 0 & 4 & 206 & 206 \\
+    CAW     & 30 & -- & 0 & 0 & 0 & 30 & 30 \\
+    OUW     & 238 & -- & 0 & 0 & 0 & 238 & 238 \\
+    AAW     & 166 & 166 & 0 & 0 & 0 & 0 & 166 \\
+    CFH     & 83 & 83 & 0 & 0 & 0 & 0 & 83 \\
+    IF      & 54 & 27 & 1 & 0 & 10 & 16 & 43 \\
     \midrule
-    Total   & 781 & 291 & 15 \\
+    Total   & 781 & 276 & 1 & 0 & 14 & 490 & 766 \\
     \bottomrule
   \end{tabular}
-  \caption{Primitive candidate sites under pointer materialization and object matching.}
+  \caption{Primitive-site handling under pointer materialization and object matching.}
   \label{tab:primitive-usability-breakdown}
 \end{table}
