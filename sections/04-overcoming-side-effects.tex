@@ -35,12 +35,14 @@ To avoid the CFH side effect in \texttt{syscall\_B()}, the attacker first create
 % the attacker can manipulate its content by memory spraying and nullify \textcolor{red}{\texttt{obj}}\texttt{->field} to make the kernel jump over \circled{8} and avoid side effects. 
 
 \subsection{Side Effect Neutralization}
-In addition to avoidance, side effects can also be addressed through neutralization, a strategy that allows side effects to occur while minimizing their consequences. In our setting, the primary objective is to prevent invalid memory accesses caused by invalid pointer dereferences that could lead to a kernel crash.
+Avoidance is preferable when an alternative path can skip the undesired effect entirely. However, some useful primitive paths unavoidably execute another memory effect first. In that case, the attacker may still use the path if the residual effect can be made safe.
 
 
-In the motivating example, suppose the attacker wants to exploit the CFH primitive. Instead of calling \texttt{syscall\_A()} to avoid the AAW side effect, the attacker can invoke \texttt{syscall\_B()} and neutralize the AAW at \circled{3}. 
+In the motivating example, consider the strategy that selects the CFH in \texttt{syscall\_B()} as the exploit primitive. Along this path, the AAW at \circled{3} executes before the desired CFH and therefore becomes a residual side effect rather than the selected primitive. Avoidance cannot remove it on this syscall path. Neutralization instead asks whether the AAW can execute without crashing the kernel or destroying the later CFH opportunity.
 
-Here, the AAW at \circled{3} is not the selected primitive; it is a residual side effect that must be made safe. One way to do so is object matching: the attacker sprays an object whose layout provides a valid writable pointer at the dereferenced offset~\cite{SETTLERS66:online,Onedaysh20:online}. Under stronger exploit capabilities, the same pointer-shaped side effect may also be neutralized by materializing a valid pointer chain in a kernel-resident attacker-controlled fake object. In both cases, the selected CFH primitive is preserved while the residual AAW side effect no longer crashes the execution.
+One way to do so is object matching: the attacker reclaims the freed object with a sprayed object whose layout places a valid writable pointer at the offset dereferenced by the AAW~\cite{SETTLERS66:online,Onedaysh20:online}. The write may still happen, but it lands in memory that is valid and harmless for the chosen exploit strategy.
+
+Under stronger exploit capabilities, neutralization may not need to rely on an existing sprayed kernel object. Recent techniques can disclose kernel addresses and stage attacker-controlled data at kernel addresses that the kernel can legally dereference. In such settings, the attacker can materialize the required pointer chain directly: the residual AAW still executes, but its pointer operands resolve to valid attacker-chosen kernel memory. In both cases, the selected CFH is preserved while the residual AAW no longer blocks execution.
 
 % In practice, attackers identify and verify suitable spray targets through manual analysis~\cite{SETTLERS66:online}.
 
