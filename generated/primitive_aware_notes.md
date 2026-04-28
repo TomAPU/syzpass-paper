@@ -8,7 +8,7 @@ Non-symbolic IF is treated as double-free-like and remains subject to normal obj
 CVW and AVW use deterministic destination-offset field matching; CAW and OUW use field-satisfiability matching.
 
 Upper-bound PM-additional primitive sites: 276
-Breakdown by primitive: {"AAW": 166, "FPD": 83, "IF": 27}
+Breakdown by primitive: {"AAW": 166, "CFH": 83, "IF": 27}
 Breakdown by reason: {"arbitrary_address_write": 166, "control_flow_hijack": 83, "symbolic_free_arg": 27}
 The remaining clean site in the PM-enabled table is one OM-clean concrete IF site; it is not part of the PM-additional count.
 Paper-facing totals: {"conservative_denominator": 1303, "counted": 781, "excluded_value_write_missing_destination": 522, "fail": 490, "om_avoid": 0, "om_clean": 1, "om_neutralization": 14, "pm_candidates": 291, "pm_sensitivity": 276, "syzpass_attributed": 14}

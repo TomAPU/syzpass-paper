@@ -1404,7 +1404,7 @@ Overall, 302 out of 388 primitives are usable, leaving 86 that are not. If we ex
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{lcccccc}
 \toprule
-Case ID & CVW|AVW & CAW & OUW & AAW & FPD & IF \\
+Case ID & CVW|AVW & CAW & OUW & AAW & CFH & IF \\
 \midrule
 bbeb1c8 & $\blacktriangledown~\bullet\times3$ & $\varnothing$ & $\blacktriangledown$ & $\varnothing$ & $\varnothing$ & $\blacktriangledown\times2$ \\
 98228e7 & $\square\times15~\blacktriangledown\times9$ & $\varnothing$ & $\square\times2$ & $\square\times6$ & $\square~\blacktriangledown\times2$ & $\varnothing$ \\
@@ -1464,7 +1464,7 @@ e3cd8df & $\square\times5$ & $\varnothing$ & $\square\times2$ & $\square$ & $\bl
 % \multicolumn{4}{c|}{\textbf{CAW}} &
 % \multicolumn{4}{c|}{\textbf{OUW}} &
 % \multicolumn{4}{c|}{\textbf{AAW}} &
-% \multicolumn{4}{c|}{\textbf{FPD}} &
+% \multicolumn{4}{c|}{\textbf{CFH}} &
 % \multicolumn{4}{c}{\textbf{IF}} \\
 % % \noalign{\vskip 0.3ex}
 % \cline{2-25}

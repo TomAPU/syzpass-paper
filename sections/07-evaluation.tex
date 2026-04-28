@@ -67,17 +67,17 @@ Table~\ref{tab:primitive-usability-breakdown} reports the same primitive sites u
 
 
 
-Overall, we observe 781 primitive sites across the 97 counted bugs. Under PM, 291 sites become candidates, spanning 63 of 97 counted bugs and including 166 AAW, 83 CFH/FPD, 38 IF, and 4 CVW/AVW sites. This total consists of 276 PM-only pointer-materialization candidates plus the 15 candidates that also satisfy OM. The portable OM subset contains 1 clean site and 14 candidates that require neutralization. This gap highlights how stronger pointer materialization changes the reachable primitive space while preserving object matching as the deployment-independent baseline.
+Overall, we observe 781 primitive sites across the 97 counted bugs. Under PM, 291 sites become candidates, spanning 63 of 97 counted bugs and including 166 AAW, 83 CFH, 38 IF, and 4 CVW/AVW sites. This total consists of 276 PM-only pointer-materialization candidates plus the 15 candidates that also satisfy OM. The portable OM subset contains 1 clean site and 14 candidates that require neutralization. This gap highlights how stronger pointer materialization changes the reachable primitive space while preserving object matching as the deployment-independent baseline.
 
 For higher-risk primitives (OUW, AAW, CFH, and IF), pointer-shaped sites are preserved when their targets are controlled, while lethal pointer-shaped residual effects are handled by avoidance, object matching, or pointer materialization. The OM candidates are concentrated in double-free-like IF$_{con}$ sites whose residual effects require explicit object matching, showing why primitive-aware preservation and side-effect neutralization must be reasoned about together.
 %488 instances in total, of which 307 are usable; 183 of these usable high-risk instances are attributable to SyzPass (61 by avoidance and 122 by neutralization), accounting for 59.6\% of usable high-risk instances.
-% In particular, AAW and FPD show heavy reliance on neutralization (32 each), while OUW benefits from both avoidance (29) and neutralization (33), reflecting that side-effect behaviors in these primitives can be both path-sensitive and structurally unavoidable.
+% In particular, AAW and CFH show heavy reliance on neutralization (32 each), while OUW benefits from both avoidance (29) and neutralization (33), reflecting that side-effect behaviors in these primitives can be both path-sensitive and structurally unavoidable.
 
 At the bug level, 63 of the 97 bugs contain at least one PM-enabled candidate site. The 15 OM candidates consist of one clean IF site and 14 sites that require neutralization. The latter consist of 10 IF$_{con}$ sites and 4 AVW sites; together, they span 10 unique bugs because the AVW candidates occur in bugs that also contain IF$_{con}$ candidates. The IF$_{con}$ sites are double-free-like frees whose residual effects match elastic spray objects such as \texttt{msg\_msg}, \texttt{user\_key\_payload}, or \texttt{simple\_xattr}; the AVW sites have destination fields that match useful fields in \texttt{msg\_msg}/\texttt{user\_key\_payload}-style layouts. These matched layouts provide concrete starting points for exploit construction, and we validate representative guidance through the case studies below.
 
 % lethal side effects are common enough to materially restrict primitive usability, and SyzPass can make a meaningful portion of the primitive space usable.
 
-% Finally, following prior work~\cite{zou2022syzscope}, we consider the primitive types CVW/AVW (fixed-address value writes), CAW (constrained-address write), OUW (OOB/UAF write), AAW (arbitrary-address write), FPD (function-pointer dereference), and IF (invalid free).
+% Finally, following prior work~\cite{zou2022syzscope}, we consider the primitive types CVW/AVW (fixed-address value writes), CAW (constrained-address write), OUW (OOB/UAF write), AAW (arbitrary-address write), CFH (control-flow hijack), and IF (invalid free).
 
 
 % \subsection{Overall Results}
@@ -113,7 +113,7 @@ At the bug level, 63 of the 97 bugs contain at least one PM-enabled candidate si
 % \resizebox{\textwidth}{!}{%
 % \begin{tabular}{lcccccc}
 % \toprule
-% Case ID & CVW|AVW & CAW & OUW & AAW & FPD & IF \\
+% Case ID & CVW|AVW & CAW & OUW & AAW & CFH & IF \\
 % \midrule
 % bbeb1c8 & $\blacktriangledown~\bullet\times3$ & $\varnothing$ & $\blacktriangledown$ & $\varnothing$ & $\varnothing$ & $\blacktriangledown\times2$ \\
 % 98228e7 & $\square\times15~\blacktriangledown\times9$ & $\varnothing$ & $\square\times2$ & $\square\times6$ & $\square~\blacktriangledown\times2$ & $\varnothing$ \\
@@ -173,7 +173,7 @@ At the bug level, 63 of the 97 bugs contain at least one PM-enabled candidate si
 % \multicolumn{4}{c|}{\textbf{CAW}} &
 % \multicolumn{4}{c|}{\textbf{OUW}} &
 % \multicolumn{4}{c|}{\textbf{AAW}} &
-% \multicolumn{4}{c|}{\textbf{FPD}} &
+% \multicolumn{4}{c|}{\textbf{CFH}} &
 % \multicolumn{4}{c}{\textbf{IF}} \\
 % % \noalign{\vskip 0.3ex}
 % \cline{2-25}

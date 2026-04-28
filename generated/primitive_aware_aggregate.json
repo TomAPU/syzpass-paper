@@ -68,7 +68,7 @@
       "neutralization": 0,
       "clean": 166
     },
-    "FPD": {
+    "CFH": {
       "not_usable": 0,
       "avoidance": 0,
       "neutralization": 0,
@@ -1150,7 +1150,7 @@
     "primitive_count": 276,
     "by_primitive": {
       "AAW": 166,
-      "FPD": 83,
+      "CFH": 83,
       "IF": 27
     },
     "by_reason": {

@@ -302,7 +302,7 @@ For residual effects that remain on the chosen path, SyzPass uses the same safet
 Operationally, $\mathsf{OM}(e,C_p)$ holds when the residual dereference/data requirements fit a sprayable object layout, including alignment of required data bytes to attacker-controllable object bytes. $\mathsf{Mat}(e,C_p)$ holds only under $\mathsf{PM}$, when disclosed kernel addresses and a kernel-resident attacker-controlled fake object can satisfy a pointer-shaped residual effect.
 
 \noindent\textbf{Primitive preservation terms.}
-Table~\ref{tab:primitive-aware-rules} gives the primitive-specific $\mathsf{Preserve}$ rules. FPD is the function-pointer-dereference subtype of CFH. $\mathsf{Ctrl}(x)$ means that $x$ is derived from symbolized vulnerable memory, syscall input, or spray data; for CVW, this means the written value is constrained but still attacker-influenced. $\mathsf{Sym}(x)$ means that $x$ remains symbolic in the path constraints. $\mathsf{DFLike}$ means the invalid-free argument resolves to the vulnerable object itself or adjacent memory, not an attacker-forged pointer. $\mathcal{F}_{u}$ is the set of meaningful victim-object fields in our object database, excluding attacker-controllable payload buffers; for value writes, $\mathsf{field}(\mathsf{dst}(s))$ must be determined on the analyzed path.
+Table~\ref{tab:primitive-aware-rules} gives the primitive-specific $\mathsf{Preserve}$ rules. $\mathsf{Ctrl}(x)$ means that $x$ is derived from symbolized vulnerable memory, syscall input, or spray data; for CVW, this means the written value is constrained but still attacker-influenced. $\mathsf{Sym}(x)$ means that $x$ remains symbolic in the path constraints. $\mathsf{DFLike}$ means the invalid-free argument resolves to the vulnerable object itself or adjacent memory, not an attacker-forged pointer. $\mathcal{F}_{u}$ is the set of meaningful victim-object fields in our object database, excluding attacker-controllable payload buffers; for value writes, $\mathsf{field}(\mathsf{dst}(s))$ must be determined on the analyzed path.
 
 \noindent\textbf{Predicate extraction.}
 SyzPass computes these predicates from symbolic state and layout artifacts. $\mathsf{Ctrl}$ and $\mathsf{Sym}$ come from symbolic expressions; $\mathsf{DFLike}$ uses the solver to place the \texttt{kfree()} argument inside or adjacent to vulnerable memory. $\mathsf{field}(\mathsf{dst})$ comes from a paired same-instruction address primitive or memory-write constraint. $\mathcal{F}_{u}$ comes from the object-layout database and excludes attacker-controlled payload buffers, keeping value-write matching focused on meaningful victim-object fields.
@@ -316,7 +316,7 @@ SyzPass computes these predicates from symbolic state and layout artifacts. $\ma
     \toprule
     \textbf{Primitive type $\tau(s)$} & \textbf{$\mathsf{Preserve}_{\tau(s)}(s,C_p)$} \\
     \midrule
-    CFH/FPD & $\mathsf{Ctrl}(\mathsf{target}(s))$ \\
+    CFH & $\mathsf{Ctrl}(\mathsf{target}(s))$ \\
     AAW & $\mathsf{Ctrl}(\mathsf{dst}(s))$ \\
     IF$_{sym}$ & $\mathsf{Sym}(\mathsf{arg}(s))$ \\
     IF$_{con}$ & $\mathsf{DFLike}(s)$ \\
