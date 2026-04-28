@@ -250,26 +250,26 @@ As discussed in \S~\ref{chap:eps}, pointer-dereference-related side effects are 
 \subsection{Side Effects Neutralization Analysis}
 SyzPass performs neutralization with primitive-aware site reasoning. For accounting, we model one selected primitive site $s$ per exploit strategy and treat the other effects on the same path as residual effects. We separately determine whether $s$ is preserved as a useful primitive and whether there exists a path where all residual effects can be avoided by path selection or neutralized after they occur. This separation matters because a pointer-related primitive can be useful once its pointer target is attacker-controlled, while a value-write or bounded-write primitive must corrupt a useful victim-object field rather than attacker-controlled payload data.
 
-SyzPass separates this reasoning from the attacker's capability model. Table~\ref{tab:capability-models} summarizes the two models used throughout the paper: object matching only ($\mathsf{OM}$), our portable baseline, and pointer materialization ($\mathsf{PM}$), an upper-bound sensitivity model for pointer-related primitives.
+SyzPass separates this reasoning from the attacker's capability model. Table~\ref{tab:capability-models} summarizes the two models used throughout the paper: object matching only ($\mathsf{OM}$), our portable baseline, and pointer materialization ($\mathsf{PM}$), a capability-sensitive model for pointer-related primitives.
 
 \begin{table}[t]
   \centering
-  \scriptsize
+  \small
+  \setlength{\tabcolsep}{3pt}
   \renewcommand{\arraystretch}{1.08}
-  \resizebox{\linewidth}{!}{%
-  \begin{tabular}{lll}
+  \begin{tabular}{@{}p{0.15\linewidth}p{0.50\linewidth}p{0.25\linewidth}@{}}
     \toprule
     \textbf{Model} & \textbf{Additional capability} & \textbf{Role in counts} \\
     \midrule
-    $\mathsf{OM}$ & Unprivileged trigger, syscall/spray control, heap reclaim by sprayable objects & Baseline; Avoid/Neut. are SyzPass-attributed \\
-    $\mathsf{PM}$ & $\mathsf{OM}$ plus disclosed kernel addresses and kernel-addressable controlled memory & Upper-bound sensitivity only for AAW, CFH/FPD, IF$_{sym}$ \\
+    $\mathsf{OM}$ & Unprivileged trigger, syscall/spray control, heap reclaim by sprayable objects & Portable baseline \\
+    $\mathsf{PM}$ & $\mathsf{OM}$ plus disclosed kernel addresses and kernel-addressable controlled memory & Pointer-related sensitivity \\
     \bottomrule
-  \end{tabular}}
+  \end{tabular}
   \caption{Capability models. $\mathsf{PM}$ does not replace object matching; it reports how results change when pointer materialization is available.}
   \label{tab:capability-models}
 \end{table}
 
-Recent exploitation techniques motivate $\mathsf{PM}$: software side channels can disclose kernel addresses from unprivileged contexts~\cite{kernelsnitch}, and recent KernelCTF writeups show that attackers can place fake kernel-resident payloads at known kernel addresses with techniques such as NPerm~\cite{kernelctf-nperm}. Fixed or weakly randomized kernel regions have also appeared in real systems, as illustrated by the \texttt{cpu\_entry\_area} randomization issue and its use in exploit construction~\cite{cve20230597,kernelctf-cpuentry}. These techniques make pointer materialization realistic in many environments, but $\mathsf{PM}$ is an upper-bound post-disclosure/staging sensitivity model rather than a standalone exploit-generation claim or a per-bug deployment claim. SyzPass retains object matching because such techniques can be unavailable in emulated environments such as QEMU TCG, may depend on deployment-specific side channels, and may be partially mitigated in future kernels. Object matching therefore remains a more portable fallback when a real sprayed object can satisfy the side effect.
+Recent exploitation techniques motivate $\mathsf{PM}$: software side channels can disclose kernel addresses from unprivileged contexts~\cite{kernelsnitch}, and recent KernelCTF writeups show that attackers can place fake kernel-resident payloads at known kernel addresses with techniques such as NPerm~\cite{kernelctf-nperm}. Fixed or weakly randomized kernel regions have also appeared in real systems, as illustrated by the \texttt{cpu\_entry\_area} randomization issue and its use in exploit construction~\cite{cve20230597,kernelctf-cpuentry}. These techniques make pointer materialization realistic in many environments. SyzPass still retains object matching because such techniques can be unavailable in emulated environments such as QEMU TCG, may depend on deployment-specific side channels, and may be partially mitigated in future kernels. Object matching therefore remains a more portable fallback when a real sprayed object can satisfy the side effect.
 
 Formally, let $\mathcal{P}_s$ be the explored paths that reach primitive site $s$, $E(p)$ be the memory effects on path $p$, and $C_p$ be the path constraints. SyzPass accepts site $s$ under capability model $\kappa$ iff there exists a path that preserves the selected site and makes every residual effect safe:
 \[
@@ -292,12 +292,12 @@ Here, FPD is the function-pointer-dereference subtype of CFH. Operationally, $\m
 
 \noindent\textbf{Predicate extraction.} SyzPass computes these predicates conservatively from symbolic state and layout artifacts. $\mathsf{Ctrl}$ and $\mathsf{Sym}$ come from symbolic expressions; $\mathsf{DFLike}$ requires the solver to place the \texttt{kfree()} argument inside or adjacent to vulnerable memory. $\mathsf{field}(\mathsf{dst})$ is available only from a paired same-instruction address primitive or memory-write constraint. $\mathcal{F}_{u}$ comes from the object-layout database and excludes attacker-controlled payload buffers, so missing write destinations are excluded rather than inferred.
 
-\begin{table}[t]
+\begin{table*}[t]
   \centering
   \small
+  \setlength{\tabcolsep}{6pt}
   \renewcommand{\arraystretch}{1.08}
-  \resizebox{\linewidth}{!}{%
-  \begin{tabular}{ll}
+  \begin{tabular}{@{}ll@{}}
     \toprule
     \textbf{Primitive type $\tau(s)$} & \textbf{$\mathsf{Preserve}_{\tau(s)}(s,C_p)$} \\
     \midrule
@@ -308,10 +308,10 @@ Here, FPD is the function-pointer-dereference subtype of CFH. Operationally, $\m
     OUW/CAW & $\exists f \in \mathcal{F}_{u}.\ \mathsf{SAT}(C_p \land \mathsf{dst}(s) \in f)$ \\
     CVW/AVW & $\mathsf{Ctrl}(\mathsf{val}(s)) \land \mathsf{field}(\mathsf{dst}(s)) \in \mathcal{F}_{u}$ \\
     \bottomrule
-  \end{tabular}}
+  \end{tabular}
   \caption{Primitive-specific preservation predicates. $\mathsf{Ctrl}$ means attacker-controlled, $\mathsf{Sym}$ means symbolic, and $\mathsf{DFLike}$ denotes double-free-like invalid free.}
   \label{tab:primitive-aware-rules}
-\end{table}
+\end{table*}
 
 \noindent\textbf{Examples.} For a CFH site, $\mathsf{target}(s)$ must be controlled; under $\mathsf{OM}$, residual dereferences on the chosen path must still match real sprayed-object pointers, while under $\mathsf{PM}$ the selected CFH target itself can be supplied by a materialized pointer chain. For a non-symbolic invalid free where the \texttt{kfree()} argument is the vulnerable object itself, SyzPass marks $\mathsf{DFLike}$ true only when the recovered free argument falls inside the vulnerable-memory range; the site is preserved as IF$_{con}$, but remaining dereferences must satisfy $\mathsf{Safe}$. For CVW/AVW, SyzPass requires a determined $\mathsf{field}(\mathsf{dst}(s))$ before applying Table~\ref{tab:primitive-aware-rules}; otherwise the site is excluded from strict counts.
 
@@ -365,7 +365,7 @@ Note that, as an optimization, we can first construct a tree for all effects on 
 
 
 
-\noindent\textbf{3. Memory Layout Reconstruction for Objects:} We collect objects among existing object databases from prior work to achieve memory layout reconstruction \cite{chen2019slake,chen2020systematic,wang2023alphaexp}, and use them as candidate sprayable layouts. This database supplies matching candidates rather than proving allocator reachability or lifetime control. To pair these objects with a required memory layout, we develop a simple algorithm to construct the object memory layout information through statically analyzing the kernel. In short, we parse the layout information of each structure to pinpoint pointers, then we iteratively generate the layout for pointers to model the pointer-dereference relationship. 
+\noindent\textbf{3. Memory Layout Reconstruction for Objects:} We collect objects among existing object databases from prior work to achieve memory layout reconstruction \cite{chen2019slake,chen2020systematic,wang2023alphaexp}, and use them as candidate sprayable layouts. To pair these objects with a required memory layout, we develop a simple algorithm to construct the object memory layout information through statically analyzing the kernel. In short, we parse the layout information of each structure to pinpoint pointers, then we iteratively generate the layout for pointers to model the pointer-dereference relationship. 
 
 Following prior analysis of attacker-controllable fields in kernel objects~\cite{chen2020systematic}, we enrich object layouts with data nodes to represent memory regions that are considered user-controllable. In this context, a data node denotes an object field whose content can be influenced by the attacker. 
 
@@ -377,4 +377,4 @@ In both modes, we trim the primitive from associated path layouts to prevent the
 If a matching node is found, we recursively compare its children, following the pointer chain. In strict mode, we also require data nodes in the path to be matched precisely by data nodes in the object. 
 %In relaxed mode, data nodes are ignored, allowing broader but potentially less precise matches.
 
-A successful match is a candidate neutralization strategy: the residual layout is compatible with a sprayable object, so the dereference side effects can be made memory-safe if the object can be placed with a compatible lifetime. SyzPass reports the primitive, path, and matched object for exploit validation; it does not by itself prove spray reachability, cache compatibility, lifetime control, race/timing stability, semantic object validity, or the final exploit chain.
+A successful match is a candidate neutralization strategy: the residual layout is compatible with a sprayable object, so the dereference side effects can be made memory-safe under a compatible placement and lifetime. SyzPass reports the primitive, path, and matched object as exploit guidance for validation.

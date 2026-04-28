@@ -1,24 +1,22 @@
-\begin{table}[t]
+\begin{table}[!h]
   \centering
-  \scriptsize
-  \renewcommand{\arraystretch}{1.02}
-  \resizebox{\linewidth}{!}{%
-  \begin{tabular}{lrrrrrrrrr}
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \renewcommand{\arraystretch}{1.05}
+  \begin{tabular}{@{}lrrrr@{}}
     \toprule
-    & & \multicolumn{5}{c}{\textbf{OM-only baseline}} & \multicolumn{2}{c}{\textbf{PM sensitivity}} & \\
-    \cmidrule(lr){3-7}\cmidrule(lr){8-9}
-    \textbf{Primitive} & \textbf{Counted} & \textbf{Cand.} & \textbf{Clean} & \textbf{Avoid} & \textbf{Neut.} & \textbf{Fail} & \textbf{Add.} & \textbf{Total} & \textbf{Excl.} \\
+    \textbf{Primitive} & \textbf{Sites} & \textbf{OM} & \textbf{PM} & \textbf{Excl.} \\
     \midrule
-    CVW/AVW & 210 & 4  & 0 & 0 & 4  & 206 & 0   & 4   & 522 \\
-    CAW     & 30  & 0  & 0 & 0 & 0  & 30  & 0   & 0   & 0 \\
-    OUW     & 238 & 0  & 0 & 0 & 0  & 238 & 0   & 0   & 0 \\
-    AAW     & 166 & 0  & 0 & 0 & 0  & 166 & 166 & 166 & 0 \\
-    CFH/FPD & 83  & 0  & 0 & 0 & 0  & 83  & 83  & 83  & 0 \\
-    IF      & 54  & 11 & 1 & 0 & 10 & 43  & 27  & 38  & 0 \\
+    CVW/AVW & 210 & 4  & 4   & 522 \\
+    CAW     & 30  & 0  & 0   & 0 \\
+    OUW     & 238 & 0  & 0   & 0 \\
+    AAW     & 166 & 0  & 166 & 0 \\
+    CFH/FPD & 83  & 0  & 83  & 0 \\
+    IF      & 54  & 11 & 38  & 0 \\
     \midrule
-    Total   & 781 & 15 & 1 & 0 & 14 & 766 & 276 & 291 & 522 \\
+    Total   & 781 & 15 & 291 & 522 \\
     \bottomrule
-  \end{tabular}}
-  \caption{Primitive candidate accounting. Counted excludes Excl. sites. In the OM-only baseline, SyzPass-attributed results are Avoid + Neut.; Clean does not require SyzPass. PM Add. and Total are upper-bound pointer-materialization sensitivity views, not SyzPass wins.}
+  \end{tabular}
+  \caption{Primitive-aware candidate accounting. Sites exclude AVW/CVW sites with unavailable destinations (Excl.). OM is the portable object-matching result; PM additionally accounts for pointer materialization.}
   \label{tab:primitive-usability-breakdown}
 \end{table}
